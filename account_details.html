@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>MyCheckUp – Account Details</title>
+    <style>
+      :root {
+        --bg: #eef2f7;
+        --panel: #ffffff;
+        --ink: #0f172a;
+        --muted: #6b7280;
+        --brand: #6b66ff;
+        --bar: #c0c9d4;
+        --radius-xl: 22px;
+        --radius-lg: 18px;
+        --shadow: 0 10px 28px rgba(16, 24, 40, 0.06);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial,
+          sans-serif;
+        color: var(--ink);
+        background: var(--bg);
+      }
+      /* Top bar */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 20px;
+        background: var(--bar);
+      }
+      .brand {
+        font-weight: 800;
+        color: var(--brand);
+        letter-spacing: 0.2px;
+      }
+      .user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        display: grid;
+        place-items: center;
+        background: #e9ebff;
+        border: 2px solid #c7ccff;
+      }
+      /* Layout */
+      .wrap {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 18px;
+        display: grid;
+        gap: 18px;
+        grid-template-columns: 260px 1fr;
+      }
+      .sidenav {
+        background: #e7ecf3;
+        border-radius: var(--radius-xl);
+        padding: 14px;
+        min-height: calc(100dvh - 120px);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .nav {
+        padding: 14px;
+        border: 0;
+        border-radius: 16px;
+        background: #fff;
+        text-align: left;
+      }
+      .nav.active {
+        background: #eef0ff;
+        color: #201c5a;
+        font-weight: 600;
+      }
+      .logout {
+        margin-top: auto;
+        color: var(--brand);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .panel {
+        background: var(--panel);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow);
+        padding: 22px;
+      }
+      h2 {
+        margin: 0 0 12px 0;
+      }
+      .card {
+        background: #f6f9fc;
+        border: 1px solid #e5e7eb;
+        border-radius: 24px;
+        padding: 18px;
+      }
+      .section {
+        margin-top: 14px;
+      }
+      .grid {
+        display: grid;
+        gap: 10px;
+      }
+      .two {
+        grid-template-columns: 1fr 1fr;
+      }
+      .row {
+        display: flex;
+        gap: 6px;
+      }
+      .label {
+        min-width: 140px;
+        color: #374151;
+        font-weight: 600;
+      }
+      .value {
+        color: #111827;
+        font-style: italic;
+      }
+      /* Mobile */
+      @media (max-width: 900px) {
+        .wrap {
+          grid-template-columns: 1fr;
+        }
+        .sidenav {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top bar -->
+    <header class="topbar">
+      <div class="brand">MyCheckUp</div>
+      <div class="user">
+        <span class="avatar" aria-hidden="true">👤</span>
+        <span>Hello <em>username</em></span>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <!-- Sidebar -->
+      <aside class="sidenav" aria-label="Sidebar navigation">
+        <button class="nav">Appointments</button>
+        <button class="nav">Search Practitioners</button>
+        <button class="nav active">Account Details</button>
+        <button class="nav logout">
+          <span aria-hidden="true">↪</span> Log Out
+        </button>
+      </aside>
+
+      <!-- Content -->
+      <section class="panel" aria-label="Account Details">
+        <h2>Account Details</h2>
+
+        <article class="card">
+          <h3>Account Information</h3>
+          <div class="section grid two">
+            <div class="row">
+              <div class="label">User :</div>
+              <div class="value">username</div>
+            </div>
+            <div class="row">
+              <div class="label">Password :</div>
+              <div class="value">password</div>
+            </div>
+            <div class="row">
+              <div class="label">Last Login :</div>
+              <div class="value">MM / DD / YEAR</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card section">
+          <h3>Patient Details</h3>
+          <div class="section grid two">
+            <div class="row">
+              <div class="label">First Name :</div>
+              <div class="value">firstname</div>
+            </div>
+            <div class="row">
+              <div class="label">Last Name :</div>
+              <div class="value">lastname</div>
+            </div>
+            <div class="row">
+              <div class="label">DOB :</div>
+              <div class="value">MM / DD / YEAR</div>
+            </div>
+            <div class="row">
+              <div class="label">Address :</div>
+              <div class="value">address</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card section">
+          <h3>Guardian Details</h3>
+          <div class="section grid two">
+            <div class="row">
+              <div class="label">First Name :</div>
+              <div class="value">firstname</div>
+            </div>
+            <div class="row">
+              <div class="label">Last Name :</div>
+              <div class="value">lastname</div>
+            </div>
+            <div class="row">
+              <div class="label">DOB :</div>
+              <div class="value">MM / DD / YEAR</div>
+            </div>
+            <div class="row">
+              <div class="label">Address :</div>
+              <div class="value">address</div>
+            </div>
+            <div class="row">
+              <div class="label">Relation to Patient :</div>
+              <div class="value">relationship</div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      // Small enhancement: allow toggling the active item (purely visual in this static mock)
+      document.querySelectorAll(".sidenav .nav").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".sidenav .nav")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+        });
+      });
+    </script>
+  </body>
+</html>
