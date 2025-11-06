@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Signup - MyCheckUp</title>
+    <link rel="stylesheet" href="signup.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Patient Signup</h1>
+        </header>
+        
+        <div class="form-container">
+            <h2>New Patient Signup</h2>
+            
+            <form id="signupForm">
+                <!-- Login Information Section -->
+                <section class="form-section">
+                    <h3>Login Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="username">Choose a username</label>
+                        <input type="formtext" id="username" name="username" required>
+                        <div class="requirements">
+                            <p>username rules:</p>
+                            <ul>
+                                <li>Username must not contain spaces</li>
+                                <li>Username must be at least 6 characters long</li>
+                                <li>Username must not contain any special characters</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email address</label>
+                        <input type="formtext" id="email" name="email" required>
+                        <div class="requirements">
+                            <p>email rules:</p>
+                            <ul>
+                                <li>Email must be a valid email address</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Choose a password</label>
+                        <input type="formtext" id="password" name="password" required>
+                        <div class="requirements">
+                            <p>password rules:</p>
+                            <ul>
+                                <li>Password must be at least 8 characters long</li>
+                                <li>Password must contain at least one uppercase letter and one lowercase letter</li>
+                                <li>Password must contain at least one number</li>
+                                <li>Password must contain at least one special character (such as !@#$%^&*)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword">Retype password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                    </div>
+                </section>
+
+                <!-- Guardian Information Section -->
+                <section class="form-section">
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="guardianCheckbox" name="guardianCheckbox">
+                        <label for="guardianCheckbox">I am a parent/legal guardian making this account on behalf of the patient</label>
+                    </div>
+                    
+                    <div id="guardianSection" class="guardian-section" style="display: none;">
+                        <h3>Parent/Guardian Information</h3>
+                        
+                        <div class="form-group">
+                            <label for="guardianFirstName">First name</label>
+                            <input type="formtext" id="guardianFirstName" name="guardianFirstName">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="guardianLastName">Last name</label>
+                            <input type="formtext" id="guardianLastName" name="guardianLastName">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="guardianPreferredName">Preferred name (optional)</label>
+                            <input type="formtext" id="guardianPreferredName" name="guardianPreferredName">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="guardianDob">Date of birth</label>
+                            <input type="date" id="guardianDob" name="guardianDob">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="guardianAddress">Address</label>
+                            <input type="formtext" id="guardianAddress" name="guardianAddress">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="relationship">Relationship to patient</label>
+                            <input type="formtext" id="relationship" name="relationship">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Patient Information Section -->
+                <section class="form-section">
+                    <h3>Patient Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="firstName">First name</label>
+                        <input type="formtext" id="firstName" name="firstName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastName">Last name</label>
+                        <input type="formtext" id="lastName" name="lastName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="preferredName">Preferred name (optional)</label>
+                        <input type="formtext" id="preferredName" name="preferredName">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dob">Date of birth</label>
+                        <input type="date" id="dob" name="dob" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="formtext" id="address" name="address" required>
+                    </div>
+                </section>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="window.location.href='index.html'">Cancel</button>
+                    <button type="submit" class="btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="signup.js"></script>
+</body>
+</html>
