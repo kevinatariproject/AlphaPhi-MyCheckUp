@@ -1,7 +1,4 @@
-// Doctor specific functionality for sign up form
-
-// Import shared username and password validation functions
-import { checkUsername, checkPasswordMatch, checkPasswordComplexity, setupPasswordValidation } from './signup_validation.js';
+// Doctor-specific functionality for sign up form
 
 // Doctor form submission handler
 document.getElementById('signupForm').addEventListener('submit', function(event) {
