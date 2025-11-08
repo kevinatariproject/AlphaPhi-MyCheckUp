@@ -219,45 +219,45 @@ body {
 
 /* Map class → file (put the PNG/SVG files next to styles.css) */
 .icon-img.window {
-  background-image: url("./Admin_dashboard/window.png");
+  background-image: url("./window.png");
 } /* Patients */
 .icon-img.folder {
-  background-image: url("./Admin_dashboard/folding.png");
+  background-image: url("./folding.png");
 } /* Info mgmt (alt) */
 .icon-img.steth {
-  background-image: url("./Admin_dashboard/stethoscope-medical-tool.png");
+  background-image: url("./stethoscope-medical-tool.png");
 } /* Doctors */
 .icon-img.add {
-  background-image: url("./Admin_dashboard/add.png");
+  background-image: url("./add.png");
 } /* Create */
 .icon-img.close {
-  background-image: url("./Admin_dashboard/close.png");
+  background-image: url("./close.png");
 } /* Delete/Remove */
 .icon-img.delete {
-  background-image: url("./Admin_dashboard/delete.png");
+  background-image: url("./delete.png");
 } /* Delete reports */
 .icon-img.calendar {
-  background-image: url("./Admin_dashboard/calendar.png");
+  background-image: url("./calendar.png");
 } /* Calendar */
 .icon-img.report {
-  background-image: url("./Admin_dashboard/analyst.png");
+  background-image: url("./analyst.png");
 } /* Reports */
 
 /* Map feature icons to images (PNG/SVG/WebP all fine) */
 .card-icon.bed {
-  background-image: url("./Admin_dashboard/window.png");
+  background-image: url("./window.png");
 } /* View by Patient */
 .card-icon.steth {
-  background-image: url("./Admin_dashboard/stethoscope-medical-tool.png");
+  background-image: url("./stethoscope-medical-tool.png");
 } /* View by Doctor  */
 .card-icon.calendar {
-  background-image: url("./Admin_dashboard/calendar.png");
+  background-image: url("./calendar.png");
 } /* View All/Calendar */
 .card-icon.report {
-  background-image: url("./Admin_dashboard/analyst.png");
+  background-image: url("./analyst.png");
 } /* Generate Report */
 .card-icon.delete {
-  background-image: url("./Admin_dashboard/delete.png");
+  background-image: url("./delete.png");
 } /* Delete Reports  *
 
 /* Remove any legacy ::before mask artifacts if still present */
