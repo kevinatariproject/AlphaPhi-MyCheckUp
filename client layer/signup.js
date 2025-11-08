@@ -1,3 +1,8 @@
+// Patient/legal guardian specific functionality for sign up form
+
+// Import shared username and password validation functions
+import { checkUsername, checkPasswordMatch, checkPasswordComplexity, setupPasswordValidation } from './signup_validation.js';
+
 // Toggle parent & legal guardian section visibility
 document.getElementById('guardianCheckbox').addEventListener('change', function() {
     const guardianSection = document.getElementById('guardianSection');
@@ -11,62 +16,28 @@ document.getElementById('guardianCheckbox').addEventListener('change', function(
     }
 });
 
-// Actions to perform when form is submitted
-document.getElementById('signupForm').addEventListener('submit', function(event) 
-{
+// Patient form submission handler
+document.getElementById('signupForm').addEventListener('submit', function(event) {
     event.preventDefault();
     
+    // Get form values
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
-    const minUsernameLength = 6;
-    const minPasswordLength = 8;
-
-    // Validate username rules
     const username = document.getElementById('username').value;
-    if (username.length < minUsernameLength) {
-        alert('Username must be at least ' + minUsernameLength + ' characters long.');
-        return;
-    }
+    const email = document.getElementById('email').value;
 
-    // Validate password match
-    if (password !== confirmPassword) {
-        alert('Passwords do not match. Please try again.');
-        return;
-    }
-    
-    // Check that password meets all the complexity requirements
-    if (password.length < minPasswordLength) {
-        alert('Password must be at least ' + minPasswordLength + ' characters long.');
-        return;
-    }
+    // Use shared validation functions
+    if (!checkUsername(username)) return;
+    if (!checkPasswordMatch(password, confirmPassword)) return;
+    if (!checkPasswordComplexity(password)) return;
 
-    if (!/[A-Z]/.test(password)) {
-        alert('Password must contain at least one uppercase letter.');
-        return;
-    }
-
-    if (!/[a-z]/.test(password)) {
-        alert('Password must contain at least one lowercase letter.');
-        return;
-    }
-
-    if (!/[0-9]/.test(password)) {
-        alert('Password must contain at least one number.');
-        return;
-    }
-
-    if (!/[!@#$%^&*()-_=+{};:,<.>'"\/\[\]]/.test(password)) {
-        alert('Password must contain at least one special character (such as !@#$%^&*).');
-        return;
-    }
-
-    // Collect form data
-    const signUpData = 
-    {
+    // Collect patient form data
+    const signUpData = {
+        userType: 'patient',
         username: username,
+        email: email,
         password: password,
-        patient: 
-        {
+        patient: {
             firstName: document.getElementById('firstName').value,
             lastName: document.getElementById('lastName').value,
             preferredName: document.getElementById('preferredName').value,
@@ -76,10 +47,8 @@ document.getElementById('signupForm').addEventListener('submit', function(event)
     };
     
     // Add guardian information if checkbox is checked
-    if (document.getElementById('guardianCheckbox').checked) 
-    {
-        signUpData.guardian = 
-        {
+    if (document.getElementById('guardianCheckbox').checked) {
+        signUpData.guardian = {
             firstName: document.getElementById('guardianFirstName').value,
             lastName: document.getElementById('guardianLastName').value,
             preferredName: document.getElementById('guardianPreferredName').value,
@@ -90,28 +59,16 @@ document.getElementById('signupForm').addEventListener('submit', function(event)
     }
     
     // Log the data (in a real application, you would send this to a server)
-    console.log('Form submitted with data:', signUpData);
+    console.log('Patient signup data:', signUpData);
     
     // Show success message
-    alert('Account created successfully!');
+    alert('Patient account created successfully!');
     
     // Redirect to login or home page
     // window.location.href = 'index.html';
 });
 
-// Real-time password validation feedback
-document.getElementById('password').addEventListener('input', function() {
-    const password = this.value;
-    // You can add real-time validation feedback here
-});
-
-document.getElementById('confirmPassword').addEventListener('input', function() {
-    const password = document.getElementById('password').value;
-    const confirmPassword = this.value;
-    
-    if (confirmPassword && password !== confirmPassword) {
-        this.style.borderColor = '#dc3545';
-    } else {
-        this.style.borderColor = '#ccc';
-    }
+// Initialize password validation when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setupPasswordValidation();
 });
