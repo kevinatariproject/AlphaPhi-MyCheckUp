@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MyCheckUp — Admin Dashboard</title>
+    <link rel="stylesheet" href="Admin_dashboard.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="windowbar">
+      <button
+        class="hamburger"
+        id="menuToggle"
+        aria-label="Toggle navigation"
+        aria-controls="sidebar"
+        aria-expanded="false"
+      >
+        <span></span><span></span><span></span>
+      </button>
+      <span class="dot"></span><span class="dot"></span
+      ><span class="dot"></span>
+      <div class="title">Admin dashboard</div>
+    </div>
+    <div class="layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="brand">MyCheckUp</div>
+
+        <nav class="nav">
+          <button class="nav-item active" data-target="appointments">
+            <span class="nav-dot"></span> Real‑Time Appointments
+          </button>
+          <button class="nav-item" data-target="manage">
+            <span class="nav-dot"></span> Manage Accounts
+          </button>
+          <button class="nav-item" data-target="reports">
+            <span class="nav-dot"></span> Generate Reports
+          </button>
+          <button class="nav-item" data-target="account">
+            <span class="nav-dot"></span> Account Details
+          </button>
+        </nav>
+
+        <button class="logout">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Log Out
+        </button>
+      </aside>
+
+      <main class="content" role="main">
+        <header class="topbar">
+          <div class="hello">
+            <span class="avatar">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <circle cx="12" cy="7" r="4"></circle>
+                <path d="M5.5 21a8.38 8.38 0 0 1 13 0"></path>
+              </svg>
+            </span>
+            <span>| Hello <em>username</em></span>
+          </div>
+        </header>
+
+        <!-- Appointments -->
+        <section id="appointments" class="view show">
+          <div class="quick-actions">
+            <button class="card action" data-action="viewByPatient">
+              <div class="card-icon bed"></div>
+              <div class="card-title">
+                View by<br /><strong>Patient</strong>
+              </div>
+            </button>
+            <button class="card action" data-action="viewByDoctor">
+              <div class="card-icon steth"></div>
+              <div class="card-title">View by<br /><strong>Doctor</strong></div>
+            </button>
+            <button class="card action" data-action="viewAll">
+              <div class="card-icon calendar"></div>
+              <div class="card-title">View <strong>All</strong></div>
+            </button>
+          </div>
+
+          <div class="panel">
+            <h2>Next Up Appointments</h2>
+            <ul class="pills" id="apptList">
+              <!-- Populated by JS -->
+            </ul>
+            <div class="pager">
+              <span class="pager-dot"></span>
+              <span class="pager-dot"></span>
+              <span class="pager-dot"></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Manage Accounts -->
+        <section id="manage" class="view">
+          <div class="grid">
+            <div class="col">
+              <h2>Patients</h2>
+              <div class="card-grid">
+                <button class="card big" data-modal="managePatient">
+                  <div class="icon-img folder"></div>
+                  <div class="card-title">Manage Patient<br />Information</div>
+                </button>
+                <button class="card big" data-modal="createPatient">
+                  <div class="icon-img add"></div>
+                  <div class="card-title">Create Patient<br />Account</div>
+                </button>
+                <button class="card big" data-modal="deletePatient">
+                  <div class="icon-img close"></div>
+                  <div class="card-title">Delete Patient<br />Account</div>
+                </button>
+              </div>
+            </div>
+            <div class="col">
+              <h2>Doctors</h2>
+              <div class="card-grid">
+                <button class="card big" data-modal="manageDoctor">
+                  <div class="icon-img steth"></div>
+                  <div class="card-title">Manage Doctor<br />Information</div>
+                </button>
+                <button class="card big" data-modal="createDoctor">
+                  <div class="icon-img add"></div>
+                  <div class="card-title">Create Doctor<br />Account</div>
+                </button>
+                <button class="card big" data-modal="deleteDoctor">
+                  <div class="icon-img close"></div>
+                  <div class="card-title">Delete Doctor<br />Account</div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Reports -->
+        <section id="reports" class="view">
+          <div class="quick-actions">
+            <button class="card action" id="btnGenerate">
+              <div class="card-icon report"></div>
+              <div class="card-title">
+                Generate New<br /><strong>Report</strong>
+              </div>
+            </button>
+            <button class="card action" id="btnDeleteReports">
+              <div class="card-icon delete"></div>
+              <div class="card-title">Delete<br /><strong>Reports</strong></div>
+            </button>
+          </div>
+
+          <div class="panel">
+            <h2>Previous Reports Generated</h2>
+            <ul class="pills" id="reportList"></ul>
+            <div class="pager">
+              <span class="pager-dot"></span>
+              <span class="pager-dot"></span>
+              <span class="pager-dot"></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Account Details (placeholder) -->
+        <section id="account" class="view">
+          <div class="panel">
+            <h2>Account Details</h2>
+            <p>This is a placeholder section. Plug in your form here.</p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Generate Modal -->
+    <div
+      class="modal hidden"
+      id="generateModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="genTitle"
+    >
+      <div class="modal-card">
+        <h3 id="genTitle">Generating <em id="reportName">ReportName</em>…</h3>
+        <p>This may take some time</p>
+        <div class="spinner"></div>
+        <div class="modal-actions">
+          <button class="btn secondary" id="cancelGenerate">
+            Cancel Report Generation
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Generic small modal -->
+    <div class="modal hidden" id="smallModal" role="dialog" aria-modal="true">
+      <div class="modal-card small">
+        <h3 id="smallTitle">Action</h3>
+        <p id="smallBody">This is a demo action.</p>
+        <div class="modal-actions">
+          <button class="btn primary" id="okSmall">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="Admin_dashboard.js"></script>
+  </body>
+</html>
