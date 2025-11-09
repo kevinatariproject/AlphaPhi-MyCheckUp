@@ -81,7 +81,7 @@ function checkPasswordComplexity(password) {
         return false;
     }
 
-    if (!/[!@#$%^&*()-_=+{};:,<.>'"\/\[\]]/.test(password)) {
+    if (!/[!@#$%^&*()_\-+=\[\]{};:'",.<>/?\\|]/.test(password)) {
         alert('Password must contain at least one special character (such as !@#$%^&*).');
         showError('passwordError', 'Password must contain at least one special character (such as !@#$%^&*).');
         return false;
