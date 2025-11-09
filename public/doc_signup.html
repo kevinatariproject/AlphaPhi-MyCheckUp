@@ -82,11 +82,13 @@
                     <div class="form-group">
                         <label for="firstName">First name</label>
                         <input type="formtext" id="firstName" name="firstName">
+                        <div class="error-message" id="firstNameError" style="display:none;"></div>
                     </div>
                     
                     <div class="form-group">
                         <label for="lastName">Last name</label>
                         <input type="formtext" id="lastName" name="lastName">
+                        <div class="error-message" id="lastNameError" style="display:none;"></div>
                     </div>
                     
                     <div class="form-group">
@@ -101,6 +103,7 @@
                             <option value="md">MD</option>
                             <option value="do">DO</option>
                         </select>
+                        <div class="error-message" id="credentialsError" style="display:none;"></div>
                     </div>
 
                     <div class="form-group">
@@ -108,11 +111,13 @@
                         <select id="department" name="department">
                             <option value="" selected disabled>- Select department -</option>
                         </select>
+                        <div class="error-message" id="departmentError" style="display:none;"></div>
                     </div>
 
                     <div class="form-group">
                         <label for="bio">Write a short biography about yourself</label>
                         <textarea id="bio" name="bio" rows="4" maxlength="500"></textarea>
+                        <div class="error-message" id="bioError" style="display:none;"></div>
                     </div>
                 </section>
                 

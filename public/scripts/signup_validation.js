@@ -22,20 +22,31 @@ function hideError(elementId) {
     }
 }
 
+// Check if a required field is filled out
+function checkRequiredField(value, elementId, fieldName) {
+    if (!value || value.trim() === '') {
+        showError(elementId, fieldName + ' is required.');
+        return false;
+    }
+    hideError(elementId);
+    return true;
+}
+
 // Check username length
 function checkUsername(username) {
-    if (username.length < minUsernameLength) {
-        alert('Username must be at least ' + minUsernameLength + ' characters long.');
+    if (!checkRequiredField(username, 'usernameError', 'Username')) {
+        showError('usernameError', 'Username is required.');
+        return false;
+    }
+    else if (username.length < minUsernameLength) {
         showError('usernameError', 'Username must be at least ' + minUsernameLength + ' characters long.');
         return false;
     }
     else if (/\s/.test(username)) {
-        alert('Username must not contain spaces.');
         showError('usernameError', 'Username must not contain spaces.');
         return false;
     }
     else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-        alert('Username can only contain letters, numbers, and underscores.');
         showError('usernameError', 'Username can only contain letters, numbers, and underscores.');
         return false;
     }
@@ -44,50 +55,68 @@ function checkUsername(username) {
     return true;
 }
 
-// Check for password match
-function checkPasswordMatch(password, confirmPassword) {
-    if (password !== confirmPassword) {
-        alert('Passwords do not match. Please try again.');
-        showError('confirmPasswordError', 'Passwords do not match. Please try again.');
+function checkEmail(email) {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!checkRequiredField(email, 'emailError', 'Email')) {
+        showError('emailError', 'Email is required.');
         return false;
     }
-    hideError('confirmPasswordError');
+    
+    if (!emailPattern.test(email)) {
+        showError('emailError', 'Please enter a valid email address.');
+        return false;
+    }
+    hideError('emailError');
     return true;
 }
 
 // Check that password meets all the complexity requirements
 function checkPasswordComplexity(password) {
+    let errorMessages = [];
+    if (!checkRequiredField(password, 'passwordError', 'Password')) {
+        showError('passwordError', 'Password is required.');
+        return false;
+    }
     if (password.length < minPasswordLength) {
-        alert('Password must be at least ' + minPasswordLength + ' characters long.');
-        showError('passwordError', 'Password must be at least ' + minPasswordLength + ' characters long.');
-        return false;
+        errorMessages.push('Password must be at least ' + minPasswordLength + ' characters long.');
     }
-
     if (!/[A-Z]/.test(password)) {
-        alert('Password must contain at least one uppercase letter.');
-        showError('passwordError', 'Password must contain at least one uppercase letter.');
-        return false;
+        errorMessages.push('Password must contain at least one uppercase letter.');
     }
-
     if (!/[a-z]/.test(password)) {
-        alert('Password must contain at least one lowercase letter.');
-        showError('passwordError', 'Password must contain at least one lowercase letter.');
-        return false;
+        errorMessages.push('Password must contain at least one lowercase letter.');
     }
-
     if (!/[0-9]/.test(password)) {
-        alert('Password must contain at least one number.');
-        showError('passwordError', 'Password must contain at least one number.');
-        return false;
+        errorMessages.push('Password must contain at least one number.');
+    }
+    if (!/[!@#$%^&*()-_=+{};:,<.>'"\/\[\]]/.test(password)) {
+        errorMessages.push('Password must contain at least one special character (such as !@#$%^&*).');
     }
 
-    if (!/[!@#$%^&*()_\-+=\[\]{};:'",.<>/?\\|]/.test(password)) {
-        alert('Password must contain at least one special character (such as !@#$%^&*).');
-        showError('passwordError', 'Password must contain at least one special character (such as !@#$%^&*).');
+    if (errorMessages.length > 0) {
+        const combinedMessage = errorMessages.join('\n');
+        alert(combinedMessage);
+        showError('passwordError', combinedMessage);
         return false;
     }
 
     hideError('passwordError');
+    return true;
+}
+
+// Check for password match
+function checkPasswordMatch(password, confirmPassword) {
+    if (!checkRequiredField(confirmPassword, 'confirmPasswordError', 'Confirm Password')) {
+        showError('confirmPasswordError', 'Must confirm your password.');
+        return false;
+    }
+    
+    if (password !== confirmPassword) {
+        showError('confirmPasswordError', 'Passwords do not match. Please try again.');
+        return false;
+    }
+    hideError('confirmPasswordError');
     return true;
 }
 
@@ -108,4 +137,23 @@ function setupPasswordValidation() {
             this.style.borderColor = '#ccc';
         }
     });
+}
+
+// Verifies login information for patient/legal guardian sign up
+function verifyLoginInfo(username, email, password, confirmPassword) {
+    let isConditionsMet = true;
+
+    if (!checkUsername(username))
+        isConditionsMet = false;
+
+    if (!checkEmail(email))
+        isConditionsMet = false;
+
+    if (!checkPasswordComplexity(password))
+        isConditionsMet = false;
+
+    if (!checkPasswordMatch(password, confirmPassword))
+        isConditionsMet = false;
+    
+    return isConditionsMet;
 }
