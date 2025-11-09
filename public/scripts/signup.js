@@ -14,14 +14,20 @@ document.getElementById('guardianCheckbox').addEventListener('change', function(
 });
 
 // Patient form submission handler
-document.getElementById('signupForm').addEventListener('submit', function(event) {
+document.getElementById('signupForm').addEventListener('submit', async (event) => {
     event.preventDefault();
     
     // Get form values
+    const username = document.getElementById("username").value;
+    const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
-    const username = document.getElementById('username').value;
-    const email = document.getElementById('email').value;
+    const firstName = document.getElementById("firstName").value;
+    const lastName = document.getElementById("lastName").value;
+    const preferredName = document.getElementById("preferredName").value;
+    const dateOfBirth = document.getElementById('dob').value;
+    const address = document.getElementById('address').value;
+
     let isConditionsMet = true;
 
     // Clear previous error messages
@@ -37,41 +43,65 @@ document.getElementById('signupForm').addEventListener('submit', function(event)
     else if (!checkPasswordMatch(password, confirmPassword)) 
         isConditionsMet = false;
     else {
-        // Collect patient form data
-        const signUpData = {
-            userType: 'patient',
-            username: username,
-            email: email,
-            password: password,
-            patient: {
-                firstName: document.getElementById('firstName').value,
-                lastName: document.getElementById('lastName').value,
-                preferredName: document.getElementById('preferredName').value,
-                dateOfBirth: document.getElementById('dob').value,
-                address: document.getElementById('address').value
+        try {
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+
+            // Create the user in Firebase Auth
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+
+            // Add guardian information if checkbox is checked
+            if (document.getElementById('guardianCheckbox').checked) {
+                await db.collection("guardians").doc(user.uid).set({
+                    username,
+                    email,
+                    firstName: document.getElementById('guardianFirstName').value,
+                    lastName: document.getElementById('guardianLastName').value,
+                    preferredName: document.getElementById('guardianPreferredName').value,
+                    dateOfBirth: document.getElementById('guardianDob').value,
+                    address: document.getElementById('guardianAddress').value,
+                    relationship: document.getElementById('relationship').value,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                });
+
+                await db.collection("patients").add({
+                    firstName,
+                    lastName,
+                    preferredName,
+                    dateOfBirth,
+                    address,
+                    guardianId: user.uid,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                });
             }
-        };
-        
-        // Add guardian information if checkbox is checked
-        if (document.getElementById('guardianCheckbox').checked) {
-            signUpData.guardian = {
-                firstName: document.getElementById('guardianFirstName').value,
-                lastName: document.getElementById('guardianLastName').value,
-                preferredName: document.getElementById('guardianPreferredName').value,
-                dateOfBirth: document.getElementById('guardianDob').value,
-                address: document.getElementById('guardianAddress').value,
-                relationship: document.getElementById('relationship').value
-            };
+            else {
+                // Patient does not have guardian
+                await db.collection("patients").doc(user.uid).set({
+                    username,
+                    email,
+                    firstName,
+                    lastName,
+                    preferredName,
+                    dateOfBirth,
+                    address,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                });
+            }
+
+            signupForm.reset();
+
+        } catch (error) {
+            console.log("Error creating account:", error.message);
         }
         
         // Log the data (in a real application, you would send this to a server)
-        console.log('Patient signup data:', signUpData);
+        // console.log('Patient signup data:', signUpData);
         
         // Show success message
-        alert('Patient account created successfully!');
+        // alert('Patient account created successfully!');
         
-        // Redirect to login or home page
-        // window.location.href = 'index.html';
+        window.location.href = 'signup_successful.html';
     }
 });
 
