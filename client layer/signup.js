@@ -106,25 +106,8 @@ document.getElementById('signupForm').addEventListener('submit', async function(
     // Get form values
     const username = document.getElementById('username').value;
     const email = document.getElementById('email').value;
-    const username = document.getElementById('username').value;
-    const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
-    const firstName = document.getElementById('firstName').value;
-    const lastName = document.getElementById('lastName').value;
-    const preferredName = document.getElementById('preferredName').value;
-    const dateOfBirth = document.getElementById('dob').value;
-    const address = document.getElementById('address').value;
-    const guardianCheckbox = document.getElementById('guardianCheckbox').checked;
-    const guardianFirstName = document.getElementById('guardianFirstName').value;
-    const guardianLastName = document.getElementById('guardianLastName').value;
-    const guardianPreferredName = document.getElementById('guardianPreferredName').value;
-    const guardianDateOfBirth = document.getElementById('guardianDob').value;
-    const guardianAddress = document.getElementById('guardianAddress').value;
-    const relationship = document.getElementById('relationship').value;
-    let isLoginInfoValid;
-    let isPatientInfoValid;
-    let isGuardianInfoValid;
     const firstName = document.getElementById('firstName').value;
     const lastName = document.getElementById('lastName').value;
     const preferredName = document.getElementById('preferredName').value;
@@ -164,18 +147,18 @@ document.getElementById('signupForm').addEventListener('submit', async function(
             isPatientInfoValid = checkReqdPatientInfo(firstName, lastName, dateOfBirth, address);
             
             // Add guardian information if checkbox is checked
-            if (document.getElementById('guardianCheckbox').checked) {
+            if (guardianCheckbox) {
                 isGuardianInfoValid = checkReqdGuardianInfo(guardianFirstName, guardianLastName, guardianDateOfBirth, guardianAddress, relationship);
                 if (isGuardianInfoValid) {
                     await db.collection("guardians").doc(user.uid).set({
                         username,
                         email,
-                        firstName: document.getElementById('guardianFirstName').value,
-                        lastName: document.getElementById('guardianLastName').value,
-                        preferredName: document.getElementById('guardianPreferredName').value,
-                        dateOfBirth: document.getElementById('guardianDob').value,
-                        address: document.getElementById('guardianAddress').value,
-                        relationship: document.getElementById('relationship').value,
+                        firstName: guardianFirstName,
+                        lastName: guardianLastName,
+                        preferredName: guardianPreferredName,
+                        dateOfBirth: guardianDateOfBirth,
+                        address: guardianAddress,
+                        relationship: relationship,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     });
                 } else {
