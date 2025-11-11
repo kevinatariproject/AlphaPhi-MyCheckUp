@@ -27,13 +27,14 @@
       ><span class="dot"></span>
       <div class="title">Admin dashboard</div>
     </div>
+
     <div class="layout">
       <aside class="sidebar" id="sidebar">
         <div class="brand">MyCheckUp</div>
 
         <nav class="nav">
           <button class="nav-item active" data-target="appointments">
-            <span class="nav-dot"></span> Real‑Time Appointments
+            <span class="nav-dot"></span> Real-Time Appointments
           </button>
           <button class="nav-item" data-target="manage">
             <span class="nav-dot"></span> Manage Accounts
@@ -81,7 +82,7 @@
           </div>
         </header>
 
-        <!-- Appointments -->
+        <!-- Real-Time Appointments -->
         <section id="appointments" class="view show">
           <div class="quick-actions">
             <button class="card action" data-action="viewByPatient">
@@ -102,9 +103,7 @@
 
           <div class="panel">
             <h2>Next Up Appointments</h2>
-            <ul class="pills" id="apptList">
-              <!-- Populated by JS -->
-            </ul>
+            <ul class="pills" id="apptList"></ul>
             <div class="pager">
               <span class="pager-dot"></span>
               <span class="pager-dot"></span>
@@ -133,6 +132,7 @@
                 </button>
               </div>
             </div>
+
             <div class="col">
               <h2>Doctors</h2>
               <div class="card-grid">
@@ -153,7 +153,7 @@
           </div>
         </section>
 
-        <!-- Reports -->
+        <!-- Generate Reports -->
         <section id="reports" class="view">
           <div class="quick-actions">
             <button class="card action" id="btnGenerate">
@@ -179,17 +179,46 @@
           </div>
         </section>
 
-        <!-- Account Details (placeholder) -->
+        <!-- Account Details -->
         <section id="account" class="view">
           <div class="panel">
             <h2>Account Details</h2>
-            <p>This is a placeholder section. Plug in your form here.</p>
+            <div class="acct-card">
+            <h3>Account Information</h3>
+            <div class="row">
+              <div class="label">User :</div>
+              <div class="value">username</div>
+            </div>
+            <div class="row">
+              <div class="label">Password :</div>
+              <div class="value">password</div>
+            </div>
+            <div class="row">
+              <div class="label">Last Login :</div>
+              <div class="value">MM / DD / YEAR</div>
+            </div>
+          </div>
+
+          <div class="acct-card">
+            <h3>Admin Details</h3>
+            <div class="row">
+              <div class="label">Name :</div>
+              <div class="value">Jane Doe, MD</div>
+            </div>
+            <div class="row">
+              <div class="label">Specialty :</div>
+              <div class="value">Specialty</div>
+            </div>
+            <div class="row">
+              <div class="label">Clinic :</div>
+              <div class="value">Location</div>
+            </div>
           </div>
         </section>
       </main>
     </div>
 
-    <!-- Generate Modal -->
+    <!-- Generating report modal -->
     <div
       class="modal hidden"
       id="generateModal"
