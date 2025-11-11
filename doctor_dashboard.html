@@ -3,11 +3,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MyCheckUp UI</title>
+    <title>MyCheckUp – Doctor Dashboard</title>
     <link rel="stylesheet" href="doctor_dashboard.css" />
     <script src="doctor_dashboard.js" defer></script>
   </head>
   <body>
+    <!-- Top pseudo browser bar -->
     <header class="topbar">
       <div class="chrome-dots" aria-hidden="true">
         <span></span><span></span><span></span>
@@ -20,13 +21,16 @@
     </header>
 
     <main class="shell">
+      <!-- Sidebar -->
       <aside class="sidebar">
-        <div class="brand">MyCheckUp</div>
+        <div class="brand">Doctor</div>
 
         <nav class="nav">
-          <button class="nav-item active" data-view="dashboard">Appointments</button>
+          <button class="nav-item active" data-view="dashboard">
+            Appointments
+          </button>
           <button class="nav-item" data-view="schedule">View Schedule</button>
-          <button class="nav-item" data-view="availability">Account Details</button>
+          <button class="nav-item" data-view="account">Account Details</button>
         </nav>
 
         <button id="logout" class="logout">
@@ -35,41 +39,48 @@
         </button>
       </aside>
 
+      <!-- Main content -->
       <section class="content">
-        <!-- Dashboard -->
-        <section id="view-dashboard" class="view visible" aria-label="Dashboard">
+        <!-- Upcoming Appointments -->
+        <section
+          id="view-dashboard"
+          class="view visible"
+          aria-label="Upcoming Appointments"
+        >
           <h2>Upcoming Appointments</h2>
           <div id="appt-list" class="appt-list"></div>
         </section>
 
-        <!-- Admin View: Doctor Schedule -->
-        <section id="view-schedule" class="view" aria-label="Doctor Schedule Admin">
-          <div class="toolbar">
-            <h2>Appointment Schedule for <em id="doctorName">DoctorName</em></h2>
-            <div class="search">
-              <span class="search-icon">🔍</span>
-              <input id="doctorSearch" type="search" placeholder="Doctor Name" />
-            </div>
-            <button class="btn back" data-view="dashboard">Back</button>
-          </div>
-          <div class="cal-controls">
-            <button id="prevMonth1" class="btn icon">◀</button>
-            <button id="nextMonth1" class="btn icon">▶</button>
-            <div id="monthLabel1" class="month-label"></div>
-          </div>
-          <div id="calendarAdmin" class="calendar"></div>
-        </section>
-
-        <!-- Availability -->
-        <section id="view-availability" class="view" aria-label="Availability">
+        <!-- Availability / View Schedule -->
+        <section id="view-schedule" class="view" aria-label="Availability">
           <div class="toolbar">
             <h2>Availability</h2>
             <button class="btn back" data-view="dashboard">Back</button>
           </div>
+
           <div class="cal-controls">
-            <article class="card">
-          <h3>Account Information</h3>
-          <div class="section grid two">
+            <button id="prevMonth" class="btn icon" aria-label="Previous month">
+              ◀
+            </button>
+            <button id="nextMonth" class="btn icon" aria-label="Next month">
+              ▶
+            </button>
+            <div id="monthLabel" class="month-label">October 2025</div>
+          </div>
+
+          <div
+            id="calendar"
+            class="calendar"
+            aria-label="Availability calendar"
+          ></div>
+        </section>
+
+        <!-- Account Details -->
+        <section id="view-account" class="view" aria-label="Account Details">
+          <h2>Account Details</h2>
+
+          <div class="acct-card">
+            <h3>Account Information</h3>
             <div class="row">
               <div class="label">User :</div>
               <div class="value">username</div>
@@ -83,9 +94,21 @@
               <div class="value">MM / DD / YEAR</div>
             </div>
           </div>
-        </article>
 
-        <article class="card section">
+          <div class="acct-card">
+            <h3>Doctor Details</h3>
+            <div class="row">
+              <div class="label">Name :</div>
+              <div class="value">Dr. Jane Doe, MD</div>
+            </div>
+            <div class="row">
+              <div class="label">Specialty :</div>
+              <div class="value">Specialty</div>
+            </div>
+            <div class="row">
+              <div class="label">Clinic :</div>
+              <div class="value">Location</div>
+            </div>
           </div>
         </section>
       </section>
