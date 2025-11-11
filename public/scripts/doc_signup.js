@@ -88,25 +88,27 @@ document.getElementById('signupForm').addEventListener('submit', async function(
 
     // Check login info validity
     isLoginInfoValid = verifyLoginInfo(username, email, password, confirmPassword);
+
     if (isLoginInfoValid == true) {
-        try {
-            const auth = firebase.auth();
-            const db = firebase.firestore();
+        // Check if required doctor info has been filled out 
+        isDoctorInfoValid = checkReqdDoctorInfo(
+            firstName,
+            lastName,
+            preferredName,
+            credentials,
+            department,
+            bio
+        );
 
-            // Create the user in Firebase Auth
-            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-            const user = userCredential.user;
-        
-            // Check if required doctor info has been filled out 
-            isDoctorInfoValid = checkReqdDoctorInfo(firstName,
-                                                    lastName,
-                                                    preferredName,
-                                                    credentials,
-                                                    department,
-                                                    bio
-            );
+        if (isDoctorInfoValid) {
+            try {
+                const auth = firebase.auth();
+                const db = firebase.firestore();
 
-            if (isDoctorInfoValid) {
+                // Create the user in Firebase Auth
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+            
                 // Store additional user info in Firestore
                 await db.collection("doctors").doc(user.uid).set({
                     username,
@@ -115,32 +117,51 @@ document.getElementById('signupForm').addEventListener('submit', async function(
                     lastName,
                     preferredName,
                     credentials,
-                    department,
+                    departmentId,
                     bio,
                     status: "inactive",
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 });
 
                 signupForm.reset();
+                window.location.href = 'signup_successful.html';                
+            } catch (error) {
+                console.log("Error creating account:", error.message);
             }
-            else {
-                alert('Please fill out all required fields.');
-                return;
-            }
+        } else {
+            alert('Please fill out all required fields.');
+            return;
         }
-        catch (error) {
-            console.log("Error creating account:", error.message);
-        }
-    } 
-    else {
+    } else {
         alert('Check login information for errors.');
         return;
     }
-
-    window.location.href = 'signup_successful.html';
 });
 
 // Initialize password validation when page loads
 document.addEventListener('DOMContentLoaded', function() {
     setupPasswordValidation();
+});
+
+// Dynamically load all departments into select field
+document.addEventListener('DOMContentLoaded', async () => {
+    const db = firebase.firestore();
+
+    const department = document.getElementById("department");
+
+    try {
+        // Fetch departments
+        const querySnapshot = await db.collection("departments").get();
+        const departments = querySnapshot.docs
+
+        departments.forEach((doc) => {
+            const option = document.createElement("option");
+            option.value = doc.id;
+            option.textContent = doc.data().name;
+            department.appendChild(option);
+        });
+    } catch (error) {
+        console.error("Error loading departments:", error);
+        signupMessage.textContent = "Could not load departments.";
+    }
 });

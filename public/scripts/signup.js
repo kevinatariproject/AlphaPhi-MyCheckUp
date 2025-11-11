@@ -135,79 +135,77 @@ document.getElementById('signupForm').addEventListener('submit', async function(
     isLoginInfoValid = verifyLoginInfo(username, email, password, confirmPassword);
 
     if (isLoginInfoValid == true) {
-        try {
-            const auth = firebase.auth();
-            const db = firebase.firestore();
-
-            // Create the user in Firebase Auth
-            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-            const user = userCredential.user;
-        
-            // Check if required patient info has been filled out 
-            isPatientInfoValid = checkReqdPatientInfo(firstName, lastName, dateOfBirth, address);
-            
-            // Add guardian information if checkbox is checked
-            if (guardianCheckbox) {
-                isGuardianInfoValid = checkReqdGuardianInfo(guardianFirstName, guardianLastName, guardianDateOfBirth, guardianAddress, relationship);
-                if (isGuardianInfoValid) {
-                    await db.collection("guardians").doc(user.uid).set({
-                        username,
-                        email,
-                        firstName: guardianFirstName,
-                        lastName: guardianLastName,
-                        preferredName: guardianPreferredName,
-                        dateOfBirth: guardianDateOfBirth,
-                        address: guardianAddress,
-                        relationship: relationship,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    });
-                } else {
-                    throw new Error('Please fill out all required guardian information.');
-                }
-                
-                if (isPatientInfoValid) {
-                    await db.collection("patients").add({
-                        firstName,
-                        lastName,
-                        preferredName,
-                        dateOfBirth,
-                        address,
-                        guardianId: user.uid,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    });
-                } else {
-                    throw new Error('Please fill out all required patient information.');
-                }
-            }
-            else {
-                // Patient does not have guardian
-                if (isPatientInfoValid) {
-                    await db.collection("patients").doc(user.uid).set({
-                        username,
-                        email,
-                        firstName,
-                        lastName,
-                        preferredName,
-                        dateOfBirth,
-                        address,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    });
-                } else {
-                    throw new Error('Please fill out all required patient information.');
-                }
-            }
-
-            signupForm.reset();
-
-        } catch (error) {
-            console.log("Error creating account:", error.message);
+        // Check if required patient info has been filled out 
+        isPatientInfoValid = checkReqdPatientInfo(firstName, lastName, dateOfBirth, address);
+        if (guardianCheckbox) {
+            isGuardianInfoValid = checkReqdGuardianInfo(guardianFirstName, guardianLastName, guardianDateOfBirth, guardianAddress, relationship);
+        } else {
+            // If no guardian, automatically set to true
+            isGuardianInfoValid = true;
         }
-}
-    else {
+
+        if (isPatientInfoValid) {
+            if (isGuardianInfoValid) {
+                try {
+                    const auth = firebase.auth();
+                    const db = firebase.firestore();
+
+                    // Create the user in Firebase Auth
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                
+                    if (guardianCheckbox) {
+                        // If guardian checked, set guardian as user
+                        await db.collection("guardians").doc(user.uid).set({
+                            username,
+                            email,
+                            firstName: guardianFirstName,
+                            lastName: guardianLastName,
+                            preferredName: guardianPreferredName,
+                            dateOfBirth: guardianDateOfBirth,
+                            address: guardianAddress,
+                            relationship: relationship,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        });
+                        
+                        await db.collection("patients").add({
+                            firstName,
+                            lastName,
+                            preferredName,
+                            dateOfBirth,
+                            address,
+                            guardianId: user.uid,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        });
+                    } else {
+                        // Patient does not have guardian, set patient as user
+                        await db.collection("patients").doc(user.uid).set({
+                            username,
+                            email,
+                            firstName,
+                            lastName,
+                            preferredName,
+                            dateOfBirth,
+                            address,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        });
+                    }
+
+                    signupForm.reset();
+                    window.location.href = 'signup_successful.html';
+
+                } catch (error) {
+                    console.log("Error creating account:", error.message);
+                }
+            } else {
+                throw new Error('Please fill out all required guardian information.');
+            }
+        } else {
+            throw new Error('Please fill out all required patient information.');
+        }
+    } else {
         alert('Check login information for errors.');
     }
-
-    window.location.href = 'signup_successful.html';
 });
 
 // Initialize password validation when page loads
