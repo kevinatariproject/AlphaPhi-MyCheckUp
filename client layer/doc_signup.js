@@ -31,6 +31,37 @@ function checkReqdDoctorInfo(firstName, lastName, preferredName, credentials, de
     return isInfoValid;
 }
 
+function checkReqdDoctorInfo(firstName, lastName, preferredName, credentials, department, bio) {
+    let isInfoValid = true;
+
+    checkRequiredField(firstName, 'firstNameError', 'First Name');
+    if (!checkRequiredField(firstName, 'firstNameError', 'First Name')) {
+        isInfoValid = false;
+    }
+
+    if (!checkRequiredField(lastName, 'lastNameError', 'Last Name')) {
+        isInfoValid = false;
+    }
+
+    if (!checkRequiredField(preferredName, 'preferredNameError', 'Preferred Name')) {
+        isInfoValid = false;
+    }
+
+    if (!checkRequiredField(credentials, 'credentialsError', 'Credentials')) {
+        isInfoValid = false;
+    }
+
+    if (!checkRequiredField(department, 'departmentError', 'Department')) {
+        isInfoValid = false;
+    }
+
+    if (!checkRequiredField(bio, 'bioError', 'Bio')) {
+        isInfoValid = false;
+    }
+
+    return isInfoValid;
+}
+
 // Doctor form submission handler
 document.getElementById('signupForm').addEventListener('submit', async function(event) {
     event.preventDefault();
