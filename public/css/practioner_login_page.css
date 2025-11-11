@@ -1,0 +1,30 @@
+.login-form-field:focus,
+.login-form-field:valid{
+  border-bottom: 3px solid #30725d;
+}
+
+#login-form-submit {
+  width: 100%;
+  padding: 7px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  outline: none;
+  background: #30725d;
+}
+
+#signup-form-submit {
+  width: 100%;
+  padding: 7px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  border-style: solid;
+  border-color: #30725d;
+  color: #30725d;
+  font-weight: bold;
+  cursor: pointer;
+  background: transparent;
+}
+
