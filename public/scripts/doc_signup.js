@@ -1,82 +1,142 @@
 // Doctor-specific functionality for sign up form
 
-// Dynamically load all departments into select field
-document.addEventListener('DOMContentLoaded', async () => {
-    const db = firebase.firestore();
+function checkReqdDoctorInfo(firstName, lastName, preferredName, credentials, department, bio) {
+    let isInfoValid = true;
 
-    const department = document.getElementById("department");
-
-    try {
-        // Fetch departments
-        const querySnapshot = await db.collection("departments").get();
-        const departments = querySnapshot.docs
-
-        departments.forEach((doc) => {
-            const option = document.createElement("option");
-            option.value = doc.id;
-            option.textContent = doc.data().name;
-            department.appendChild(option);
-        });
-    } catch (error) {
-        console.error("Error loading departments:", error);
+    checkRequiredField(firstName, 'firstNameError', 'First Name');
+    if (!checkRequiredField(firstName, 'firstNameError', 'First Name')) {
+        isInfoValid = false;
     }
-});
+
+    if (!checkRequiredField(lastName, 'lastNameError', 'Last Name')) {
+        isInfoValid = false;
+    }
+
+    if (!checkRequiredField(preferredName, 'preferredNameError', 'Preferred Name')) {
+        isInfoValid = false;
+    }
+
+    if (!checkRequiredField(credentials, 'credentialsError', 'Credentials')) {
+        isInfoValid = false;
+    }
+
+    if (!checkRequiredField(department, 'departmentError', 'Department')) {
+        isInfoValid = false;
+    }
+
+    if (!checkRequiredField(bio, 'bioError', 'Bio')) {
+        isInfoValid = false;
+    }
+
+    return isInfoValid;
+}
+
+function checkReqdDoctorInfo(firstName, lastName, preferredName, credentials, department, bio) {
+    let isInfoValid = true;
+
+    checkRequiredField(firstName, 'firstNameError', 'First Name');
+    if (!checkRequiredField(firstName, 'firstNameError', 'First Name')) {
+        isInfoValid = false;
+    }
+
+    if (!checkRequiredField(lastName, 'lastNameError', 'Last Name')) {
+        isInfoValid = false;
+    }
+
+    if (!checkRequiredField(preferredName, 'preferredNameError', 'Preferred Name')) {
+        isInfoValid = false;
+    }
+
+    if (!checkRequiredField(credentials, 'credentialsError', 'Credentials')) {
+        isInfoValid = false;
+    }
+
+    if (!checkRequiredField(department, 'departmentError', 'Department')) {
+        isInfoValid = false;
+    }
+
+    if (!checkRequiredField(bio, 'bioError', 'Bio')) {
+        isInfoValid = false;
+    }
+
+    return isInfoValid;
+}
 
 // Doctor form submission handler
-document.getElementById('signupForm').addEventListener('submit', async (event) => {
+document.getElementById('signupForm').addEventListener('submit', async function(event) {
     event.preventDefault();
-
+    
     // Get form values
-    const username = document.getElementById("username").value;
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
-    const firstName = document.getElementById("firstName").value;
-    const lastName = document.getElementById("lastName").value;
-    const preferredName = document.getElementById("preferredName").value;
-    const credentials = document.getElementById("credentials").value;
-    const department = document.getElementById("department").value;
-    const bio = document.getElementById("bio").value;
+    const username = document.getElementById('username').value;
+    const email = document.getElementById('email').value;
+    const firstName = document.getElementById('firstName').value;
+    const lastName = document.getElementById('lastName').value;
+    const preferredName = document.getElementById('preferredName').value;
+    const credentials = document.getElementById('credentials').value;
+    const department = document.getElementById('department').value;
+    const bio = document.getElementById('bio').value;
+    let isLoginInfoValid;
+    let isDoctorInfoValid;
+    
+    // Clear previous error messages
+    hideError('usernameError');
+    hideError('emailError');
+    hideError('passwordError');
+    hideError('confirmPasswordError');
 
-    // Use shared validation functions
-    if (!checkUsername(username)) return;
-    if (!checkPasswordMatch(password, confirmPassword)) return;
-    if (!checkPasswordComplexity(password)) return;
+    // Check login info validity
+    isLoginInfoValid = verifyLoginInfo(username, email, password, confirmPassword);
+    if (isLoginInfoValid == true) {
+        try {
+            const auth = firebase.auth();
+            const db = firebase.firestore();
 
-    try {
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+            // Create the user in Firebase Auth
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+        
+            // Check if required doctor info has been filled out 
+            isDoctorInfoValid = checkReqdDoctorInfo(firstName,
+                                                    lastName,
+                                                    preferredName,
+                                                    credentials,
+                                                    department,
+                                                    bio
+            );
 
-        // Create the user in Firebase Auth
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        const user = userCredential.user;
+            if (isDoctorInfoValid) {
+                // Store additional user info in Firestore
+                await db.collection("doctors").doc(user.uid).set({
+                    username,
+                    email,
+                    firstName,
+                    lastName,
+                    preferredName,
+                    credentials,
+                    department,
+                    bio,
+                    status: "inactive",
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                });
 
-        // Store additional user info in Firestore
-        await db.collection("doctors").doc(user.uid).set({
-            username,
-            email,
-            firstName,
-            lastName,
-            preferredName,
-            credentials,
-            department,
-            bio,
-            status: "inactive",
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        });
-
-        signupForm.reset();
-
-    } catch (error) {
-        console.log("Error creating account:", error.message);
+                signupForm.reset();
+            }
+            else {
+                alert('Please fill out all required fields.');
+                return;
+            }
+        }
+        catch (error) {
+            console.log("Error creating account:", error.message);
+        }
+    } 
+    else {
+        alert('Check login information for errors.');
+        return;
     }
-    
-    // Log the data (in a real application, you would send this to a server)
-    // console.log('Doctor signup data:', signUpData);
-    
-    // Show success message
-    // alert('Doctor account created successfully!');
-    
+
     window.location.href = 'signup_successful.html';
 });
 
