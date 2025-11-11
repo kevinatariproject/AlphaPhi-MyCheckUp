@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Firebase SDK -->
+    <script defer src="/__/firebase/12.5.0/firebase-app-compat.js"></script>
+    <script defer src="/__/firebase/12.5.0/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/12.5.0/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+    <script defer src="./scripts/doc_signup.js"></script>
+    <script src="./scripts/signup_validation.js"></script>
     <title>Doctor Signup - MyCheckUp</title>
-    <link rel="stylesheet" href="signup.css">
+    <link rel="stylesheet" href="./css/signup.css">
 </head>
 <body>
     <div class="container">
@@ -22,7 +29,8 @@
                     
                     <div class="form-group">
                         <label for="username">Choose a username</label>
-                        <input type="formtext" id="username" name="username" required>
+                        <input type="formtext" id="username" name="username">
+                        <div class="error-message" id="usernameError" style="display:none;"></div>
                         <div class="requirements">
                             <p>username rules:</p>
                             <ul>
@@ -35,7 +43,8 @@
 
                     <div class="form-group">
                         <label for="email">Email address</label>
-                        <input type="formtext" id="email" name="email" required>
+                        <input type="formtext" id="email" name="email">
+                        <div class="error-message" id="emailError" style="display:none;"></div>
                         <div class="requirements">
                             <p>email rules:</p>
                             <ul>
@@ -46,7 +55,8 @@
                     
                     <div class="form-group">
                         <label for="password">Choose a password</label>
-                        <input type="formtext" id="password" name="password" required>
+                        <input type="password" id="password" name="password">
+                        <div class="error-message" id="passwordError" style="display:none;"></div>
                         <div class="requirements">
                             <p>password rules:</p>
                             <ul>
@@ -60,7 +70,8 @@
                     
                     <div class="form-group">
                         <label for="confirmPassword">Retype password</label>
-                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        <input type="password" id="confirmPassword" name="confirmPassword">
+                        <div class="error-message" id="confirmPasswordError" style="display:none;"></div>
                     </div>
                 </section>
 
@@ -70,12 +81,12 @@
                     
                     <div class="form-group">
                         <label for="firstName">First name</label>
-                        <input type="formtext" id="firstName" name="firstName" required>
+                        <input type="formtext" id="firstName" name="firstName">
                     </div>
                     
                     <div class="form-group">
                         <label for="lastName">Last name</label>
-                        <input type="formtext" id="lastName" name="lastName" required>
+                        <input type="formtext" id="lastName" name="lastName">
                     </div>
                     
                     <div class="form-group">
@@ -85,7 +96,7 @@
                     
                     <div class="form-group">
                         <label for="credentials">Professional credentials</label>
-                        <select id="credentials" name="credentials" required>
+                        <select id="credentials" name="credentials">
                             <option value="" selected disabled>- Select credentials -</option>
                             <option value="md">MD</option>
                             <option value="do">DO</option>
@@ -94,20 +105,14 @@
 
                     <div class="form-group">
                         <label for="department">Department</label>
-                        <select id="department" name="department" required>
-                            <option value="" selected disabled>- Select department-</option>
-                            <option value="family_medicine">Family Medicine</option>
-                            <option value="internal_medicine">Internal Medicine</option>
-                            <option value="pediatrics">Pediatrics</option>
-                            <option value="cardiology">Cardiology</option>
-                            <option value="radiology">Radiology</option>
-                            <!-- will add more or populate dynamically -->
+                        <select id="department" name="department">
+                            <option value="" selected disabled>- Select department -</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label for="bio">Write a short biography about yourself</label>
-                        <textarea id="bio" name="bio" rows="4" maxlength="500" required></textarea>
+                        <textarea id="bio" name="bio" rows="4" maxlength="500"></textarea>
                     </div>
                 </section>
                 
@@ -118,7 +123,5 @@
             </form>
         </div>
     </div>
-    
-    <script src="signup.js"></script>
 </body>
 </html>
