@@ -36,7 +36,7 @@ service cloud.firestore {
 
     // Patients
     match /patients/{patientId} {
-      allow create: if isSignedIn() && isOwner(request.resource.id);
+      allow create: if isSignedIn() && (isOwner(request.resource.id) || request.resource.data.guardianId == request.auth.uid);
       allow read, update: if isOwner(patientId) || isAdmin();
       allow delete: if isAdmin();
 
