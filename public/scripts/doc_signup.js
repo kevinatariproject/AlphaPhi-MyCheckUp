@@ -1,6 +1,6 @@
 // Doctor-specific functionality for sign up form
 
-function checkReqdDoctorInfo(firstName, lastName, preferredName, credentials, department, bio) {
+function checkReqdDoctorInfo(firstName, lastName, credentials, department, bio) {
     let isInfoValid = true;
 
     checkRequiredField(firstName, 'firstNameError', 'First Name');
@@ -9,41 +9,6 @@ function checkReqdDoctorInfo(firstName, lastName, preferredName, credentials, de
     }
 
     if (!checkRequiredField(lastName, 'lastNameError', 'Last Name')) {
-        isInfoValid = false;
-    }
-
-    if (!checkRequiredField(preferredName, 'preferredNameError', 'Preferred Name')) {
-        isInfoValid = false;
-    }
-
-    if (!checkRequiredField(credentials, 'credentialsError', 'Credentials')) {
-        isInfoValid = false;
-    }
-
-    if (!checkRequiredField(department, 'departmentError', 'Department')) {
-        isInfoValid = false;
-    }
-
-    if (!checkRequiredField(bio, 'bioError', 'Bio')) {
-        isInfoValid = false;
-    }
-
-    return isInfoValid;
-}
-
-function checkReqdDoctorInfo(firstName, lastName, preferredName, credentials, department, bio) {
-    let isInfoValid = true;
-
-    checkRequiredField(firstName, 'firstNameError', 'First Name');
-    if (!checkRequiredField(firstName, 'firstNameError', 'First Name')) {
-        isInfoValid = false;
-    }
-
-    if (!checkRequiredField(lastName, 'lastNameError', 'Last Name')) {
-        isInfoValid = false;
-    }
-
-    if (!checkRequiredField(preferredName, 'preferredNameError', 'Preferred Name')) {
         isInfoValid = false;
     }
 
@@ -77,8 +42,6 @@ document.getElementById('signupForm').addEventListener('submit', async function(
     const credentials = document.getElementById('credentials').value;
     const department = document.getElementById('department').value;
     const bio = document.getElementById('bio').value;
-    let isLoginInfoValid;
-    let isDoctorInfoValid;
     
     // Clear previous error messages
     hideError('usernameError');
@@ -87,54 +50,77 @@ document.getElementById('signupForm').addEventListener('submit', async function(
     hideError('confirmPasswordError');
 
     // Check login info validity
-    isLoginInfoValid = verifyLoginInfo(username, email, password, confirmPassword);
+    if (!verifyLoginInfo(username, email, password, confirmPassword)) {
+        alert('Check login information for errors.');
+        return;
+    }
 
-    if (isLoginInfoValid == true) {
-        // Check if required doctor info has been filled out 
-        isDoctorInfoValid = checkReqdDoctorInfo(
+    // Check if required doctor info has been filled out 
+    if (!checkReqdDoctorInfo(firstName, lastName, credentials, department, bio)) {
+        alert('Please fill out all required fields.');
+        return;
+    }
+
+    try {
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Create the user in Firebase Auth
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+
+        try {
+            // Try to create username
+            await db.collection("usernames").doc(username).set({
+                userId: user.uid
+            }, { merge: false });
+        } catch (usernameError) {
+            await user.delete();
+            throw { type: "username", error: usernameError };
+        }
+    
+        // Store additional user info in Firestore
+        await db.collection("doctors").doc(user.uid).set({
+            username,
+            email,
             firstName,
             lastName,
             preferredName,
             credentials,
-            department,
-            bio
-        );
+            departmentId: department,
+            bio,
+            status: "inactive",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
 
-        if (isDoctorInfoValid) {
-            try {
-                const auth = firebase.auth();
-                const db = firebase.firestore();
-
-                // Create the user in Firebase Auth
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-            
-                // Store additional user info in Firestore
-                await db.collection("doctors").doc(user.uid).set({
-                    username,
-                    email,
-                    firstName,
-                    lastName,
-                    preferredName,
-                    credentials,
-                    departmentId,
-                    bio,
-                    status: "inactive",
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                });
-
-                signupForm.reset();
-                window.location.href = 'signup_successful.html';                
-            } catch (error) {
-                console.log("Error creating account:", error.message);
+        await auth.signOut();
+        signupForm.reset();
+        window.location.href = 'signup_successful.html';                
+    } catch (error) {
+        // Firebase Auth error
+        if (error.type !== "username") {
+            switch (error.code) {
+                case "auth/email-already-in-use":
+                    alert("This email is already taken.");
+                    return;
+                case "auth/invalid-email":
+                    alert("Invalid email format.");
+                    return;
+                case "auth/weak-password":
+                    alert("Password is too weak.");
+                    return;
             }
-        } else {
-            alert('Please fill out all required fields.');
+        }
+
+        // Username error
+        if (error.type === "username") {
+            alert("This username is already taken.");
             return;
         }
-    } else {
-        alert('Check login information for errors.');
-        return;
+
+        // Other error
+        alert("An unexpected error occurred.");
+        console.error(error);
     }
 });
 
