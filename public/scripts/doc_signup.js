@@ -27,6 +27,16 @@ function checkReqdDoctorInfo(firstName, lastName, credentials, department, bio) 
     return isInfoValid;
 }
 
+function checkHospitalEmail(email) {
+    if (!email || typeof email !== 'string') return false;
+
+    // Normalize to lowercase
+    const normalized = email.trim().toLowerCase();
+
+    // Check ending
+    return normalized.endsWith('@alphaphi.com');
+}
+
 // Doctor form submission handler
 document.getElementById('signupForm').addEventListener('submit', async function(event) {
     event.preventDefault();
@@ -52,6 +62,12 @@ document.getElementById('signupForm').addEventListener('submit', async function(
     // Check login info validity
     if (!verifyLoginInfo(username, email, password, confirmPassword)) {
         alert('Check login information for errors.');
+        return;
+    }
+
+    // Check if using hospital email
+    if (!checkHospitalEmail(email)) {
+        alert("Please use your hospital-issued email address.");
         return;
     }
 
