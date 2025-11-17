@@ -3,15 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Firebase SDK -->
-    <script defer src="/__/firebase/12.5.0/firebase-app-compat.js"></script>
-    <script defer src="/__/firebase/12.5.0/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/12.5.0/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
-    <script defer src="./scripts/doc_signup.js"></script>
-    <script src="./scripts/signup_validation.js"></script>
+    <script defer type="module" src="/scripts/firebase_config.js"></script>
+    <script defer type="module" src="/scripts/doc_signup.js"></script>
+    <script defer type="module" src="/scripts/signup_validation.js"></script>
     <title>Doctor Signup - MyCheckUp</title>
-    <link rel="stylesheet" href="./css/signup.css">
+    <link rel="stylesheet" href="/css/signup.css">
 </head>
 <body>
     <div class="container">

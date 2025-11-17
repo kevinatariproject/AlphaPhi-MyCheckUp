@@ -1,9 +1,29 @@
 // Doctor-specific functionality for sign up form
 
+// imports
+import { db, auth } from "./firebase_config.js";
+import {
+    hideError,
+    checkRequiredField,
+    setupPasswordValidation,
+    verifyLoginInfo
+} from "./signup_validation.js";
+import {
+    createUserWithEmailAndPassword,
+    deleteUser,
+    signOut
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import {
+    collection,
+    getDocs,
+    doc,
+    setDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
 function checkReqdDoctorInfo(firstName, lastName, credentials, department, bio) {
     let isInfoValid = true;
 
-    checkRequiredField(firstName, 'firstNameError', 'First Name');
     if (!checkRequiredField(firstName, 'firstNameError', 'First Name')) {
         isInfoValid = false;
     }
@@ -78,25 +98,22 @@ document.getElementById('signupForm').addEventListener('submit', async function(
     }
 
     try {
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
         // Create the user in Firebase Auth
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
         try {
-            // Try to create username
-            await db.collection("usernames").doc(username).set({
-                userId: user.uid
-            }, { merge: false });
+            // Try to create username in Firestore
+            await setDoc(doc(db, "usernames", username), { userId: user.uid }, { merge: false });
+
         } catch (usernameError) {
-            await user.delete();
+            // Remove Auth user if username fails
+            await deleteUser(user);
             throw { type: "username", error: usernameError };
         }
     
-        // Store additional user info in Firestore
-        await db.collection("doctors").doc(user.uid).set({
+        // Store doctor user info in Firestore
+        await setDoc(doc(db, "doctors", user.uid), {
             username,
             email,
             firstName,
@@ -106,12 +123,14 @@ document.getElementById('signupForm').addEventListener('submit', async function(
             departmentId: department,
             bio,
             status: "inactive",
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            createdAt: serverTimestamp(),
         });
 
-        await auth.signOut();
+        // Sign out and reset form
+        await signOut(auth);
         signupForm.reset();
-        window.location.href = 'signup_successful.html';                
+        window.location.href = 'signup_successful.html';
+        
     } catch (error) {
         // Firebase Auth error
         if (error.type !== "username") {
@@ -147,23 +166,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Dynamically load all departments into select field
 document.addEventListener('DOMContentLoaded', async () => {
-    const db = firebase.firestore();
-
-    const department = document.getElementById("department");
+    const departmentElement = document.getElementById("department");
 
     try {
         // Fetch departments
-        const querySnapshot = await db.collection("departments").get();
-        const departments = querySnapshot.docs
-
-        departments.forEach((doc) => {
+        const querySnapshot = await getDocs(collection(db, "departments"));
+        
+        querySnapshot.forEach((doc) => {
             const option = document.createElement("option");
             option.value = doc.id;
             option.textContent = doc.data().name;
-            department.appendChild(option);
+            departmentElement.appendChild(option);
         });
+        
     } catch (error) {
         console.error("Error loading departments:", error);
-        signupMessage.textContent = "Could not load departments.";
     }
 });

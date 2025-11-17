@@ -1,5 +1,26 @@
 // Patient/legal guardian-specific functionality for sign up form
 
+// imports
+import { db, auth } from "./firebase_config.js";
+import {
+    hideError,
+    checkRequiredField,
+    setupPasswordValidation,
+    verifyLoginInfo
+} from "./signup_validation.js";
+import {
+    createUserWithEmailAndPassword,
+    deleteUser,
+    signOut
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import {
+    collection,
+    addDoc,
+    doc,
+    setDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
 // Check required patient information is filled out
 function checkReqdPatientInfo(firstName, lastName, dateOfBirth, address) {
     let isInfoValid = true;
@@ -105,26 +126,23 @@ document.getElementById('signupForm').addEventListener('submit', async function(
     }
 
     try {
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
         // Create the user in Firebase Auth
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
         try {
-            // Try to create username
-            await db.collection("usernames").doc(username).set({
-                userId: user.uid
-            }, { merge: false });
+            // Try to create username in Firestore
+            await setDoc(doc(db, "usernames", username), { userId: user.uid }, { merge: false });
+
         } catch (usernameError) {
-            await user.delete();
+            // Remove Auth user if username fails
+            await deleteUser(user);
             throw { type: "username", error: usernameError };
         }
     
         if (guardianCheckbox) {
             // If guardian checked, set guardian as user
-            await db.collection("guardians").doc(user.uid).set({
+            await setDoc(doc(db, "guardians", user.uid), {
                 username,
                 email,
                 firstName: guardianFirstName,
@@ -133,21 +151,22 @@ document.getElementById('signupForm').addEventListener('submit', async function(
                 dateOfBirth: guardianDateOfBirth,
                 address: guardianAddress,
                 relationship: relationship,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                createdAt: serverTimestamp(),
             });
             
-            await db.collection("patients").add({
+            await addDoc(collection(db, "patients"), {
                 firstName,
                 lastName,
                 preferredName,
                 dateOfBirth,
                 address,
                 guardianId: user.uid,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                createdAt: serverTimestamp(),
             });
+
         } else {
             // Patient does not have guardian, set patient as user
-            await db.collection("patients").doc(user.uid).set({
+            await setDoc(doc(db, "patients", user.uid), {
                 username,
                 email,
                 firstName,
@@ -159,7 +178,8 @@ document.getElementById('signupForm').addEventListener('submit', async function(
             });
         }
 
-        await auth.signOut();
+        // Sign out and reset form
+        await signOut(auth);
         signupForm.reset();
         window.location.href = 'signup_successful.html';
 

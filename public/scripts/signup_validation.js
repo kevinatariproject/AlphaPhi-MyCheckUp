@@ -157,3 +157,5 @@ function verifyLoginInfo(username, email, password, confirmPassword) {
     
     return isConditionsMet;
 }
+
+export { showError, hideError, checkRequiredField, setupPasswordValidation, verifyLoginInfo };
