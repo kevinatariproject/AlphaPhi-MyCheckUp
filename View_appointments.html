@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>MyCheckUp - Real-Time Appointments</title>
+    <link rel="stylesheet" href="./css/View_appointments.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <header class="app-header">
+        <h1>Real-Time Appointments</h1>
+        <p>View of schedules by patient or by doctor.</p>
+      </header>
+
+      <!-- Toggle: view by patient / view by doctor -->
+      <div class="toggle-row">
+        <button class="toggle-btn active" data-view="patient">
+          View by Patient
+        </button>
+        <button class="toggle-btn" data-view="doctor">View by Doctor</button>
+      </div>
+
+      <!-- Filters -->
+      <section class="card">
+        <div class="filters-row">
+          <div class="filter">
+            <label for="patient-filter">Patient</label>
+            <select id="patient-filter">
+              <option value="">All patients</option>
+            </select>
+          </div>
+
+          <div class="filter">
+            <label for="doctor-filter">Doctor</label>
+            <select id="doctor-filter">
+              <option value="">All doctors</option>
+            </select>
+          </div>
+
+          <div class="filter">
+            <label for="status-filter">Status</label>
+            <select id="status-filter">
+              <option value="">All</option>
+              <option value="Scheduled">Scheduled</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+              <option value="Canceled">Canceled</option>
+            </select>
+          </div>
+
+          <div class="filter search-filter">
+            <label for="search-filter">Search</label>
+            <input
+              type="text"
+              id="search-filter"
+              placeholder="Name, type, location..."
+            />
+          </div>
+
+          <div class="filter refresh-filter">
+            <label>&nbsp;</label>
+            <button id="refresh-btn" class="secondary-btn small">
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        <div class="meta-row">
+          <span id="view-label">Current view: By Patient</span>
+          <span id="last-updated">Last updated: just now</span>
+        </div>
+      </section>
+
+      <!-- Appointments table -->
+      <section class="card">
+        <div class="card-header">
+          <h2 id="table-title">Appointments by Patient</h2>
+        </div>
+
+        <div class="table-wrapper">
+          <table id="appointments-table">
+            <thead id="appointments-head">
+              <!-- Filled by JS based on view -->
+            </thead>
+            <tbody id="appointments-body">
+              <!-- Filled by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <script src="./scripts/View_appointments.js"></script>
+  </body>
+</html>
