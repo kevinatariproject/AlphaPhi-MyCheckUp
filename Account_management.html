@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>MyCheckUp - Account Management</title>
+    <link rel="stylesheet" href="./css/Account_management.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <header class="app-header">
+        <h1>Account Management</h1>
+        <p>Manage Patients and Doctors Page.</p>
+      </header>
+
+      <!-- User type toggle -->
+      <div class="toggle-row">
+        <button class="toggle-btn active" data-type="patient">Patients</button>
+        <button class="toggle-btn" data-type="doctor">Doctors</button>
+      </div>
+
+      <!-- Form: Create / Update account -->
+      <section class="card">
+        <h2 id="form-title">Create Patient Account</h2>
+
+        <form id="account-form">
+          <input type="hidden" id="user-type" value="patient" />
+
+          <div class="form-row">
+            <label for="full-name">Full Name</label>
+            <input
+              type="text"
+              id="full-name"
+              placeholder="Enter full name"
+              required
+            />
+          </div>
+
+          <div class="form-row">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              placeholder="example@mail.com"
+              required
+            />
+          </div>
+
+          <div class="form-row">
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" placeholder="+1 (555) 555-5555" />
+          </div>
+
+          <div class="form-row" id="extra-field-row">
+            <label for="extra-field" id="extra-label">Patient ID</label>
+            <input
+              type="text"
+              id="extra-field"
+              placeholder="Enter Patient ID"
+            />
+          </div>
+
+          <div class="form-row">
+            <label for="status">Status</label>
+            <select id="status">
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="primary-btn">Create Account</button>
+            <button type="reset" class="secondary-btn">Clear</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- List of accounts -->
+      <section class="card">
+        <div class="card-header">
+          <h2 id="table-title">Patient Accounts</h2>
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Search by name or email..."
+          />
+        </div>
+
+        <div class="table-wrapper">
+          <table id="accounts-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th id="extra-header">Patient ID</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="accounts-body">
+              <!-- Filled by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <script src="./scripts/Account_management.js"></script>
+  </body>
+</html>

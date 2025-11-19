@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>MyCheckUp – User Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="./css/user_dashboard.css" />
+    <script src="./scripts/user_dashboard.js" defer></script>
+  </head>
+  <body>
+    <!-- Top bar -->
+    <header class="topbar" aria-label="Top navigation">
+      <button
+        class="hamburger"
+        id="openDrawer"
+        aria-label="Open menu"
+        aria-haspopup="true"
+        aria-controls="drawer"
+        aria-expanded="false"
+      >
+        ☰
+      </button>
+      <div class="brand">Patient</div>
+      <div class="user">
+        <span class="avatar" aria-hidden="true">👤</span>
+        <span>Hello <strong id="username">username</strong></span>
+      </div>
+    </header>
+
+    <!-- Mobile overlay -->
+    <div class="scrim" id="scrim" hidden></div>
+
+    <!-- Mobile drawer -->
+    <aside id="drawer" class="drawer" aria-label="Navigation drawer" hidden>
+      <nav class="sidenav">
+        <button class="nav-item active" data-view="appointments">
+          Appointments
+        </button>
+        <button class="nav-item" data-view="search">
+          Search Practitioners
+        </button>
+        <button class="nav-item" data-view="account">Account Details</button>
+        <button class="logout">
+          <span aria-hidden="true">↪</span> Log Out
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Main layout -->
+    <main class="layout">
+      <!-- Desktop sidebar -->
+      <aside class="sidenav" aria-label="Sidebar navigation">
+        <button class="nav-item active" data-view="appointments">
+          Appointments
+        </button>
+        <button class="nav-item" data-view="search">
+          Search Practitioners
+        </button>
+        <button class="nav-item" data-view="account">Account Details</button>
+        <button class="logout">
+          <span aria-hidden="true">↪</span> Log Out
+        </button>
+      </aside>
+
+      <!-- Content wrapper -->
+      <section class="content-wrapper">
+        <!-- Appointments Dashboard -->
+        <section
+          id="view-appointments"
+          class="content"
+          aria-label="Appointments dashboard"
+        >
+          <div
+            class="action-tiles"
+            role="group"
+            aria-label="Appointment actions"
+          >
+            <button id="tileSchedule" class="tile">
+              <span class="tile-icon" aria-hidden="true">📅➕</span>
+              <span class="tile-title">Schedule New<br />Appointment</span>
+            </button>
+            <button id="tileCancel" class="tile">
+              <span class="tile-icon" aria-hidden="true">❌</span>
+              <span class="tile-title">Cancel<br />Appointment</span>
+            </button>
+            <button id="tileChange" class="tile">
+              <span class="tile-icon" aria-hidden="true">🛠️</span>
+              <span class="tile-title">Change Current<br />Appointment</span>
+            </button>
+          </div>
+
+          <h2>Upcoming Appointments</h2>
+          <div
+            id="appointments"
+            class="cards"
+            role="list"
+            aria-live="polite"
+          ></div>
+        </section>
+
+        <!-- Availability / Schedule Calendar -->
+        <section
+          id="view-availability"
+          class="content hidden"
+          aria-label="Availability calendar"
+        >
+          <div class="schedule-header">
+            <h2>Availability</h2>
+            <button class="primary schedule-back" id="availabilityBackBtn">
+              Back
+            </button>
+          </div>
+
+          <div class="month-nav">
+            <button class="month-btn" id="prevMonth">&#9664;</button>
+            <div class="month-label" id="monthLabel">October 2025</div>
+            <button class="month-btn" id="nextMonth">&#9654;</button>
+          </div>
+
+          <table
+            class="calendar"
+            aria-label="Availability calendar for selected month"
+          >
+            <thead>
+              <tr>
+                <th>Sunday</th>
+                <th>Monday</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+                <th>Friday</th>
+                <th>Saturday</th>
+              </tr>
+            </thead>
+            <tbody id="calendarBody"></tbody>
+          </table>
+        </section>
+
+        <!-- Account Details -->
+        <section
+          id="view-account"
+          class="content hidden"
+          aria-label="Account details"
+        >
+          <h2>Account Details</h2>
+          <div class="account-card">
+            <h3>Account Information</h3>
+            <p>
+              <span class="label">User :</span>
+              <span class="val">username</span>
+            </p>
+            <p>
+              <span class="label">Password :</span>
+              <span class="val">password</span>
+            </p>
+            <p>
+              <span class="label">Last Login :</span>
+              <span class="val">MM / DD / YEAR</span>
+            </p>
+
+            <h3>Patient Details</h3>
+            <p>
+              <span class="label">First Name :</span>
+              <span class="val">firstname</span>
+            </p>
+            <p>
+              <span class="label">Last Name :</span>
+              <span class="val">lastname</span>
+            </p>
+            <p>
+              <span class="label">DOB :</span>
+              <span class="val">MM / DD / YEAR</span>
+            </p>
+            <p>
+              <span class="label">Address :</span>
+              <span class="val">address</span>
+            </p>
+
+            <h3>Guardian Details</h3>
+            <p>
+              <span class="label">First Name :</span>
+              <span class="val">firstname</span>
+            </p>
+            <p>
+              <span class="label">Last Name :</span>
+              <span class="val">lastname</span>
+            </p>
+            <p>
+              <span class="label">DOB :</span>
+              <span class="val">MM / DD / YEAR</span>
+            </p>
+            <p>
+              <span class="label">Address :</span>
+              <span class="val">address</span>
+            </p>
+            <p>
+              <span class="label">Relation to Patient :</span>
+              <span class="val">relationship</span>
+            </p>
+          </div>
+        </section>
+
+        <!-- Search Practitioners -->
+        <section
+          id="view-search"
+          class="content hidden"
+          aria-label="Search practitioners"
+        >
+          <h2>Search Practitioners</h2>
+          <p class="sub">Search for doctors by name or specialty.</p>
+          <div class="search-wrap">
+            <input
+              type="text"
+              id="practitionerSearch"
+              placeholder="Search by name or specialty"
+            />
+            <button class="primary">Search</button>
+          </div>
+          <div class="cards">
+            <article class="card">
+              <div class="meta">
+                <div class="title">Dr. Jane Doe, MD</div>
+                <div class="sub">Primary Care</div>
+              </div>
+              <div class="right">
+                <div class="sub">Main Clinic</div>
+                <button class="secondary small">View Profile</button>
+              </div>
+            </article>
+            <article class="card">
+              <div class="meta">
+                <div class="title">Dr. Jon Doe, MD</div>
+                <div class="sub">Dermatology</div>
+              </div>
+              <div class="right">
+                <div class="sub">Downtown Clinic</div>
+                <button class="secondary small">View Profile</button>
+              </div>
+            </article>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <!-- Modal overlay -->
+    <div id="modalOverlay" class="modal-overlay hidden"></div>
+
+    <!-- Step 1: Purpose + Doctor -->
+        <div
+      id="scheduleStep1"
+      class="modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="s1Title"
+    >
+      <div class="modal-card">
+        <button class="modal-close" data-close-modal>&times;</button>
+        <h3 id="s1Title">What is the purpose of your visit?</h3>
+
+        <label>
+          What is the purpose of your visit?
+          <select id="visitPurpose">
+            <option value="">Specialties</option>
+            <option>General Checkup</option>
+            <option>Dermatology</option>
+            <option>Pediatrics</option>
+            <option>Other</option>
+          </select>
+        </label>
+
+        <label>
+          Search for doctors by name or specialty
+          <input
+            type="text"
+            id="doctorSearch"
+            placeholder="Type doctor name or specialty"
+          />
+        </label>
+
+        <label>
+          Who would you like to see?
+          <select id="visitDoctor">
+            <option value="">Doctors</option>
+          </select>
+        </label>
+
+        <div class="modal-actions">
+          <button class="secondary" data-close-modal>Cancel</button>
+          <button class="primary" id="s1NextBtn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Day time slots popup -->
+    <div
+      id="daySlotsModal"
+      class="modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="slotsTitle"
+    >
+      <div class="modal-card">
+        <button class="modal-close" data-close-modal>&times;</button>
+        <h3 id="slotsTitle">Available appointments for</h3>
+        <p class="modal-subtitle" id="slotsDateLabel">
+          Thursday, October 23, 2025
+        </p>
+
+        <div class="times-table">
+          <div id="daySlotsList"></div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="secondary" data-close-modal>Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cancel appointment modal -->
+    <div
+      id="cancelModal"
+      class="modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cancelTitle"
+    >
+      <div class="modal-card">
+        <button class="modal-close" data-close-modal>&times;</button>
+        <h3 id="cancelTitle">Which appointment would you like to cancel?</h3>
+
+        <label>
+          Appointment Details
+          <select id="cancelSelect"></select>
+        </label>
+
+        <div class="modal-actions">
+          <button class="secondary" data-close-modal>Close</button>
+          <button class="primary" id="confirmCancelBtn">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirmation modal -->
+    <div
+      id="confirmModal"
+      class="modal hidden"
+      role="alertdialog"
+      aria-modal="true"
+    >
+      <div class="modal-card">
+        <button class="modal-close" data-close-modal>&times;</button>
+        <h3>Appointment Updated</h3>
+        <p class="modal-subtitle" id="confirmText">
+          Your appointment has been scheduled.
+        </p>
+        <div class="modal-actions">
+          <button class="primary" data-close-modal>OK</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
