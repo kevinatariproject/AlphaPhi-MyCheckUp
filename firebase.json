@@ -32,12 +32,8 @@
     ],
     "rewrites": [
       {
-        "source": "/signup",
-        "destination": "/signup.html"
-      },
-      {
-        "source": "/doc_signup",
-        "destination": "/doc_signup.html"
+        "source": "/",
+        "destination": "/landing_page.html"
       }
     ]
   }
