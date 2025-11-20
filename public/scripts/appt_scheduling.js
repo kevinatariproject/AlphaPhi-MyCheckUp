@@ -1,14 +1,5 @@
-import { db } from "../firebase.js";
-import {
-    collection,
-    addDoc,
-    doc,
-    updateDoc,
-    serverTimestamp,
-    query,
-    where,
-    getDocs
-} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { db } from './firebase_config.js';
+import { collection, addDoc, serverTimestamp, query, where, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 async function createAppointment(startTime, endTime, userID, patientID, doctorID, status, visitType) {
     try {

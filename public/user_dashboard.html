@@ -253,9 +253,9 @@
     <!-- Modal overlay -->
     <div id="modalOverlay" class="modal-overlay hidden"></div>
 
-    <!-- Step 1: Purpose + Doctor -->
+    <!-- Step 1: Purpose -->
         <div
-      id="scheduleStep1"
+      id="selectPurpose"
       class="modal hidden"
       role="dialog"
       aria-modal="true"
@@ -268,14 +268,26 @@
         <label>
           What is the purpose of your visit?
           <select id="visitPurpose">
-            <option value="">Specialties</option>
-            <option>General Checkup</option>
-            <option>Dermatology</option>
-            <option>Pediatrics</option>
-            <option>Other</option>
+            <option value="">Select visit purpose</option>
           </select>
         </label>
 
+        <div class="modal-actions">
+          <button class="secondary" data-close-modal>Cancel</button>
+          <button class="primary" id="s1NextBtn">Next</button>
+        </div>      
+      </div>
+    </div>
+      <!-- Step 2: Doctor -->
+    <div
+      id="selectDoctor"
+      class="modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="s2Title"
+    >
+      <div class="modal-card">
+        <h3 id="s2Title">Which doctor would you like to see?</h3>
         <label>
           Search for doctors by name or specialty
           <input
@@ -294,7 +306,7 @@
 
         <div class="modal-actions">
           <button class="secondary" data-close-modal>Cancel</button>
-          <button class="primary" id="s1NextBtn">Next</button>
+          <button class="primary" id="s2NextBtn">Next</button>
         </div>
       </div>
     </div>
