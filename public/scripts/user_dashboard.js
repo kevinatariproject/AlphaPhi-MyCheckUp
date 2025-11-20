@@ -1,5 +1,34 @@
+// import { auth } from './firebase_config.js';
+// import { onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+// import { getUserAppointments } from "./appt_scheduling.js";
+
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
+
+// Visit Purpose Selection
+
+const visitPurposes = [
+  "General Checkup",
+  "Physical Exam",
+  "Sick/Injury Visit",
+  "Follow-up Visit",
+  "Consultation",
+  "Other"
+];
+
+function populateVisitPurposes() {
+  const select = $("#visitPurpose");
+  select.innerHTML = '<option value="">Select visit purpose</option>';
+
+  visitPurposes.forEach((purpose) => {
+    const opt = document.createElement("option");
+    opt.value = purpose;
+    opt.textContent = purpose;
+    select.appendChild(opt);
+  });
+}
+
+
 
 /* Demo appointments */
 let appointments = [
@@ -180,7 +209,7 @@ window.addEventListener("keydown", (e) => {
 });
 
 /* Schedule flow */
-const scheduleStep1 = $("#scheduleStep1");
+const selectPurpose = $("#selectPurpose");
 const viewAvailability = $("#view-availability");
 const availabilityBackBtn = $("#availabilityBackBtn");
 const monthLabel = $("#monthLabel");
@@ -210,20 +239,18 @@ function startScheduleFlow(mode, apptId) {
   $("#visitDoctor").value = "";
   if ($("#doctorSearch")) $("#doctorSearch").value = "";
   renderDoctorOptions();
-  openModal(scheduleStep1);
+  openModal(selectPurpose);
 }
 
 $("#s1NextBtn").addEventListener("click", () => {
   const purpose = $("#visitPurpose").value;
-  const doctor = $("#visitDoctor").value;
-  if (!purpose || !doctor) {
-    alert("Please select both purpose and doctor.");
+  if (!purpose) {
+    alert("Please select a reason for your visit.");
     return;
   }
   scheduleCtx.purpose = purpose;
-  scheduleCtx.doctor = doctor;
 
-  closeModal(scheduleStep1);
+  closeModal(selectPurpose);
   $("#view-appointments").classList.add("hidden");
   viewAvailability.classList.remove("hidden");
   buildCalendar();
@@ -404,7 +431,9 @@ confirmCancelBtn.addEventListener("click", () => {
 window.addEventListener("DOMContentLoaded", () => {
   showView("appointments");
   renderAppointments();
+  populateVisitPurposes();
   buildCalendar();
+  
 
   // Initialize doctor dropdown for scheduling
   if (typeof renderDoctorOptions === "function") {
