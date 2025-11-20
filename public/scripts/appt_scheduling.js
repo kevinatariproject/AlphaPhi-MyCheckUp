@@ -1,23 +1,14 @@
-// This file handles all the appointment scheduling functionalities
-
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
-
-// Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyD8-dcgEfAr1DhZTUMo6e0mTwd4oQw7XhQ",
-  authDomain: "mycheckup-91698.firebaseapp.com",
-  projectId: "mycheckup-91698",
-  storageBucket: "mycheckup-91698.firebasestorage.app",
-  messagingSenderId: "739048669061",
-  appId: "1:739048669061:web:c63a09e5662bba04ac4eec"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
-export const auth = getAuth(app);
+import { db } from "../firebase.js";
+import {
+    collection,
+    addDoc,
+    doc,
+    updateDoc,
+    serverTimestamp,
+    query,
+    where,
+    getDocs
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 async function createAppointment(startTime, endTime, userID, patientID, doctorID, status, visitType) {
     try {
