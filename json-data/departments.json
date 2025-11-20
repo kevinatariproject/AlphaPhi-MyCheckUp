@@ -1,0 +1,100 @@
+{
+  "departments": {
+    "dept1": {
+      "hospitalID": "hospital1",
+      "name": "Pediatrics",
+      "floor": 2,
+      "location": "West Wing"
+    },
+    "dept2": {
+      "hospitalID": "hospital1",
+      "name": "Radiology",
+      "floor": 1,
+      "location": "Main Tower"
+    },
+    "dept3": {
+      "hospitalID": "hospital1",
+      "name": "Internal Medicine",
+      "floor": 2,
+      "location": "Main Tower, Reception A"
+    },
+    "dept4": {
+      "hospitalID": "hospital1",
+      "name": "Geriatrics",
+      "floor": 1,
+      "location": "West Wing"
+    },
+    "dept5": {
+      "hospitalID": "hospital1",
+      "name": "Cardiology",
+      "floor": 3,
+      "location": "Main Tower"
+    },
+    "dept6": {
+      "hospitalID": "hospital1",
+      "name": "Oncology",
+      "floor": 4,
+      "location": "Main Tower"
+    },
+    "dept7": {
+      "hospitalID": "hospital1",
+      "name": "Obstetrics & Gynecology (OB-GYN)",
+      "floor": 3,
+      "location": "West Wing"
+    },
+    "dept8": {
+      "hospitalID": "hospital1",
+      "name": "Surgery",
+      "floor": 2,
+      "location": "East Annex"
+    },
+    "dept9": {
+      "hospitalID": "hospital1",
+      "name": "Neurology",
+      "floor": 7,
+      "location": "Main Tower"
+    },
+    "dept10": {
+      "hospitalID": "hospital1",
+      "name": "Pulmonology",
+      "floor": 5,
+      "location": "Main Tower, Reception B"
+    },
+    "dept11": {
+      "hospitalID": "hospital1",
+      "name": "Endocrinology",
+      "floor": 5,
+      "location": "Main Tower, Reception A"
+    },
+    "dept12": {
+      "hospitalID": "hospital1",
+      "name": "Otolaryngology (ENT)",
+      "floor": 2,
+      "location": "Main Tower, Reception B"
+    },
+    "dept13": {
+      "hospitalID": "hospital1",
+      "name": "Urology",
+      "floor": 2,
+      "location": "Main Tower, Reception C"
+    },
+    "dept14": {
+      "hospitalID": "hospital1",
+      "name": "Gastroenterology (GI)",
+      "floor": 6,
+      "location": "Main Tower, Reception A"
+    },
+    "dept15": {
+      "hospitalID": "hospital1",
+      "name": "Nephrology",
+      "floor": 6,
+      "location": "Main Tower, Reception B"
+    },
+    "dept16": {
+      "hospitalID": "hospital1",
+      "name": "Psychiatry",
+      "floor": 4,
+      "location": "West Wing"
+    }
+  }
+}

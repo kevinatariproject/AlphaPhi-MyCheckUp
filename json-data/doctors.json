@@ -1,0 +1,522 @@
+{
+  "bbarker": {
+    "email": "rbarker@alphaphi.com",
+    "firstName": "Robert",
+    "lastName": "Barker",
+    "preferredName": "Bob",
+    "credentials": "MD",
+    "departmentId": "dept1",
+    "bio": "Dr. Bob Barker is a compassionate pediatrician dedicated to providing personalized, family-centered care. With a focus on preventive health and early development, Dr. Barker helps parents navigate every stage of growth with confidence. Patients appreciate his warm approach, clear communication, and commitment to creating a comfortable environment for kids.",
+    "status": "active"
+  },
+  "jcarter": {
+    "email": "jcarter@alphaphi.com",
+    "firstName": "Julia",
+    "lastName": "Carter",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept1",
+    "bio": "Hello! I'm Dr. Julia Carter and I have over 10 years of experience as a pediatrician. I focus on holistic child wellness and I support families with evidence-based guidance. I believe a warm, educational approach helps young patients get the most out of every visit.",
+    "status": "active"
+  },
+  "lcontreras": {
+    "email": "lcontreras@alphaphi.com",
+    "firstName": "Luis",
+    "lastName": "Contreras",
+    "preferredName": "",
+    "credentials": "DO",
+    "departmentId": "dept1",
+    "bio": "Dr. Luis is dedicated to supporting children's health through attentive care and strong family partnerships. Known for his patience and clear communication, he works to ensure every child feels safe, understood, and supported.",
+    "status": "active"
+  },
+  "mayath": {
+    "email": "mthompson@alphaphi.com",
+    "firstName": "Maya",
+    "lastName": "Thompson",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept2",
+    "bio": "12 years as a radiologist specializing in diagnostic imaging.",
+    "status": "active"
+  },
+  "rajpatel": {
+    "email": "rpatel@alphaphi.com",
+    "firstName": "Raj",
+    "lastName": "Patel",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept2",
+    "bio": "I am an experienced radiologist focused on providing precise imaging interpretations and patient-centered care. I emphasize clear communication to ensure patients understand procedures and results.",
+    "status": "active"
+  },
+  "ksimmons": {
+    "email": "ksimmons@alphaphi.com",
+    "firstName": "Karen",
+    "lastName": "Simmons",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept3",
+    "bio": "Dr. Karen Simmons is an internist who focuses on comprehensive adult care, preventive medicine, and chronic disease management. Patients appreciate her thorough approach and clear explanations.",
+    "status": "active"
+  },
+  "bnguyen": {
+    "email": "bnguyen@alphaphi.com",
+    "firstName": "Benjamin",
+    "lastName": "Nguyen",
+    "preferredName": "Benny",
+    "credentials": "MD",
+    "departmentId": "dept3",
+    "bio": "Dr. Nguyen specializes in adult medicine with an emphasis on preventive care and lifestyle management. He is known for his patient-centered approach and clear guidance on managing chronic conditions.",
+    "status": "active"
+  },
+  "smurphy": {
+    "email": "smurphy@alphaphi.com",
+    "firstName": "Sarah",
+    "lastName": "Murphy",
+    "preferredName": "Sarah",
+    "credentials": "DO",
+    "departmentId": "dept3",
+    "bio": "Dr. Sarah Murphy is dedicated to comprehensive adult care, preventive medicine, and patient education. When it comes to providing the best care, she believes the most important values are empathy and kindness.",
+    "status": "active"
+  },
+  "rjohnson": {
+    "email": "rjohnson@alphaphi.com",
+    "firstName": "Robert",
+    "lastName": "Johnson",
+    "preferredName": "Rob",
+    "credentials": "MD",
+    "departmentId": "dept3",
+    "bio": "Hello, my name is Rob Johnson. Having just completed my residency, I am excited to begin practicing as a full-time physician. I focus on preventive care and management of complex chronic conditions. I look forward to supporting you through every stage of your healthcare journey.",
+    "status": "inactive"
+  },
+  "anamar": {
+    "email": "amartinez@alphaphi.com",
+    "firstName": "Ana",
+    "lastName": "Martinez",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept3",
+    "bio": "Dr. Martinez provides compassionate adult care with a focus on preventive health and chronic disease management.",
+    "status": "active"
+  },
+  "lmoreno": {
+    "email": "lmoreno@alphaphi.com",
+    "firstName": "Lucia",
+    "lastName": "Moreno",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept4",
+    "bio": "Lucia Moreno specializes in geriatric medicine with a strong focus on healthy aging, chronic disease management, and patient independence. She emphasizes patience, clear communication, and a compassionate approach to supporting older adults and their families.",
+    "status": "active"
+  },
+  "tchambers": {
+    "email": "tchambers@alphaphi.com",
+    "firstName": "Thomas",
+    "lastName": "Chambers",
+    "preferredName": "Tom",
+    "credentials": "DO",
+    "departmentId": "dept4",
+    "bio": "Dr. Tom Chambers is dedicated to helping older adults maintain mobility, independence, and quality of life. He focuses on individualized care plans, medication safety, and long-term wellness.",
+    "status": "active"
+  },
+  "yhyeung": {
+    "email": "ryeung@alphaphi.com",
+    "firstName": "Yihong",
+    "lastName": "Yeung",
+    "preferredName": "Lily",
+    "credentials": "MD",
+    "departmentId": "dept4",
+    "bio": "Dr. Lily Yeung focuses on cognitive health and chronic illness management. It is importnat to support patients through the complexities of aging. Lily strives to make her patients feel heard and understood.",
+    "status": "active"
+  },
+  "choakim": {
+    "email": "ykim@alphaphi.com",
+    "firstName": "Cho-a",
+    "lastName": "Kim",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept5",
+    "bio": "My name is Dr. Cho-a Kim and I have 5 years specializing in preventive cardiology and early detection of heart disease. I focuses on lifestyle-based care and enjoy helping patients take manageable steps toward better long-term heart health.",
+    "status": "active"
+  },
+  "rsingh": {
+    "email": "rsingh@alphaphi.com",
+    "firstName": "Ravi",
+    "lastName": "Singh",
+    "preferredName": "",
+    "credentials": "DO",
+    "departmentId": "dept5",
+    "bio": "I try to bring a calm, reassuring presence to my work in interventional cardiology. I am committed to helping patients understand their treatment options clearly, especially when managing complex or evolving heart conditions.",
+    "status": "active"
+  },
+  "cmarshall": {
+    "email": "cmarshall@alphaphi.com",
+    "firstName": "Caroline",
+    "lastName": "Marshall",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept5",
+    "bio": "Dr. Caroline Marshall focuses on women's cardiovascular health, with special attention to risk factors often overlooked in routine care. Her approachable style makes patients feel supported at every stage of treatment.",
+    "status": "active"
+  },
+  "dmccall": {
+    "email": "dmccall@alphaphi.com",
+    "firstName": "Derrick",
+    "lastName": "McCall",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept5",
+    "bio": "Dr. McCall takes a data-driven approach to cardiology, pairing the latest diagnostic tools with practical, step-by-step treatment plans. He places a strong emphasis on straightforward communication and focusing on long-term outcomes.",
+    "status": "active"
+  },
+  "sholtz": {
+    "email": "sholtz@alphaphi.com",
+    "firstName": "Samantha",
+    "lastName": "Holtz",
+    "preferredName": "Sam",
+    "credentials": "MD",
+    "departmentId": "dept5",
+    "bio": "Sam Holtz is passionate about helping patients regain confidence after cardiac events. She emphasizes rehabilitation, resilience, and personalized recovery plans designed to fit diverse lifestyles and abilities.",
+    "status": "active"
+  },
+  "mcohen": {
+    "email": "mcohen@alphaphi.com",
+    "firstName": "Mira",
+    "lastName": "Cohen",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept6",
+    "bio": "Dr. Mira Cohen specializes in early-stage cancer detection and personalized treatment planning. Over her 9 years of experience, she has become known for her calm, steady guidance and her commitment to helping patients understand each step of their care.",
+    "status": "active"
+  },
+  "jowens": {
+    "email": "jowens@alphaphi.com",
+    "firstName": "Jordan",
+    "lastName": "Owens",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept6",
+    "bio": "I focus on supportive oncology and long-term survivorship care. As a survivor myself, I aim to facilitate empathetic conversations and practical, steady reassurance during challenging treatment phases.",
+    "status": "active"
+  },
+  "sramirez": {
+    "email": "sramirez@alphaphi.com",
+    "firstName": "Sofia",
+    "lastName": "Ramirez",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept6",
+    "bio": "Dr. Ramirez works extensively with complex oncology cases, guiding patients through treatment choices with clarity and compassion. Her approach blends evidence-based care with strong emotional support.",
+    "status": "active"
+  },
+  "kabbas": {
+    "email": "kabbas@alphaphi.com",
+    "firstName": "Khalid",
+    "lastName": "Abbas",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept6",
+    "bio": "Khalid Abbas specializes in hematologic oncology. He is known for his detail-oriented assessments, evidence-guided treatment plans, and unwavering dedication to helping patients feel informed and supported.",
+    "status": "active"
+  },
+  "ebrant": {
+    "email": "ebrant@alphaphi.com",
+    "firstName": "Elena",
+    "lastName": "Brant",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept6",
+    "bio": "Coming from a rich research background, Dr. Brant is committed to advancing patient-centered oncology care. She blends scientific rigor with a calm, compassionate approach, helping patients feel informed and supported throughout their treatment journey.",
+    "status": "inactive"
+  },
+  "ahartley": {
+    "email": "ahartley@alphaphi.com",
+    "firstName": "Amelia",
+    "lastName": "Hartley",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept7",
+    "bio": "Supporting patients through every stage of reproductive health, Dr. Amelia Hartley has been providing comprehensive OB/GYN care for nearly 20 years. Every patient deserves to be treated with the utmost care and respect.",
+    "status": "active"
+  },
+  "kpatel": {
+    "email": "kpatel@alphaphi.com",
+    "firstName": "Krishnan",
+    "lastName": "Patel",
+    "preferredName": "Krish",
+    "credentials": "DO",
+    "departmentId": "dept7",
+    "bio": "Specializes in high-risk pregnancies.",
+    "status": "active"
+  },
+  "zhangln": {
+    "email": "lzhang@alphaphi.com",
+    "firstName": "Lingna",
+    "lastName": "Zhang",
+    "preferredName": "Lena",
+    "credentials": "MD",
+    "departmentId": "dept7",
+    "bio": "I'm Doctor Lena Zhang, and I am here to provide individualized wellness planning and a compassionate, non-judgmental environment. Earning trust is my top priority; a patient should never be afraid to discuss sensitive concerns.",
+    "status": "active"
+  },
+  "biancar": {
+    "email": "brobbins@alphaphi.com",
+    "firstName": "Bianca",
+    "lastName": "Robbins",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept7",
+    "bio": "Bianca Robbins focuses on adolescent gynecology and preventative reproductive health. She is committed to creating a welcoming, judgment-free environment for all patients.",
+    "status": "active"
+  },
+  "dvaldez": {
+    "email": "dvaldez@alphaphi.com",
+    "firstName": "Daniel",
+    "lastName": "Valdez",
+    "preferredName": "Danny",
+    "credentials": "MD",
+    "departmentId": "dept8",
+    "bio": "With over 15 years of experience in general surgery, Dr. Valdez is known for his decisive clinical judgment and steady hands in the operating room. He specializes in complex abdominal procedures and long-term postoperative management.",
+    "status": "active"
+  },
+  "hcarter": {
+    "email": "hcarter@alphaphi.com",
+    "firstName": "Holly",
+    "lastName": "Carter",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept8",
+    "bio": "Doctor Holly Carter focuses on endocrine surgery, particularly thyroid and parathyroid disorders. Her approach blends meticulous preoperative evaluation with minimally invasive techniques to reduce recovery times.",
+    "status": "active"
+  },
+  "tgarcia": {
+    "email": "tgarcia@alphaphi.com",
+    "firstName": "Tristan",
+    "lastName": "Garcia",
+    "preferredName": "",
+    "credentials": "DO",
+    "departmentId": "dept8",
+    "bio": "A hand surgery specialist, Garcia has spent years restoring movement and relieving pain. Hands are a human's most essential tools and you can trust that Tristan Garcia will treat them right.",
+    "status": "active"
+  },
+  "rsharma": {
+    "email": "rsharma@alphaphi.com",
+    "firstName": "Radhika",
+    "lastName": "Sharma",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept8",
+    "bio": "Dr. Radhika Sharma brings a background in hepatobiliary surgery and advanced laparoscopic methods. Her work focuses on precision, efficiency, and comprehensive follow-up care to promote optimal surgical outcomes.",
+    "status": "active"
+  },
+  "chikim": {
+    "email": "ckim@alphaphi.com",
+    "firstName": "Christopher",
+    "lastName": "Kim",
+    "preferredName": "Chris",
+    "credentials": "MD",
+    "departmentId": "dept8",
+    "bio": "Dr. Kim has built his career around reconstructive surgery—especially procedures following major injury or illness. He is deeply committed to restoring both function and confidence through thoughtful, individualized surgical planning.",
+    "status": "active"
+  },
+  "sameng": {
+    "email": "seng@alphaphi.com",
+    "firstName": "Sam",
+    "lastName": "Eng",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept9",
+    "bio": "With five years experience, Dr. Eng focuses on neurological disorders affecting memory and cognition. Careful diagnostic evaluation combined with supportive counseling is the best approach to helping patients and their families.",
+    "status": "active"
+  },
+  "arimelt": {
+    "email": "amelton@alphaphi.com",
+    "firstName": "Ariana",
+    "lastName": "Melton",
+    "preferredName": "",
+    "credentials": "DO",
+    "departmentId": "dept9",
+    "bio": "I'm Ariana Melton. I specialize in neuromuscular conditions and movement disorders. My practice centers on functional improvement and tailored therapies designed to support patients' independence.",
+    "status": "active"
+  },
+  "pardila": {
+    "email": "pardila@alphaphi.com",
+    "firstName": "Peter",
+    "lastName": "Ardila",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept10",
+    "bio": "Dr. Peter Ardila is a pulmonologist with a strong focus on chronic respiratory conditions. He emphasizes long-term symptom control, clear education, and personalized management plans for each patient.",
+    "status": "active"
+  },
+  "fmonroe": {
+    "email": "fmonroe@alphaphi.com",
+    "firstName": "Felicia",
+    "lastName": "Monroe",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept10",
+    "bio": "Dr. Monroe has a total of 12 years of experience in top hospitals around the country. She focuses on pulmonary rehabilitation and recovery after acute respiratory illness. Dr. Monroe is dedicated to helping patients rebuild strength and confidence through structured, individualized therapy.",
+    "status": "inactive"
+  },
+  "lchandra": {
+    "email": "lchandra@alphaphi.com",
+    "firstName": "Leena",
+    "lastName": "Chandra",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept11",
+    "bio": "Dr. Chandra treats complex endocrine disorders with a steady, research-driven approach. She focuses on long-term metabolic health and works closely with patients to uncover the root causes of hormonal imbalance.",
+    "status": "active"
+  },
+  "jmarron": {
+    "email": "jmarron@alphaphi.com",
+    "firstName": "Jacob",
+    "lastName": "Marron",
+    "preferredName": "Jake",
+    "credentials": "DO",
+    "departmentId": "dept11",
+    "bio": "I'm Jake, and I love helping patients find clarity in the often confusing world of thyroid and adrenal disorders. My goal is simple: explain every step, make a solid plan, and empower you to take control of your health.",
+    "status": "active"
+  },
+  "somoretti": {
+    "email": "smoretti@alphaphi.com",
+    "firstName": "Sophia",
+    "lastName": "Moretti",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept11",
+    "bio": "Balancing hormones can be life-changing, and Dr. Moretti is passionate about guiding patients through that transformation. Warm, direct, and incredibly thorough—she delivers care that's both supportive and highly personalized.",
+    "status": "active"
+  },
+  "arowell": {
+    "email": "arowell@alphaphi.com",
+    "firstName": "Amelia",
+    "lastName": "Rowell",
+    "preferredName": "Amy",
+    "credentials": "MD",
+    "departmentId": "dept12",
+    "bio": "Dr. Amy Rowell approaches ear, nose, and throat care with a precise and calming style. She blends surgical expertise with a focus on long-term airway and sinus health, helping patients breathe and live more comfortably.",
+    "status": "active"
+  },
+  "danlin": {
+    "email": "dlin@alphaphi.com",
+    "firstName": "Daniel",
+    "lastName": "Lin",
+    "preferredName": "Dan",
+    "credentials": "DO",
+    "departmentId": "dept12",
+    "bio": "I'm Dr. Dan Lin, and I work to simplify ENT issues for my patients—whether it's chronic infections, hearing concerns, or voice changes. I'm committed to offering options that fit your needs and lifestyle.",
+    "status": "active"
+  },
+  "kashaw": {
+    "email": "kshaw@alphaphi.com",
+    "firstName": "Kara",
+    "lastName": "Shaw",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept13",
+    "bio": "With nearly 10 years experience in the field, Dr. Shaw specializes in minimally invasive urologic care. She has a reputation for clear, respectful communication and is committed to helping patients feel heard while navigating sensitive health concerns.",
+    "status": "active"
+  },
+  "hegill": {
+    "email": "hgill@alphaphi.com",
+    "firstName": "Hector",
+    "lastName": "Gill",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept13",
+    "bio": "Thoughtful and thorough, Hector Gill provides comprehensive care for urinary and kidney conditions. His approach emphasizes both technical excellence and building strong, trusting relationships with his patients.",
+    "status": "active"
+  },
+  "mquinn": {
+    "email": "mquinn@alphaphi.com",
+    "firstName": "Mara",
+    "lastName": "Quinn",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept14",
+    "bio": "Dr. Quinn brings twenty years of experience in digestive health, with a special focus on inflammatory bowel disease. Known for her clear explanations and steady presence, she helps patients feel in control of complex conditions.",
+    "status": "active"
+  },
+  "jvaldez": {
+    "email": "jvaldez@alphaphi.com",
+    "firstName": "Jared",
+    "lastName": "Valdez",
+    "preferredName": "Jared",
+    "credentials": "DO",
+    "departmentId": "dept14",
+    "bio": "Dr. Jared Valdez is passionate about using the latest diagnostic tools to help patients understand and manage digestive concerns. He believes in listening first and building plans that fit each person's everyday life.",
+    "status": "active"
+  },
+  "cwerner": {
+    "email": "cwerner@alphaphi.com",
+    "firstName": "Clara",
+    "lastName": "Werner",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept15",
+    "bio": "With a career spanning more than three decades, Dr. Clara Werner has guided patients through all stages of kidney health. She has built a reputation for her sharp clinical judgment, steady optimism, and commitment to long-term wellness.",
+    "status": "active"
+  },
+  "erivera": {
+    "email": "erivera@alphaphi.com",
+    "firstName": "Emilio",
+    "lastName": "Rivera",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept15",
+    "bio": "I'm Dr. Emilio Rivera, a nephrologist who aims to help patients understand how their kidneys support overall health. My approach is practical, collaborative, and aimed at building confidence in managing chronic conditions.",
+    "status": "active"
+  },
+  "gmorgan": {
+    "email": "gmorgan@alphaphi.com",
+    "firstName": "Gina",
+    "lastName": "Morgan",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept16",
+    "bio": "Dr. Morgan blends compassion with evidence-based therapy, helping patients navigate anxiety and mood conditions with clarity and confidence. Her approach emphasizes practical strategies that support long-term emotional health.",
+    "status": "active"
+  },
+  "wihart": {
+    "email": "whart@alphaphi.com",
+    "firstName": "William",
+    "lastName": "Hart",
+    "preferredName": "Will",
+    "credentials": "MD",
+    "departmentId": "dept16",
+    "bio": "I'm Dr. Will Hart, and I work with individuals facing depression and trauma-related conditions. My style is conversational and supportive, and I focus on creating a space where patients feel safe to explore their experiences.",
+    "status": "active"
+  },
+  "sgrant": {
+    "email": "sgrant@alphaphi.com",
+    "firstName": "Sonia",
+    "lastName": "Grant",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept16",
+    "bio": "Coming from a rich research background, Dr. Grant is one of the most experienced psychiatrists in the department. Her work focuses on integrating clinical care with emerging findings in neuropsychiatric research, particularly in mood disorders.",
+    "status": "active"
+  },
+  "keonali": {
+    "email": "kali@alphaphi.com",
+    "firstName": "Keon",
+    "lastName": "Ali",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept16",
+    "bio": "Dr. Keon focuses on adolescent behavioral health and early-intervention therapy. His sessions aim to break complex emotional patterns into manageable steps that empower young patients and their families.",
+    "status": "active"
+  },
+  "jdevon": {
+    "email": "jdevon@alphaphi.com",
+    "firstName": "Julia",
+    "lastName": "Devon",
+    "preferredName": "",
+    "credentials": "MD",
+    "departmentId": "dept16",
+    "bio": "Dr. Julia Devon specializes in anxiety and sleep disorders, offering treatment plans shaped around each patient's routines and preferences. She believes that small, consistent steps lead to meaningful progress.",
+    "status": "inactive"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "jschmo": {
+    "email": "avgjoe@test.com",
+    "firstName": "Joseph",
+    "lastName": "Schmo",
+    "preferredName": "Joe",
+    "dateOfBirth": "1990-10-10",
+    "address": "1234 Somewhere Rd, Honolulu, HI"
+  }
+}
