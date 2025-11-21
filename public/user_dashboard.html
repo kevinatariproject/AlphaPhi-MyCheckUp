@@ -10,7 +10,9 @@
 
   <script type="module">
     import { authenticateLogin } from "./scripts/login_verification.js";
-    authenticateLogin("patients", "username");
+    document.addEventListener("DOMContentLoaded", () => {
+      authenticateLogin("patients", "username");
+    });
   </script>
 
   <body>

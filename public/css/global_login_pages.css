@@ -127,6 +127,7 @@ label{
   display: flex;
   align-items: center;
   cursor: text;
+  pointer-events: none;
   transition: .2s ease-in-out
 }
 
