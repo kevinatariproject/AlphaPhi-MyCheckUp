@@ -3,29 +3,21 @@
   border-bottom: 3px solid #5b4bef;
 }
 
-#login-form-submit {
-  width: 100%;
-  padding: 7px;
-  border: none;
-  border-radius: 5px;
+#login-form-submit:hover {
+  color: #5b4bef;
+}
+
+#signup-form-submit:hover {
+  background-color: #5b4bef;
   color: white;
-  font-weight: bold;
-  background-color: #3a3a3a;
-  cursor: pointer;
-  outline: none;
-  background: #5b4bef;
+}
+
+#login-form-submit {
+  background-color: #5b4bef;
+  border-color: #5b4bef;
 }
 
 #signup-form-submit {
-  width: 100%;
-  padding: 7px;
-  margin-bottom: 20px;
-  border-radius: 5px;
   border-color: #5b4bef;
-  border-style: solid;
   color: #5b4bef;
-  font-weight: bold;
-  cursor: pointer;
-  background: transparent;
 }
-
