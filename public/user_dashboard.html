@@ -7,6 +7,14 @@
     <link rel="stylesheet" href="./css/user_dashboard.css" />
     <script src="./scripts/user_dashboard.js" defer></script>
   </head>
+
+  <script type="module">
+    import { authenticateLogin } from "./scripts/login_verification.js";
+    document.addEventListener("DOMContentLoaded", () => {
+      authenticateLogin("patients", "username");
+    });
+  </script>
+
   <body>
     <!-- Top bar -->
     <header class="topbar" aria-label="Top navigation">

@@ -1,25 +1,42 @@
-const loginForm = document.getElementById("login-form");
-const loginButton = document.getElementById("login-form-submit");
+import { db, auth } from "./firebase_config.js";
+import { onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
 const loginErrorMsg = document.getElementById("login-error-msg");
-const loginFormField = document.getElementById("login-form-field");
-
 const loginHolder = document.getElementById("login-holder");
-
 const loginErrorMsgHolder = document.getElementById("login-error-msg-holder");
+const loginForm = document.getElementById("login-form");
 
-//Taking the loginButton and attaching an action to it, e
-loginButton.addEventListener("click", (e) => {
+loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const username = loginForm.username.value;
-    const password = loginForm.password.value;
+    const email = document.getElementById("email-field").value;
+    const password = document.getElementById("password-field").value;
+    
+    try { //Success
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const uid = userCredential.user.uid;
+        const collections = ["patients", "doctors", "admins"];
 
-    if (username == "user" && password == "web_dev") { //LOGIC FOR CORRECT SIGNIN
-        //window.location.replace("./newpage.html");
-        alert("Success"); //TEMPORARY - delete once redirection is implemented
-        location.reload();
-    } else {
+        for (const col of collections) {
+            const userRef = doc(db, col, uid);
+            const snap = await getDoc(userRef);
+            if (snap.exists()) {       
+                if (col == "patients") {
+                    window.location.href = "user_dashboard.html";
+                } else if (col == "doctors") {
+                    window.location.href = "doctor_dashboard.html";
+                } else{
+                    window.location.href = "Admin_dashboard.html";
+                }
+                break;
+            }
+        }
+    } catch (error) { //Login Failure
         loginHolder.style.marginTop = "15px";
         loginErrorMsgHolder.style.display = "grid";
         loginErrorMsg.style.opacity = "100";
+        loginForm.reset();
     }
-})
+});
+
+
