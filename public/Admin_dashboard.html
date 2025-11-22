@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>MyCheckUp — Admin Dashboard</title>
     <link rel="stylesheet" href="./css/Admin_dashboard.css" />
+    <link rel="stylesheet" href="./css/logout_popup.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <script type="module" src="./scripts/logout.js" ></script>
   </head>
 
   <script type="module">
@@ -213,6 +215,16 @@
         <p id="smallBody">This is a demo action.</p>
         <div class="modal-actions">
           <button class="btn primary" id="okSmall">OK</button>
+        </div>
+      </div>
+    </div>
+    
+    <div id="overlay">
+      <div id="logout-popup">
+        <h3>Are you sure you want to logout?</h3>
+        <div id="button-container">
+          <button class="logout-btn" id="confirm"> Yes </button>
+          <button class="logout-btn" id="cancel"> Cancel </button>
         </div>
       </div>
     </div>
