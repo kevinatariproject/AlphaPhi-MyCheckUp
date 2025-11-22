@@ -163,23 +163,3 @@ document.getElementById('signupForm').addEventListener('submit', async function(
 document.addEventListener('DOMContentLoaded', function() {
     setupPasswordValidation();
 });
-
-// Dynamically load all departments into select field
-document.addEventListener('DOMContentLoaded', async () => {
-    const departmentElement = document.getElementById("department");
-
-    try {
-        // Fetch departments
-        const querySnapshot = await getDocs(collection(db, "departments"));
-        
-        querySnapshot.forEach((doc) => {
-            const option = document.createElement("option");
-            option.value = doc.id;
-            option.textContent = doc.data().name;
-            departmentElement.appendChild(option);
-        });
-        
-    } catch (error) {
-        console.error("Error loading departments:", error);
-    }
-});
