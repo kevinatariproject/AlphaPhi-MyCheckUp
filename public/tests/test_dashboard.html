@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Test - MyCheckUp</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        .console-output {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 600px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .test-info {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-info">
+        <h1>🧪 Appointment Scheduling Test Suite</h1>
+        <p>This page tests the appointment CRUD operations with Firebase.</p>
+        <p><strong>Test User:</strong> avgjoe@test.com</p>
+        <p><strong>Instructions:</strong> Open browser console (F12) to see detailed test results.</p>
+    </div>
+
+    <div class="console-output" id="output">
+        Initializing tests... Check browser console for detailed output.
+    </div>
+
+    <script type="module">
+        // Add timestamp to prevent caching
+        const script = document.createElement('script');
+        script.type = 'module';
+        script.src = `./test_dashboard.js?v=${Date.now()}`;
+        document.body.appendChild(script);
+    </script>
+    
+    <script>
+        // Capture console output and display on page
+        const outputDiv = document.getElementById('output');
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            outputDiv.textContent += args.join(' ') + '\n';
+            outputDiv.scrollTop = outputDiv.scrollHeight;
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            outputDiv.textContent += '❌ ERROR: ' + args.join(' ') + '\n';
+            outputDiv.scrollTop = outputDiv.scrollHeight;
+        };
+    </script>
+</body>
+</html>

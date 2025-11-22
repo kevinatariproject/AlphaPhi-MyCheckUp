@@ -1,6 +1,6 @@
 // This file handles all the appointment scheduling functionalities
 
-import { db } from '../firebase_config.js';
+import { db } from './firebase_config.js';
 import { collection, addDoc, doc, updateDoc, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 async function createAppointment(startTime, endTime, userID, patientID, doctorID, status, visitType) {
@@ -8,8 +8,8 @@ async function createAppointment(startTime, endTime, userID, patientID, doctorID
         const apptID = await addDoc(collection(db, "appointments"), {
             createdAt: serverTimestamp(),
             createdBy: userID,
-            patientID,
-            doctorID,
+            patientId: patientID,
+            doctorId: doctorID,
             startTime,
             endTime,
             status,
@@ -30,8 +30,8 @@ async function updateAppointment(apptID, startTime, endTime, userID, patientID, 
         await updateDoc(apptRef, {
             lastUpdatedAt: serverTimestamp(),
             lastUpdatedBy: userID,
-            patientID,
-            doctorID,
+            patientId: patientID,
+            doctorId: doctorID,
             startTime,
             endTime,
             status,
@@ -61,7 +61,7 @@ async function cancelAppointment(apptID) {
 }
 async function getUserAppointments(userID) {
     try {
-        const apptQuery = query(collection(db, "appointments"), where("createdBy", "==", userID));
+        const apptQuery = query(collection(db, "appointments"), where("patientId", "==", userID));
         const querySnapshot = await getDocs(apptQuery);
         const appointments = [];
         querySnapshot.forEach((doc) => {
@@ -74,9 +74,13 @@ async function getUserAppointments(userID) {
     }
 }
 
-async function getAppointmentsByStatus(status) {
+async function getAppointmentsByStatus(userId, status) {
     try {
-        const apptQuery = query(collection(db, "appointments"), where("status", "==", status));
+        const apptQuery = query(
+            collection(db, "appointments"),
+            where("patientId", "==", userId),
+            where("status", "==", status)
+        );
         const querySnapshot = await getDocs(apptQuery);
         const appointments = [];
         querySnapshot.forEach((doc) => {
@@ -89,4 +93,19 @@ async function getAppointmentsByStatus(status) {
     }
 }
 
-export { createAppointment, updateAppointment, cancelAppointment, getUserAppointments, getAppointmentsByStatus };
+async function getDoctorsFromDatabase() {
+    try {
+        const querySnapshot = await getDocs(collection(db, "doctors"));
+        const doctors = [];
+        querySnapshot.forEach((doc) => {
+            doctors.push({ id: doc.id, ...doc.data() });
+        });
+        return doctors;
+    }
+    catch (error) {
+        console.error("Error occurred while fetching doctors: ", error);
+        return [];
+    }
+}
+
+export { createAppointment, updateAppointment, cancelAppointment, getUserAppointments, getAppointmentsByStatus, getDoctorsFromDatabase };
