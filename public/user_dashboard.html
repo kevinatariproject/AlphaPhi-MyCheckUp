@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="./css/user_dashboard.css" />
     <script src="./scripts/user_dashboard.js" defer></script>
+    <script defer type="module" src="./scripts/search_doctors.js"></script>
+    <script defer type="module" src="./scripts/department_loader.js"></script>
   </head>
 
   <script type="module">
@@ -215,36 +217,18 @@
           aria-label="Search practitioners"
         >
           <h2>Search Practitioners</h2>
-          <p class="sub">Search for doctors by name or specialty.</p>
+          <p class="sub">Search for doctors by name and department</p>
           <div class="search-wrap">
             <input
               type="text"
               id="practitionerSearch"
-              placeholder="Search by name or specialty"
+              placeholder="Start typing to search for a doctor"
             />
-            <button class="primary">Search</button>
+            <select id="department">
+              <option value="" selected>Select department</option>
+            </select>
           </div>
-          <div class="cards">
-            <article class="card">
-              <div class="meta">
-                <div class="title">Dr. Jane Doe, MD</div>
-                <div class="sub">Primary Care</div>
-              </div>
-              <div class="right">
-                <div class="sub">Main Clinic</div>
-                <button class="secondary small">View Profile</button>
-              </div>
-            </article>
-            <article class="card">
-              <div class="meta">
-                <div class="title">Dr. Jon Doe, MD</div>
-                <div class="sub">Dermatology</div>
-              </div>
-              <div class="right">
-                <div class="sub">Downtown Clinic</div>
-                <button class="secondary small">View Profile</button>
-              </div>
-            </article>
+          <div class="cards" id="doctorList">
           </div>
         </section>
       </section>
@@ -268,29 +252,29 @@
         <label>
           What is the purpose of your visit?
           <select id="visitPurpose">
-            <option value="">Specialties</option>
-            <option>General Checkup</option>
-            <option>Dermatology</option>
-            <option>Pediatrics</option>
-            <option>Other</option>
+            <option value="" selected disabled>Select visit purpose</option>
+            <option value="new_patient">New Patient Visit</option>
+            <option value="consultation">Consultation</option>
+            <option value="routine_exam">Routine/Annual Exam</option>
+            <option value="follow_up">Follow-Up Visit</option>
+            <option value="non_urgent">Non-Urgent Concern</option>
+            <option value="ongoing_care">Ongoing Care Management</option>
+            <option value="other">Other</option>
           </select>
         </label>
 
-        <label>
-          Search for doctors by name or specialty
-          <input
-            type="text"
-            id="doctorSearch"
-            placeholder="Type doctor name or specialty"
-          />
-        </label>
-
-        <label>
-          Who would you like to see?
-          <select id="visitDoctor">
-            <option value="">Doctors</option>
-          </select>
-        </label>
+        <div class="visitSearch">
+          <label>
+            Who would you like to see?
+            <input
+              type="text"
+              id="visitDoctor"
+              placeholder="Start typing your doctor's name"
+            />
+          </label>
+          <div id="doctorDropdown" class="dropdown hidden"></div>
+          <input type="hidden" id="selectedDoctorId" value="">
+        </div>
 
         <div class="modal-actions">
           <button class="secondary" data-close-modal>Cancel</button>
