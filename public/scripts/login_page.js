@@ -18,6 +18,7 @@ loginForm.addEventListener("submit", async (e) => {
         const collections = ["patients", "doctors", "admins"];
 
         for (const col of collections) {
+            alert("logged in via firestore")
             const userRef = doc(db, col, uid);
             const snap = await getDoc(userRef);
             if (snap.exists()) {       

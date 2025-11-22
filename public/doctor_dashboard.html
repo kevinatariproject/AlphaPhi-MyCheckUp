@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>MyCheckUp – Doctor Dashboard</title>
     <link rel="stylesheet" href="./css/doctor_dashboard.css" />
+    <link rel="stylesheet" href="./css/logout_popup.css" />
     <script src="./scripts/doctor_dashboard.js" defer></script>
+    <script type="module" src="./scripts/logout.js" ></script>
   </head>
 
   <script type="module">
@@ -121,5 +123,16 @@
         </section>
       </section>
     </main>
+
+    <div id="overlay">
+      <div id="logout-popup">
+        <h3>Are you sure you want to logout?</h3>
+        <div id="button-container">
+          <button class="logout-btn" id="confirm"> Yes </button>
+          <button class="logout-btn" id="cancel"> Cancel </button>
+        </div>
+      </div>
+    </div>
+
   </body>
 </html>
