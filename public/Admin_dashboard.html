@@ -4,25 +4,32 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>MyCheckUp — Admin Dashboard</title>
+
+    <!-- Main admin + embedded sections styles -->
     <link rel="stylesheet" href="./css/Admin_dashboard.css" />
-    <link rel="stylesheet" href="./css/logout_popup.css" />
+    <!-- <link rel="stylesheet" href="./css/logout_popup.css" /> -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <script type="module" src="./scripts/logout.js" ></script>
+
+    <!-- Logout logic -->
+    <!-- <script type="module" src="./scripts/logout.js"></script> -->
+
+    <!-- Login authentication -->
+    <script type="module">
+      import { authenticateLogin } from "./scripts/login_verification.js";
+      document.addEventListener("DOMContentLoaded", () => {
+        authenticateLogin("admins", "username");
+      });
+    </script>
   </head>
 
-  <script type="module">
-    import { authenticateLogin } from "./scripts/login_verification.js";
-    document.addEventListener("DOMContentLoaded", () => {
-      authenticateLogin("admins", "username");
-    });
-  </script>
-
   <body>
+    <!-- Window bar -->
     <div class="windowbar">
       <button
         class="hamburger"
@@ -33,12 +40,14 @@
       >
         <span></span><span></span><span></span>
       </button>
-      <span class="dot"></span><span class="dot"></span
-      ><span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
       <div class="title">Admin dashboard</div>
     </div>
 
     <div class="layout">
+      <!-- Sidebar -->
       <aside class="sidebar" id="sidebar">
         <div class="brand">MyCheckUp</div>
 
@@ -73,6 +82,7 @@
         </button>
       </aside>
 
+      <!-- Main content -->
       <main class="content" role="main">
         <header class="topbar">
           <div class="hello">
@@ -88,100 +98,416 @@
                 <path d="M5.5 21a8.38 8.38 0 0 1 13 0"></path>
               </svg>
             </span>
-            <span>| Hello <em id = "username">username</em></span>
+            <span>| Hello <em id="username">username</em></span>
           </div>
         </header>
 
         <!-- Real-Time Appointments -->
+
         <section id="appointments" class="view show">
-            <div class="grid">
-  <div class="col">
-    <a href="View_appointments.html" class="card big">
-      <div class="icon-img folder"></div>
-      <div class="card-title">
-        Real-Time Appointments<br />Information
-      </div>
-    </a>
-  </div>
-</div>
+          <div class="app-container">
+            <header class="app-header">
+              <h1>Real-Time Appointments</h1>
+              <p>View schedules by patient or by doctor.</p>
+            </header>
 
-
-
-          <div class="panel">
-            <h2>Next Up Appointments</h2>
-            <ul class="pills" id="apptList"></ul>
-            <div class="pager">
-              <span class="pager-dot"></span>
-              <span class="pager-dot"></span>
-              <span class="pager-dot"></span>
+            <!-- Toggle: view by patient / view by doctor -->
+            <div class="toggle-row">
+              <button
+                class="toggle-btn active"
+                data-view="patient"
+                id="va-toggle-patient"
+              >
+                View by Patient
+              </button>
+              <button
+                class="toggle-btn"
+                data-view="doctor"
+                id="va-toggle-doctor"
+              >
+                View by Doctor
+              </button>
             </div>
+
+            <!-- Filters -->
+            <section class="card card-section">
+              <div class="filters-row">
+                <div class="filter">
+                  <label for="va-patient-filter">Patient</label>
+                  <select id="va-patient-filter">
+                    <option value="">All patients</option>
+                  </select>
+                </div>
+
+                <div class="filter">
+                  <label for="va-doctor-filter">Doctor</label>
+                  <select id="va-doctor-filter">
+                    <option value="">All doctors</option>
+                  </select>
+                </div>
+
+                <div class="filter">
+                  <label for="va-status-filter">Status</label>
+                  <select id="va-status-filter">
+                    <option value="">All</option>
+                    <option value="Scheduled">Scheduled</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Canceled">Canceled</option>
+                  </select>
+                </div>
+
+                <div class="filter search-filter">
+                  <label for="va-search-filter">Search</label>
+                  <input
+                    type="text"
+                    id="va-search-filter"
+                    placeholder="Name, type, location..."
+                  />
+                </div>
+
+                <div class="filter refresh-filter">
+                  <label>&nbsp;</label>
+                  <button id="va-refresh-btn" class="secondary-btn small">
+                    Refresh
+                  </button>
+                </div>
+              </div>
+
+              <div class="meta-row">
+                <span id="va-view-label">Current view: By Patient</span>
+                <span id="va-last-updated">Last updated: just now</span>
+              </div>
+            </section>
+
+            <!-- Next up appointments panel -->
+            <section class="panel panel-tight">
+              <h2>Next Up Appointments</h2>
+              <ul class="pills" id="va-appt-list"></ul>
+              <div class="pager">
+                <span class="pager-dot"></span>
+                <span class="pager-dot"></span>
+                <span class="pager-dot"></span>
+              </div>
+            </section>
+
+            <!-- Appointments table -->
+            <section class="card card-section">
+              <div class="card-header">
+                <h2 id="va-table-title">Appointments by Patient</h2>
+              </div>
+
+              <div class="table-wrapper">
+                <table id="va-appointments-table">
+                  <thead id="va-appointments-head">
+                    <!-- Filled by JS -->
+                  </thead>
+                  <tbody id="va-appointments-body">
+                    <!-- Filled by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </section>
           </div>
         </section>
 
         <!-- Manage Accounts -->
         <section id="manage" class="view">
-          <div class="grid">
-    <div class="col">
-      <h2>Patients and Doctor</h2>
-      <div class="card-grid">
-        <a href="Account_management.html" class="card big">
-          <div class="icon-img folder"></div>
-          <div class="card-title">
-            Manage Patient and Doctor<br />Information
+          <div class="app-container">
+            <header class="app-header">
+              <h1>Account Management</h1>
+              <p>Manage patient and doctor accounts.</p>
+            </header>
+
+            <!-- User type toggle -->
+            <div class="toggle-row">
+              <button
+                class="toggle-btn active"
+                data-type="patient"
+                id="am-toggle-patient"
+              >
+                Patients
+              </button>
+              <button
+                class="toggle-btn"
+                data-type="doctor"
+                id="am-toggle-doctor"
+              >
+                Doctors
+              </button>
+            </div>
+
+            <!-- Form: Create / Update account -->
+            <section class="card card-section">
+              <h2 id="am-form-title">Create Patient Account</h2>
+
+              <form id="am-account-form">
+                <input type="hidden" id="am-user-type" value="patient" />
+
+                <div class="form-row">
+                  <label for="am-full-name">Full Name</label>
+                  <input
+                    type="text"
+                    id="am-full-name"
+                    placeholder="Enter full name"
+                    required
+                  />
+                </div>
+
+                <div class="form-row">
+                  <label for="am-email">Email</label>
+                  <input
+                    type="email"
+                    id="am-email"
+                    placeholder="example@mail.com"
+                    required
+                  />
+                </div>
+
+                <div class="form-row">
+                  <label for="am-phone">Phone</label>
+                  <input
+                    type="tel"
+                    id="am-phone"
+                    placeholder="+1 (555) 555-5555"
+                  />
+                </div>
+
+                <div class="form-row" id="am-extra-field-row">
+                  <label for="am-extra-field" id="am-extra-label">
+                    Patient ID
+                  </label>
+                  <input
+                    type="text"
+                    id="am-extra-field"
+                    placeholder="Enter Patient ID"
+                  />
+                </div>
+
+                <div class="form-row">
+                  <label for="am-status">Status</label>
+                  <select id="am-status">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="primary-btn">
+                    Create Account
+                  </button>
+                  <button type="reset" class="secondary-btn">Clear</button>
+                </div>
+              </form>
+            </section>
+
+            <!-- List of accounts -->
+            <section class="card card-section">
+              <div class="card-header">
+                <h2 id="am-table-title">Patient Accounts</h2>
+                <input
+                  type="text"
+                  id="am-search-input"
+                  placeholder="Search by name or email..."
+                />
+              </div>
+
+              <div class="table-wrapper">
+                <table id="am-accounts-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Full Name</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                      <th id="am-extra-header">Patient ID</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="am-accounts-body">
+                    <!-- Filled by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </section>
           </div>
-        </a>
-      </div>
-    </div>
-  </div>
         </section>
 
         <!-- Generate Reports -->
+
         <section id="reports" class="view">
-  <div class="card-grid">
+          <div class="app-container">
+            <header class="app-header">
+              <h1>System Summary Report</h1>
+              <p>
+                Admin view of patients, doctors, appointments, payments, and
+                overall activity.
+              </p>
+            </header>
 
-    <a href="admin_report.html" class="card big report-card">
-      <div class="card-icon folder"></div>
-      <div class="card-title">
-        Generate <br /><strong>Report</strong>
-      </div>
-    </a>
+            <!-- Report Ready Banner -->
+            <section id="ar-report-banner" class="banner banner-success">
+              <div class="banner-icon">✔</div>
+              <div>
+                <h2>Report Ready</h2>
+                <p>System Summary Report has been generated.</p>
+              </div>
+              <button id="ar-banner-close" class="banner-close">×</button>
+            </section>
 
-  </div>
-</section>
+            <!-- Filters & Actions -->
+            <section class="card card-section">
+              <div class="filter-row">
+                <div class="filter-item">
+                  <label for="ar-date-from">From</label>
+                  <input type="date" id="ar-date-from" />
+                </div>
+
+                <div class="filter-item">
+                  <label for="ar-date-to">To</label>
+                  <input type="date" id="ar-date-to" />
+                </div>
+
+                <div class="filter-item">
+                  <label for="ar-doctor-filter">Doctor</label>
+                  <select id="ar-doctor-filter">
+                    <option value="">All doctors</option>
+                  </select>
+                </div>
+
+                <div class="filter-item">
+                  <label for="ar-payment-status-filter">Payment Status</label>
+                  <select id="ar-payment-status-filter">
+                    <option value="">All</option>
+                    <option value="Paid">Paid</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Failed">Failed</option>
+                  </select>
+                </div>
+
+                <div class="filter-item">
+                  <label for="ar-search-filter">Search</label>
+                  <input
+                    type="text"
+                    id="ar-search-filter"
+                    placeholder="Patient, doctor, type..."
+                  />
+                </div>
+
+                <div class="filter-actions">
+                  <button id="ar-generate-btn" class="primary-btn">
+                    Generate Report
+                  </button>
+                  <button id="ar-download-btn" class="secondary-btn">
+                    Download CSV
+                  </button>
+                </div>
+              </div>
+
+              <div class="meta-row">
+                <span id="ar-meta-period">Period: All Time</span>
+                <span id="ar-meta-updated">Last generated: just now</span>
+              </div>
+            </section>
+
+            <!-- High-level summary -->
+            <section class="card card-section">
+              <div class="summary-grid">
+                <div class="summary-card">
+                  <div class="summary-label">Total Patients</div>
+                  <div class="summary-value" id="ar-total-patients">0</div>
+                </div>
+                <div class="summary-card">
+                  <div class="summary-label">Total Doctors</div>
+                  <div class="summary-value" id="ar-total-doctors">0</div>
+                </div>
+                <div class="summary-card">
+                  <div class="summary-label">Total Appointments</div>
+                  <div class="summary-value" id="ar-total-appointments">0</div>
+                </div>
+                <div class="summary-card">
+                  <div class="summary-label">Total Revenue</div>
+                  <div class="summary-value" id="ar-total-revenue">$0.00</div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Detailed table -->
+            <section class="card card-section">
+              <div class="card-header">
+                <h2>Detailed Appointments Report</h2>
+                <p class="card-subtitle">
+                  Each row shows one appointment with patient, doctor, and
+                  payment information.
+                </p>
+              </div>
+
+              <div class="table-wrapper">
+                <table id="ar-report-table">
+                  <thead>
+                    <tr>
+                      <th>Appointment ID</th>
+                      <th>Date</th>
+                      <th>Time</th>
+                      <th>Patient ID</th>
+                      <th>Patient Name</th>
+                      <th>Patient Email</th>
+                      <th>Patient Phone</th>
+                      <th>Doctor ID</th>
+                      <th>Doctor Name</th>
+                      <th>Specialty</th>
+                      <th>Type</th>
+                      <th>Status</th>
+                      <th>Amount</th>
+                      <th>Payment Status</th>
+                      <th>Payment Method</th>
+                      <th>Location</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ar-report-body">
+                    <!-- Filled by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
 
         <!-- Account Details -->
         <section id="account" class="view">
           <div class="panel">
             <h2>Account Details</h2>
             <div class="acct-card">
-            <h3>Account Information</h3>
-            <div class="row">
-              <div class="label">User :</div>
-              <div class="value">username</div>
+              <h3>Account Information</h3>
+              <div class="row">
+                <div class="label">User :</div>
+                <div class="value">username</div>
+              </div>
+              <div class="row">
+                <div class="label">Password :</div>
+                <div class="value">password</div>
+              </div>
+              <div class="row">
+                <div class="label">Last Login :</div>
+                <div class="value">MM / DD / YEAR</div>
+              </div>
             </div>
-            <div class="row">
-              <div class="label">Password :</div>
-              <div class="value">password</div>
-            </div>
-            <div class="row">
-              <div class="label">Last Login :</div>
-              <div class="value">MM / DD / YEAR</div>
-            </div>
-          </div>
 
-          <div class="acct-card">
-            <h3>Admin Details</h3>
-            <div class="row">
-              <div class="label">Name :</div>
-              <div class="value">Jane Doe, MD</div>
-            </div>
-            <div class="row">
-              <div class="label">Specialty :</div>
-              <div class="value">Specialty</div>
-            </div>
-            <div class="row">
-              <div class="label">Clinic :</div>
-              <div class="value">Location</div>
+            <div class="acct-card">
+              <h3>Admin Details</h3>
+              <div class="row">
+                <div class="label">Name :</div>
+                <div class="value">Jane Doe, MD</div>
+              </div>
+              <div class="row">
+                <div class="label">Specialty :</div>
+                <div class="value">Specialty</div>
+              </div>
+              <div class="row">
+                <div class="label">Clinic :</div>
+                <div class="value">Location</div>
+              </div>
             </div>
           </div>
         </section>
@@ -218,17 +544,13 @@
         </div>
       </div>
     </div>
-    
+
+    <!-- Logout overlay -->
     <div id="overlay">
-      <div id="logout-popup">
-        <h3>Are you sure you want to logout?</h3>
-        <div id="button-container">
-          <button class="logout-btn" id="confirm"> Yes </button>
-          <button class="logout-btn" id="cancel"> Cancel </button>
-        </div>
-      </div>
+      <div id="logout-popup"></div>
     </div>
 
+    <!-- Consolidated admin script -->
     <script src="./scripts/Admin_dashboard.js"></script>
   </body>
 </html>
