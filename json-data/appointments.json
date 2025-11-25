@@ -1,0 +1,27 @@
+{
+  "appointments": 
+  {
+        "appt000001": 
+        {
+            "createdAt": "November 10, 2025 at 4:59:20 PM UTC-5",
+            "createdBy": "gMk8zk9NCDIvK8mvFhMRP9bTJ7a7",
+            "doctorId": "iHSNwlUZUXe2IeDQHCEMCaHvQUz2",
+            "startTime": "November 6, 2025 at 2:00:00 PM UTC-5",
+            "endTime": "November 6, 2025 at 2:30:00 PM UTC-5",
+            "patientId": "gMk8zk9NCDIvK8mvFhMRP9bTJ7a7",
+            "status": "scheduled",
+            "visitType": "general"
+        },
+        "appt000002": 
+        {
+            "createdAt": "November 12, 2025 at 10:15:45 AM UTC-5",
+            "createdBy": "gMk8zk9NCDIvK8mvFhMRP9bTJ7a7",
+            "doctorId": "iHSNwlUZUXe2IeDQHCEMCaHvQUz2",
+            "startTime": "November 20, 2025 at 11:00:00 AM UTC-5",
+            "endTime": "November 20, 2025 at 11:30:00 AM UTC-5",
+            "patientId": "gMk8zk9NCDIvK8mvFhMRP9bTJ7a7",
+            "status": "rescheduled",
+            "visitType": "skin_check"
+        }
+    }
+}
