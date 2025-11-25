@@ -1,3 +1,8 @@
+import { db, auth } from "./firebase_config.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { getUserAppointments } from './appt_scheduling.js';
+
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 
@@ -99,38 +104,150 @@ $$(".sidenav .nav-item").forEach((btn) => {
 });
 
 /* Appointments list */
-function renderAppointments() {
-  const list = $("#appointments");
-  list.innerHTML = "";
+async function renderAppointments(userId) {
 
-  if (!appointments.length) {
-    list.innerHTML = '<p class="sub">You have no upcoming appointments.</p>';
+  const appointmentsList = $("#appointmentList");
+  appointmentsList.innerHTML = '<p class="sub">Loading appointments...</p>';
+
+  try {
+    // Get all appointments for the user and filter by status in JavaScript
+    const allUserAppts = await getUserAppointments(userId);
+    console.log("All User Appointments:", allUserAppts);
+    
+    // Filter for scheduled and rescheduled appointments
+    const allAppts = allUserAppts.filter(appt => 
+      appt.status === "scheduled" || appt.status === "rescheduled"
+    );
+    console.log("Filtered Appointments (scheduled/rescheduled):", allAppts);
+
+    if (allAppts.length === 0) {
+      appointmentsList.innerHTML = '<p class="sub">You have no upcoming appointments.</p>';
+      return;
+    }
+
+    // Fetch doctor details for each appointment
+    const appointmentsWithDoctors = await Promise.all(
+      allAppts.map(async (appointment) => {
+        try {
+          const doctorDoc = await getDoc(doc(db, "doctors", appointment.doctorId));
+          if (doctorDoc.exists()) {
+            const doctorData = doctorDoc.data();
+            return {
+              ...appointment,
+              doctorName: `Dr. ${doctorData.firstName} ${doctorData.lastName}, ${doctorData.credentials || 'MD'}`,
+              departmentId: doctorData.departmentId
+            };
+          }
+          return { ...appointment, doctorName: "Unknown Doctor", departmentId: null };
+        } catch (error) {
+          console.error("Error fetching doctor:", error);
+          return { ...appointment, doctorName: "Unknown Doctor", departmentId: null };
+        }
+      })
+    );
+
+    appointmentsList.innerHTML = "";
+
+    appointmentsWithDoctors.forEach((appointment) => {
+      // Parse the startTime and endTime from Firestore format: "November 6, 2025 at 2:00:00 PM UTC-5"
+      let startDate, endDate;
+      
+      // Check if it's a Firestore Timestamp object
+      if (appointment.startTime?.seconds) {
+        startDate = new Date(appointment.startTime.seconds * 1000);
+        endDate = new Date(appointment.endTime.seconds * 1000);
+      } else if (typeof appointment.startTime === 'string' && appointment.startTime.includes(' at ')) {
+        // Parse Firestore date string format: "November 6, 2025 at 2:00:00 PM UTC-5"
+        // Extract the date and time parts, ignoring the stored timezone
+        const timeMatch = appointment.startTime.match(/^(.+?) at (.+?) UTC/);
+        const endTimeMatch = appointment.endTime.match(/^(.+?) at (.+?) UTC/);
+        
+        if (timeMatch && endTimeMatch) {
+          // Parse as UTC then convert to local timezone
+          const startUTC = new Date(timeMatch[1] + ' ' + timeMatch[2] + ' UTC');
+          const endUTC = new Date(endTimeMatch[1] + ' ' + endTimeMatch[2] + ' UTC');
+          startDate = startUTC;
+          endDate = endUTC;
+        } else {
+          // Fallback: parse directly
+          startDate = new Date(appointment.startTime);
+          endDate = new Date(appointment.endTime);
+        }
+        
+        startDate = new Date(cleanStart);
+        endDate = new Date(cleanEnd);
+      } else {
+        // ISO string or other format
+        startDate = new Date(appointment.startTime);
+        endDate = new Date(appointment.endTime);
+      }
+
+      console.log("Appointment dates:", { 
+        startTime: appointment.startTime, 
+        endTime: appointment.endTime,
+        parsedStart: startDate.toString(),
+        parsedEnd: endDate.toString()
+      });
+
+      // Format date and time in user's local timezone
+      const formattedDate = startDate.toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+      });
+
+      const formattedStartTime = startDate.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+      });
+
+      const formattedEndTime = endDate.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+      });
+
+      // Format Visit Type and Location as Pascal Case
+      const formatPascalCase = (str) => {
+        return str
+          .toLowerCase()
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+      }
+
+      const formattedVisitType = formatPascalCase(appointment.visitType || 'General Visit');
+      const formattedLocation = formatPascalCase(appointment.location || 'Location to be determined');
+
+      const card = document.createElement("article");
+      card.className = "card";
+      card.setAttribute("role", "listitem");
+      card.innerHTML = `
+        <div class="meta">
+          <div class="title">${appointment.doctorName}</div>
+          <div class="sub">${formattedVisitType || 'General Visit'}</div>
+        </div>
+        <div class="right">
+          <div class="sub">${formattedDate}</div>
+          <div class="sub">${formattedStartTime} - ${formattedEndTime}</div>
+          <div class="sub">${formattedLocation || 'Location to be determined'}</div>
+          <div class="actions-inline">
+            <button class="secondary" data-id="${appointment.id}" data-act="change">Change</button>
+            <button class="primary" data-id="${appointment.id}" data-act="cancel">Cancel</button>
+          </div>
+        </div>
+      `;
+      appointmentsList.appendChild(card);
+    });
+  } catch (error) {
+    console.error("Error rendering appointments:", error);
+    appointmentsList.innerHTML = '<p class="sub">Error loading appointments. Please try again.</p>';
     return;
   }
 
-  appointments.forEach((a) => {
-    const card = document.createElement("article");
-    card.className = "card";
-    card.setAttribute("role", "listitem");
-    card.innerHTML = `
-      <div class="meta">
-        <div class="title">${a.doctor}</div>
-        <div class="sub">Specialty</div>
-      </div>
-      <div class="right">
-        <div class="sub">${a.date}</div>
-        <div class="sub">${a.time}</div>
-        <div class="sub">${a.location}</div>
-        <div class="actions-inline">
-          <button class="secondary" data-id="${a.id}" data-act="change">Change</button>
-          <button class="primary" data-id="${a.id}" data-act="cancel">Cancel</button>
-        </div>
-      </div>
-    `;
-    list.appendChild(card);
-  });
-
-  list.onclick = (e) => {
+  appointmentsList.onclick = (e) => {
     const btn = e.target.closest("button[data-id]");
     if (!btn) return;
     const id = btn.dataset.id;
@@ -402,17 +519,29 @@ confirmCancelBtn.addEventListener("click", () => {
 
 /* Init */
 window.addEventListener("DOMContentLoaded", () => {
-  showView("appointments");
-  renderAppointments();
-  buildCalendar();
+  // Wait for Firebase Auth to initialize
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      console.warn("No user logged in - redirecting to login");
+      // Redirect to login page or show login prompt
+      window.location.href = "./patient_login_page.html";
+      return;
+    }
 
-  // Initialize doctor dropdown for scheduling
-  if (typeof renderDoctorOptions === "function") {
-    renderDoctorOptions();
-  }
+    console.log("User authenticated:", user.uid);
 
-  const doctorSearchInput = $("#doctorSearch");
-  if (doctorSearchInput) {
-    doctorSearchInput.addEventListener("input", renderDoctorOptions);
-  }
+    showView("appointments");
+    await renderAppointments(user.uid);
+    buildCalendar();
+
+    // Initialize doctor dropdown for scheduling
+    if (typeof renderDoctorOptions === "function") {
+      renderDoctorOptions();
+    }
+
+    const doctorSearchInput = $("#doctorSearch");
+    if (doctorSearchInput) {
+      doctorSearchInput.addEventListener("input", renderDoctorOptions);
+    }
+  });
 });
