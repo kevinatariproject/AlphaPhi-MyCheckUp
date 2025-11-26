@@ -173,9 +173,6 @@ async function renderAppointments(userId) {
           startDate = new Date(appointment.startTime);
           endDate = new Date(appointment.endTime);
         }
-        
-        startDate = new Date(cleanStart);
-        endDate = new Date(cleanEnd);
       } else {
         // ISO string or other format
         startDate = new Date(appointment.startTime);
@@ -247,7 +244,6 @@ async function renderAppointments(userId) {
     return;
   }
 
-  appointmentsList.onclick = (e) => {
   appointmentsList.onclick = (e) => {
     const btn = e.target.closest("button[data-id]");
     if (!btn) return;
@@ -534,30 +530,5 @@ window.addEventListener("DOMContentLoaded", () => {
     showView("appointments");
     await renderAppointments(user.uid);
     buildCalendar();
-  // Wait for Firebase Auth to initialize
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      console.warn("No user logged in - redirecting to login");
-      // Redirect to login page or show login prompt
-      window.location.href = "./patient_login_page.html";
-      return;
-    }
-
-    console.log("User authenticated:", user.uid);
-
-    showView("appointments");
-    await renderAppointments(user.uid);
-    buildCalendar();
-
-  // Initialize doctor dropdown for scheduling
-  // if (typeof renderDoctorOptions === "function") {
-  //   renderDoctorOptions();
-  // }
-
-  // const doctorSearchInput = $("#doctorSearch");
-  // if (doctorSearchInput) {
-  //   doctorSearchInput.addEventListener("input", renderDoctorOptions);
-  // }
-  
-  })
+  });
 });
