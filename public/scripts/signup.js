@@ -174,7 +174,7 @@ document.getElementById('signupForm').addEventListener('submit', async function(
                 preferredName,
                 dateOfBirth,
                 address,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                createdAt: serverTimestamp(),
             });
         }
 

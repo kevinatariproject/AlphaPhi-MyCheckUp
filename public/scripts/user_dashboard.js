@@ -208,14 +208,14 @@ function startScheduleFlow(mode, apptId) {
   scheduleCtx = { mode, apptId: apptId || null, purpose: "", doctor: "" };
   $("#visitPurpose").value = "";
   $("#visitDoctor").value = "";
-  if ($("#doctorSearch")) $("#doctorSearch").value = "";
-  renderDoctorOptions();
+  $("#selectedDoctorId").value = "";
+  
   openModal(scheduleStep1);
 }
 
 $("#s1NextBtn").addEventListener("click", () => {
   const purpose = $("#visitPurpose").value;
-  const doctor = $("#visitDoctor").value;
+  const doctor = $("#selectedDoctorId").value;
   if (!purpose || !doctor) {
     alert("Please select both purpose and doctor.");
     return;
@@ -407,12 +407,12 @@ window.addEventListener("DOMContentLoaded", () => {
   buildCalendar();
 
   // Initialize doctor dropdown for scheduling
-  if (typeof renderDoctorOptions === "function") {
-    renderDoctorOptions();
-  }
+  // if (typeof renderDoctorOptions === "function") {
+  //   renderDoctorOptions();
+  // }
 
-  const doctorSearchInput = $("#doctorSearch");
-  if (doctorSearchInput) {
-    doctorSearchInput.addEventListener("input", renderDoctorOptions);
-  }
+  // const doctorSearchInput = $("#doctorSearch");
+  // if (doctorSearchInput) {
+  //   doctorSearchInput.addEventListener("input", renderDoctorOptions);
+  // }
 });

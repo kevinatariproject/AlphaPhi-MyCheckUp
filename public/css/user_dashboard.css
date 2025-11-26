@@ -41,7 +41,7 @@ button{cursor:pointer;}
 .avatar{
   display:grid;place-items:center;
   width:34px;height:34px;border-radius:999px;
-  background:#e0ecff;border:2px solid:#93c5fd;
+  background:#e0ecff;border:2px solid#93c5fd;
 }
 .hamburger{
   display:none;width:38px;height:38px;border-radius:10px;
@@ -246,4 +246,18 @@ button:focus-visible{outline:none;box-shadow:var(--focus);}
 @media(max-width:720px){
   .action-tiles{grid-template-columns:1fr;}
   .card{align-items:flex-start;}
+}
+.dropdown {
+  position: absolute;
+  background: white;
+  border: 1px solid black;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.dropdown-item:hover {
+  background: #f2f2f2;
 }
