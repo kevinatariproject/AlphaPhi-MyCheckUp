@@ -2,6 +2,8 @@ import { db, auth } from "./firebase_config.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { getUserAppointments } from './appt_scheduling.js';
+import { openModal, closeModal } from "./modal_controls.js";
+import { populateCalendar } from "./calendar_populate.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -12,37 +14,6 @@ let appointments = [
   { id: "a2", doctor: "Dr. Jane Doe, MD", date: "November 12th, 2025", time: "3:00 PM", location: "LOCATION" },
   { id: "a3", doctor: "Dr. Jon Doe, MD", date: "November 12th, 2025", time: "8:00 AM", location: "LOCATION" }
 ];
-
-const demoDaySlots = ["7:30 AM", "8:00 AM", "10:00 AM", "10:30 AM", "11:00 AM"];
-
-// Doctors list for scheduling and search
-const allDoctors = [
-  { name: "Dr. Jane Doe, MD", specialty: "Primary Care" },
-  { name: "Dr. Jon Doe, MD", specialty: "Dermatology" }
-];
-
-// Render doctor options into #visitDoctor with optional search term
-function renderDoctorOptions() {
-  const select = $("#visitDoctor");
-  const searchInput = $("#doctorSearch");
-  const term = searchInput ? searchInput.value.trim().toLowerCase() : "";
-
-  // Base option
-  select.innerHTML = '<option value="">Doctors</option>';
-
-  allDoctors
-    .filter((d) => {
-      if (!term) return true;
-      const text = (d.name + " " + d.specialty).toLowerCase();
-      return text.includes(term);
-    })
-    .forEach((d) => {
-      const opt = document.createElement("option");
-      opt.value = d.name;
-      opt.textContent = `${d.name} – ${d.specialty}`;
-      select.appendChild(opt);
-    });
-}
 
 /* Drawer */
 const drawer = $("#drawer");
@@ -256,52 +227,11 @@ async function renderAppointments(userId) {
   };
 }
 
-/* Modal helpers */
-const modalOverlay = $("#modalOverlay");
-
-function openModal(modal) {
-  modal.classList.remove("hidden");
-  modal.classList.add("open");
-  modalOverlay.classList.remove("hidden");
-  modalOverlay.classList.add("open");
-}
-
-function closeModal(modal) {
-  modal.classList.remove("open");
-  modal.classList.add("hidden");
-  const anyOpen = document.querySelector(".modal.open");
-  if (!anyOpen) {
-    modalOverlay.classList.remove("open");
-    modalOverlay.classList.add("hidden");
-  }
-}
-
-document.addEventListener("click", (e) => {
-  if (e.target.matches("[data-close-modal]")) {
-    const m = e.target.closest(".modal");
-    if (m) closeModal(m);
-  }
-});
-
-modalOverlay.addEventListener("click", () => {
-  document.querySelectorAll(".modal.open").forEach((m) => closeModal(m));
-});
-
-window.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    document.querySelectorAll(".modal.open").forEach((m) => closeModal(m));
-  }
-});
-
 /* Schedule flow */
 const scheduleStep1 = $("#scheduleStep1");
 const viewAvailability = $("#view-availability");
 const availabilityBackBtn = $("#availabilityBackBtn");
-const monthLabel = $("#monthLabel");
-const calendarBody = $("#calendarBody");
 const daySlotsModal = $("#daySlotsModal");
-const slotsDateLabel = $("#slotsDateLabel");
-const daySlotsList = $("#daySlotsList");
 const confirmModal = $("#confirmModal");
 const confirmText = $("#confirmText");
 
@@ -340,111 +270,13 @@ $("#s1NextBtn").addEventListener("click", () => {
   closeModal(scheduleStep1);
   $("#view-appointments").classList.add("hidden");
   viewAvailability.classList.remove("hidden");
-  buildCalendar();
+  populateCalendar("patient", doctor);
 });
 
 availabilityBackBtn.addEventListener("click", () => {
   viewAvailability.classList.add("hidden");
   $("#view-appointments").classList.remove("hidden");
 });
-
-/* Availability calendar */
-let currentYear = 2025;
-let currentMonth = 9; // October
-
-function buildCalendar() {
-  const first = new Date(currentYear, currentMonth, 1);
-  const startDay = first.getDay();
-  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-  monthLabel.textContent = first.toLocaleString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
-
-  calendarBody.innerHTML = "";
-  let day = 1;
-
-  for (let r = 0; r < 6; r++) {
-    const tr = document.createElement("tr");
-
-    for (let c = 0; c < 7; c++) {
-      const td = document.createElement("td");
-
-      if ((r === 0 && c < startDay) || day > daysInMonth) {
-        td.classList.add("disabled");
-      } else {
-        const num = document.createElement("span");
-        num.className = "day-number";
-        num.textContent = day;
-        td.appendChild(num);
-
-        const weekday = (startDay + day - 1) % 7;
-
-        if (weekday === 2) {
-          const range = document.createElement("div");
-          range.className = "avail-range";
-          range.textContent = "7AM – 3PM";
-          range.addEventListener("click", () => openDaySlots(day));
-          td.appendChild(range);
-        } else if (weekday === 4) {
-          const range = document.createElement("div");
-          range.className = "avail-range";
-          range.textContent = "8AM – 10PM";
-          range.addEventListener("click", () => openDaySlots(day));
-          td.appendChild(range);
-        }
-
-        day++;
-      }
-
-      tr.appendChild(td);
-    }
-
-    calendarBody.appendChild(tr);
-    if (day > daysInMonth) break;
-  }
-}
-
-$("#prevMonth").addEventListener("click", () => {
-  currentMonth--;
-  if (currentMonth < 0) {
-    currentMonth = 11;
-    currentYear--;
-  }
-  buildCalendar();
-});
-
-$("#nextMonth").addEventListener("click", () => {
-  currentMonth++;
-  if (currentMonth > 11) {
-    currentMonth = 0;
-    currentYear++;
-  }
-  buildCalendar();
-});
-
-function openDaySlots(day) {
-  const date = new Date(currentYear, currentMonth, day);
-  const nice = date.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-
-  slotsDateLabel.textContent = nice;
-  daySlotsList.innerHTML = "";
-
-  demoDaySlots.forEach((time) => {
-    const btn = document.createElement("button");
-    btn.textContent = time;
-    btn.addEventListener("click", () => confirmSlot(nice, time));
-    daySlotsList.appendChild(btn);
-  });
-
-  openModal(daySlotsModal);
-}
 
 function confirmSlot(date, time) {
   closeModal(daySlotsModal);
@@ -524,11 +356,9 @@ window.addEventListener("DOMContentLoaded", () => {
       window.location.href = "./patient_login_page.html";
       return;
     }
-
     console.log("User authenticated:", user.uid);
 
     showView("appointments");
     await renderAppointments(user.uid);
-    buildCalendar();
   });
 });
