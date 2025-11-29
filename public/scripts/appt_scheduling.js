@@ -1,7 +1,7 @@
 // This file handles all the appointment scheduling functionalities
 
 import { db } from './firebase_config.js';
-import { collection, addDoc, doc, updateDoc, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { collection, addDoc, doc, updateDoc, serverTimestamp, query, where, getDocs, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 async function createAppointment(startTime, endTime, userID, patientID, doctorID, status, visitType) {
     try {
@@ -16,6 +16,14 @@ async function createAppointment(startTime, endTime, userID, patientID, doctorID
             visitType
         });
         console.log("Appointment successfully created!");
+
+        // create block on doctor's schedule
+        await setDoc(doc(db, "schedules", doctorID, "blocks", apptID.id), {
+            startTime,
+            endTime
+        });
+        console.log("Block successfully created");
+
         return apptID.id;
     } catch (error) {
         console.error("Error occurred while creating appointment: ", error);
@@ -38,6 +46,14 @@ async function updateAppointment(apptID, startTime, endTime, userID, patientID, 
             visitType
         });
         console.log("Appointment successfully updated!");
+
+        // update block
+        await updateDoc(doc(db, "schedules", doctorID, "blocks", apptID), {
+            startTime,
+            endTime
+        });
+        console.log("Block successfully updated");
+
         return true;
     } catch (error) {
         console.error("Error occurred while updating appointment: ", error);
@@ -53,6 +69,12 @@ async function cancelAppointment(apptID) {
             status: "cancelled"
         });
         console.log("Appointment successfully cancelled!");
+
+        // delete block
+        const apptData = await getDoc(apptRef);
+        await deleteDoc(doc(db, "schedules", apptData.data().doctorId, "blocks", apptID));
+        console.log("Block successfully deleted");
+
         return true;
     } catch (error) {
         console.error("Error occurred while cancelling appointment: ", error);
