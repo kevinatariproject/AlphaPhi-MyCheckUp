@@ -5,10 +5,12 @@
     <title>MyCheckUp – User Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="./css/user_dashboard.css" />
+    <link rel="stylesheet" href="./css/calendar.css" />
+    <link rel="stylesheet" href="./css/modal.css" />
     <link rel="stylesheet" href="./css/logout_popup.css" />
     <script type="module" src="./scripts/user_dashboard.js"></script>
-    <script type="module" src="./scripts/search_doctors.js"></script>
-    <script type="module" src="./scripts/department_loader.js"></script>
+    <script defer type="module" src="./scripts/search_doctors.js"></script>
+    <script defer type="module" src="./scripts/department_loader.js"></script>
     <script type="module" src="./scripts/logout.js" ></script>
   </head>
 
@@ -110,42 +112,31 @@
           ></div>
         </section>
 
-        <!-- Availability / Schedule Calendar -->
-        <section
-          id="view-availability"
-          class="content hidden"
-          aria-label="Availability calendar"
-        >
-          <div class="schedule-header">
+        <!-- Availability / View Schedule -->
+        <section id="view-availability" class="content hidden" aria-label="Availability calendar">
+          <div class="toolbar">
             <h2>Availability</h2>
             <button class="primary schedule-back" id="availabilityBackBtn">
               Back
             </button>
           </div>
 
-          <div class="month-nav">
-            <button class="month-btn" id="prevMonth">&#9664;</button>
-            <div class="month-label" id="monthLabel">October 2025</div>
-            <button class="month-btn" id="nextMonth">&#9654;</button>
+          <div class="cal-controls">
+            <button id="prevMonth" class="btn icon" aria-label="Previous month">
+              ◀
+            </button>
+            <button id="nextMonth" class="btn icon" aria-label="Next month">
+              ▶
+            </button>
+            <div id="monthLabel" class="month-label"></div>
+            <button id="todayBtn" class="btn">Today</button>
           </div>
 
-          <table
+          <div
+            id="calendar"
             class="calendar"
-            aria-label="Availability calendar for selected month"
-          >
-            <thead>
-              <tr>
-                <th>Sunday</th>
-                <th>Monday</th>
-                <th>Tuesday</th>
-                <th>Wednesday</th>
-                <th>Thursday</th>
-                <th>Friday</th>
-                <th>Saturday</th>
-              </tr>
-            </thead>
-            <tbody id="calendarBody"></tbody>
-          </table>
+            aria-label="Availability calendar"
+          ></div>
         </section>
 
         <!-- Account Details -->
@@ -295,10 +286,10 @@
     >
       <div class="modal-card">
         <button class="modal-close" data-close-modal>&times;</button>
-        <h3 id="slotsTitle">Available appointments for</h3>
-        <p class="modal-subtitle" id="slotsDateLabel">
-          Thursday, October 23, 2025
+        <p class="modal-subtitle" id="slotsTitle">
+          Available appointments for
         </p>
+        <h3 id="slotsDateLabel">Date String</h3>
 
         <div class="times-table">
           <div id="daySlotsList"></div>
