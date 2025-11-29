@@ -1,7 +1,7 @@
 import { db, auth } from "./firebase_config.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { getUserAppointments } from './appt_scheduling.js';
+import { getUserAppointments, cancelAppointment } from './appt_scheduling.js';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -103,6 +103,8 @@ $$(".sidenav .nav-item").forEach((btn) => {
   });
 });
 
+let allScheduledAppts = [];
+
 /* Appointments list */
 async function renderAppointments(userId) {
 
@@ -115,19 +117,19 @@ async function renderAppointments(userId) {
     console.log("All User Appointments:", allUserAppts);
     
     // Filter for scheduled and rescheduled appointments
-    const allAppts = allUserAppts.filter(appt => 
+    allScheduledAppts = allUserAppts.filter(appt => 
       appt.status === "scheduled" || appt.status === "rescheduled"
     );
-    console.log("Filtered Appointments (scheduled/rescheduled):", allAppts);
+    console.log("Filtered Appointments (scheduled/rescheduled):", allScheduledAppts);
 
-    if (allAppts.length === 0) {
+    if (allScheduledAppts.length === 0) {
       appointmentsList.innerHTML = '<p class="sub">You have no upcoming appointments.</p>';
       return;
     }
 
     // Fetch doctor details for each appointment
     const appointmentsWithDoctors = await Promise.all(
-      allAppts.map(async (appointment) => {
+      allScheduledAppts.map(async (appointment) => {
         try {
           const doctorDoc = await getDoc(doc(db, "doctors", appointment.doctorId));
           if (doctorDoc.exists()) {
@@ -249,12 +251,14 @@ async function renderAppointments(userId) {
     if (!btn) return;
     const id = btn.dataset.id;
     if (btn.dataset.act === "cancel") {
-      openCancelModal(id);
+      openCancelApptModal(id);
     } else if (btn.dataset.act === "change") {
       startScheduleFlow("change", id);
     }
   };
 }
+
+
 
 /* Modal helpers */
 const modalOverlay = $("#modalOverlay");
@@ -473,10 +477,11 @@ function confirmSlot(date, time) {
 }
 
 /* Cancel flow */
-const cancelSelect = $("#cancelSelect");
+const cancelSelect = $("#cancelSelectedAppt");
+const cancelAppt = $("#cancelApptModal");
 const confirmCancelBtn = $("#confirmCancelBtn");
 
-function openCancelModal(preselectId) {
+function openCancelSlctdApptModal(preselectId) {
   cancelSelect.innerHTML = "";
 
   if (!appointments.length) {
@@ -488,16 +493,35 @@ function openCancelModal(preselectId) {
     appointments.forEach((a) => {
       const opt = document.createElement("option");
       opt.value = a.id;
-      opt.textContent = `${a.doctor} – ${a.date} at ${a.time}`;
+      opt.textContent = `${a.doctor} - ${a.date} at ${a.time}`;
       cancelSelect.appendChild(opt);
     });
   }
 
-  if (preselectId) cancelSelect.value = preselectId;
-  openModal($("#cancelModal"));
+  if (preselectId) {
+    cancelSelect.value = preselectId;
+  } 
+    
+  openModal($("#cancelSlctdApptModal"));
 }
 
-$("#tileCancel").addEventListener("click", () => openCancelModal());
+$("#tileCancel").addEventListener("click", () => openCancelSlctdApptModal());
+
+function openCancelApptModal(preselectId) {
+  if (preselectId) {
+    cancelAppt.value = preselectId;
+  }
+  openModal($("#cancelApptModal"));
+} 
+
+cancelApptBtn.addEventListener("click", () => {
+  const apptId = cancelAppt.value;
+  cancelAppointment(apptId)
+    .then(() => {
+      closeModal(cancelAppt);
+      renderAppointments();
+    });
+});
 
 confirmCancelBtn.addEventListener("click", () => {
   const id = cancelSelect.value;

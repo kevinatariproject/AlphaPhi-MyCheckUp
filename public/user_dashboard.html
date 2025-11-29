@@ -312,7 +312,7 @@
 
     <!-- Cancel appointment modal -->
     <div
-      id="cancelModal"
+      id="cancelSlctdApptModal"
       class="modal hidden"
       role="dialog"
       aria-modal="true"
@@ -324,12 +324,31 @@
 
         <label>
           Appointment Details
-          <select id="cancelSelect"></select>
+          <select id="cancelSelectedAppt"></select>
         </label>
 
         <div class="modal-actions">
           <button class="secondary" data-close-modal>Close</button>
           <button class="primary" id="confirmCancelBtn">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cancel appointment confirmation modal -->
+    <div
+      id="cancelApptModal"
+      class="modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cancelTitle"
+    >
+      <div class="modal-card">
+        <button class="modal-close" data-close-modal>&times;</button>
+        <h3 id="cancelTitle">Are you sure you want to cancel this appointment?</h3>
+
+        <div class="modal-actions">
+          <button class="secondary" data-close-modal>No, go back</button>
+          <button class="primary" id="cancelApptBtn">Yes, cancel</button>
         </div>
       </div>
     </div>
