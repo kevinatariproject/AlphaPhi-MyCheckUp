@@ -87,17 +87,17 @@
             role="group"
             aria-label="Appointment actions"
           >
-            <button id="tileSchedule" class="tile">
+            <button id="tileCreateAppt" class="tile">
               <span class="tile-icon" aria-hidden="true">📅➕</span>
               <span class="tile-title">Schedule New<br />Appointment</span>
             </button>
-            <button id="tileCancel" class="tile">
+            <button id="tileCancelAppt" class="tile">
               <span class="tile-icon" aria-hidden="true">❌</span>
               <span class="tile-title">Cancel<br />Appointment</span>
             </button>
-            <button id="tileChange" class="tile">
+            <button id="tileModifyAppt" class="tile">
               <span class="tile-icon" aria-hidden="true">🛠️</span>
-              <span class="tile-title">Change Current<br />Appointment</span>
+              <span class="tile-title">Reschedule Existing<br />Appointment</span>
             </button>
           </div>
 
@@ -323,7 +323,7 @@
         <h3 id="cancelTitle">Which appointment would you like to cancel?</h3>
 
         <label>
-          Appointment Details
+          Upcoming Appointments
           <select id="cancelSelectedAppt"></select>
         </label>
 
@@ -349,6 +349,55 @@
         <div class="modal-actions">
           <button class="secondary" data-close-modal>No, go back</button>
           <button class="primary" id="cancelApptBtn">Yes, cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Update appointment modal -->
+    <div
+      id="updateApptModal"
+      class="modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cancelTitle"
+    >
+      <div class="modal-card">
+        <button class="modal-close" data-close-modal>&times;</button>
+        <h3 id="cancelTitle">Which appointment would you like to reschedule?</h3>
+
+        <label>
+          Upcoming Appointments
+          <select id="updateSelectedAppt"></select>
+        </label>
+
+        <div class="modal-actions">
+          <button class="secondary" data-close-modal>Back</button>
+          <button class="primary" id="continueUpdateBtn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reschedule appointment - Available time slots modal -->
+    <div
+      id="rescheduleTimeSlotsModal"
+      class="modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="rescheduleTitle"
+    >
+      <div class="modal-card">
+        <button class="modal-close" data-close-modal>&times;</button>
+        <h3 id="rescheduleTitle">Select a new time for your appointment</h3>
+        <p class="modal-subtitle" id="rescheduleSubtitle">
+          With Dr. [Doctor Name] on [Date]
+        </p>
+
+        <div class="times-table" id="rescheduleTimesList">
+          <!-- Time slots will be populated here -->
+        </div>
+
+        <div class="modal-actions">
+          <button class="secondary" data-close-modal>Cancel</button>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { db, auth } from "./firebase_config.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { getUserAppointments, cancelAppointment } from './appt_scheduling.js';
+import { getUserAppointments, cancelAppointment, getAvailableTimeSlots, updateAppointment } from './appt_scheduling.js';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -250,19 +250,17 @@ async function renderAppointments(userId) {
     return;
   }
 
-  appointmentsList.onclick = (e) => {
+  appointmentsList.onclick = async (e) => {
     const btn = e.target.closest("button[data-id]");
     if (!btn) return;
     const id = btn.dataset.id;
     if (btn.dataset.act === "cancel") {
       openCancelApptModal(id);
     } else if (btn.dataset.act === "change") {
-      startScheduleFlow("change", id);
+      await showRescheduleTimeSlots(id);
     }
   };
 }
-
-
 
 /* Modal helpers */
 const modalOverlay = $("#modalOverlay");
@@ -320,11 +318,165 @@ let scheduleCtx = {
   doctor: "",
 };
 
-$("#tileSchedule").addEventListener("click", () => startScheduleFlow("new"));
+$("#tileCreateAppt").addEventListener("click", () => startScheduleFlow("new"));
 
-$("#tileChange").addEventListener("click", () => {
-  alert("Use the Change button on a specific appointment to reschedule.");
+$("#tileModifyAppt").addEventListener("click", () => {
+  openUpdateApptModal();
 });
+
+const updateApptModal = $("#updateApptModal");
+const updateSelectedAppt = $("#updateSelectedAppt");
+
+function openUpdateApptModal(preselectId) {
+  updateSelectedAppt.innerHTML = "";
+  
+  if (allScheduledAppts.length === 0) {
+    const apptOptions = document.createElement("option");
+    apptOptions.value = "";
+    apptOptions.textContent = "No upcoming appointments";
+    updateSelectedAppt.appendChild(apptOptions);
+  }
+  else {
+    allScheduledAppts.forEach((appt) => {
+      const option = document.createElement("option");
+      const startDate = parseAppointmentDate(appt.startTime);
+      const formattedDate = startDate.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+      const formattedTime = startDate.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+      });
+      option.value = appt.id;
+      option.textContent = `${appt.doctorName} - ${formattedDate} at ${formattedTime}`;
+      updateSelectedAppt.appendChild(option);
+    });
+  }
+
+  if (preselectId) {
+    updateSelectedAppt.value = preselectId;
+  }
+  
+  openModal(updateApptModal);
+}
+
+// Handle the "Next" button to proceed with updating the selected appointment
+$("#continueUpdateBtn").addEventListener("click", async () => {
+  const apptId = updateSelectedAppt.value;
+  if (!apptId) {
+    alert("Please select an appointment to modify.");
+    return;
+  }
+  
+  closeModal(updateApptModal);
+  await showRescheduleTimeSlots(apptId);
+});
+
+async function showRescheduleTimeSlots(apptId) {
+  try {
+    // Find the appointment from allScheduledAppts
+    const appointment = allScheduledAppts.find(appt => appt.id === apptId);
+    if (!appointment) {
+      alert("Appointment not found.");
+      return;
+    }
+    
+    // Parse the current appointment date
+    const currentDate = parseAppointmentDate(appointment.startTime);
+    
+    // Get available time slots for the doctor on that date
+    const availableSlots = await getAvailableTimeSlots(
+      appointment.doctorId, 
+      currentDate,
+      apptId // Pass current appointment ID to exclude it from conflicts
+    );
+    
+    if (availableSlots.length === 0) {
+      alert("No available time slots found for this doctor on the selected date. Please contact the office.");
+      return;
+    }
+    
+    // Update modal content
+    const rescheduleModal = $("#rescheduleTimeSlotsModal");
+    const rescheduleSubtitle = $("#rescheduleSubtitle");
+    const rescheduleTimesList = $("#rescheduleTimesList");
+    
+    const formattedDate = currentDate.toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric"
+    });
+    
+    rescheduleSubtitle.textContent = `With ${appointment.doctorName} on ${formattedDate}`;
+    rescheduleTimesList.innerHTML = "";
+    
+    // Create button for each available slot
+    availableSlots.forEach(slot => {
+      const btn = document.createElement("button");
+      btn.textContent = slot.display;
+      btn.addEventListener("click", () => confirmReschedule(apptId, slot, appointment));
+      rescheduleTimesList.appendChild(btn);
+    });
+    
+    openModal(rescheduleModal);
+  } catch (error) {
+    console.error("Error showing reschedule time slots:", error);
+    alert("Error loading available time slots. Please try again.");
+  }
+}
+
+async function confirmReschedule(apptId, slot, appointment) {
+  const user = auth.currentUser;
+  if (!user) {
+    alert("You must be logged in to reschedule appointments.");
+    return;
+  }
+  
+  try {
+    // Update the appointment with new time
+    const success = await updateAppointment(
+      apptId,
+      slot.startTime.toISOString(),
+      slot.endTime.toISOString(),
+      user.uid,
+      appointment.patientId,
+      appointment.doctorId,
+      "rescheduled",
+      appointment.visitType
+    );
+    
+    if (success) {
+      closeModal($("#rescheduleTimeSlotsModal"));
+      
+      const formattedTime = slot.startTime.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+      });
+      
+      const formattedDate = slot.startTime.toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+      });
+      
+      confirmText.textContent = `Your appointment has been rescheduled to ${formattedDate} at ${formattedTime}.`;
+      openModal(confirmModal);
+      
+      await renderAppointments(user.uid);
+    } else {
+      alert("Failed to reschedule appointment. Please try again.");
+    }
+  } catch (error) {
+    console.error("Error rescheduling appointment:", error);
+    alert("Failed to reschedule appointment. Please try again.");
+  }
+}
 
 function startScheduleFlow(mode, apptId) {
   scheduleCtx = { mode, apptId: apptId || null, purpose: "", doctor: "" };
@@ -524,7 +676,7 @@ function openCancelSlctdApptModal(preselectId) {
   openModal($("#cancelSlctdApptModal"));
 }
 
-$("#tileCancel").addEventListener("click", () => openCancelSlctdApptModal());
+$("#tileCancelAppt").addEventListener("click", () => openCancelSlctdApptModal());
 
 function openCancelApptModal(preselectId) {
   if (preselectId) {

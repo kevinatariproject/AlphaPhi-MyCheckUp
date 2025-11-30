@@ -65,7 +65,7 @@ service cloud.firestore {
       allow update: if isOwner(doctorId) || isAdmin();
       allow delete: if isAdmin();
 
-      match /availability/{slotId} {
+      match /schedule/{slotId} {
         allow read: if isSignedIn();
         allow create, update, delete: if isOwner(doctorId) || isAdmin();
       }
@@ -85,11 +85,14 @@ service cloud.firestore {
                         && exists(/databases/$(database)/documents/patients/$(request.resource.data.patientId)/guardians/$(request.auth.uid)))
                     || isAdmin();
 
-      allow read: if isAdmin()
+      allow get: if isAdmin()
                   || (isSignedIn() && resource.data.patientId == request.auth.uid)
                   || (isSignedIn()
                       && exists(/databases/$(database)/documents/patients/$(resource.data.patientId)/guardians/$(request.auth.uid)))
                   || (isSignedIn() && resource.data.doctorId == request.auth.uid);
+
+      // Allow listing appointments for any signed-in user (will be filtered by query)
+      allow list: if isSignedIn();
 
       allow update: if isAdmin()
                     || (isSignedIn() && resource.data.patientId == request.auth.uid)
