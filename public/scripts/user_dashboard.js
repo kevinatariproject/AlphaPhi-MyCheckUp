@@ -1,9 +1,9 @@
 import { db, auth } from "./firebase_config.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { doc, getDoc, Timestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { getUserAppointments } from './appt_scheduling.js';
+import { getUserAppointments, createAppointment, updateAppointment } from './appt_scheduling.js';
 import { openModal, closeModal } from "./modal_controls.js";
-import { populateCalendar } from "./calendar_populate.js";
+import { initializeCalendar } from "./calendar_populate.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -238,8 +238,12 @@ const confirmText = $("#confirmText");
 let scheduleCtx = {
   mode: "new",
   apptId: null,
+  role: "patient",
+  UID: null,
+  PID: null,
   purpose: "",
   doctor: "",
+  doctorName: ""
 };
 
 $("#tileSchedule").addEventListener("click", () => startScheduleFlow("new"));
@@ -248,8 +252,9 @@ $("#tileChange").addEventListener("click", () => {
   alert("Use the Change button on a specific appointment to reschedule.");
 });
 
-function startScheduleFlow(mode, apptId) {
-  scheduleCtx = { mode, apptId: apptId || null, purpose: "", doctor: "" };
+function startScheduleFlow(mode, apptId = null) {
+  scheduleCtx.mode = mode;
+  scheduleCtx.apptId = apptId;
   $("#visitPurpose").value = "";
   $("#visitDoctor").value = "";
   $("#selectedDoctorId").value = "";
@@ -257,8 +262,9 @@ function startScheduleFlow(mode, apptId) {
   openModal(scheduleStep1);
 }
 
-$("#s1NextBtn").addEventListener("click", () => {
+$("#s1NextBtn").addEventListener("click", async () => {
   const purpose = $("#visitPurpose").value;
+  const doctorName = $("#visitDoctor").value;
   const doctor = $("#selectedDoctorId").value;
   if (!purpose || !doctor) {
     alert("Please select both purpose and doctor.");
@@ -266,11 +272,14 @@ $("#s1NextBtn").addEventListener("click", () => {
   }
   scheduleCtx.purpose = purpose;
   scheduleCtx.doctor = doctor;
+  scheduleCtx.doctorName = doctorName;
 
   closeModal(scheduleStep1);
   $("#view-appointments").classList.add("hidden");
   viewAvailability.classList.remove("hidden");
-  populateCalendar("patient", doctor);
+
+  await initializeCalendar(scheduleCtx.role, doctor);
+  // console.log(scheduleCtx);
 });
 
 availabilityBackBtn.addEventListener("click", () => {
@@ -278,29 +287,23 @@ availabilityBackBtn.addEventListener("click", () => {
   $("#view-appointments").classList.remove("hidden");
 });
 
-function confirmSlot(date, time) {
+export function confirmSlot(startTime, endTime, niceDate, niceTime) {
   closeModal(daySlotsModal);
   viewAvailability.classList.add("hidden");
   $("#view-appointments").classList.remove("hidden");
 
+  const start = Timestamp.fromDate(startTime);
+  const end = Timestamp.fromDate(endTime);
+
   if (scheduleCtx.mode === "change" && scheduleCtx.apptId) {
-    appointments = appointments.map((a) =>
-      a.id === scheduleCtx.apptId ? { ...a, date, time } : a
-    );
-    confirmText.textContent = `Your appointment has been updated to ${date} at ${time}.`;
-  } else {
-    const id = "a" + Math.floor(Math.random() * 1e6);
-    appointments.push({
-      id,
-      doctor: scheduleCtx.doctor,
-      date,
-      time,
-      location: "LOCATION",
-    });
-    confirmText.textContent = `Your appointment with ${scheduleCtx.doctor} is scheduled for ${date} at ${time}.`;
+    updateAppointment(start, end, scheduleCtx.UID, scheduleCtx.PID, scheduleCtx.doctor, "rescheduled", scheduleCtx.purpose);
+    confirmText.textContent = `Your appointment has been updated to ${niceDate} at ${niceTime}.`;
+  } else if (scheduleCtx.mode === "new") {
+    createAppointment(start, end, scheduleCtx.UID, scheduleCtx.PID, scheduleCtx.doctor, "scheduled", scheduleCtx.purpose);
+    confirmText.textContent = `Your appointment with ${scheduleCtx.doctorName} is scheduled for ${niceDate} at ${niceTime}.`;
   }
 
-  renderAppointments();
+  renderAppointments(scheduleCtx.PID);
   openModal(confirmModal);
 }
 
@@ -356,9 +359,25 @@ window.addEventListener("DOMContentLoaded", () => {
       window.location.href = "./patient_login_page.html";
       return;
     }
+    scheduleCtx.UID = user.uid;
     console.log("User authenticated:", user.uid);
 
+    // check if guardian
+    try {
+      const guardianData = await getDoc(doc(db, "guardians", scheduleCtx.UID));
+      if (guardianData.exists()) {
+        scheduleCtx.role = "guardian";
+        scheduleCtx.PID = guardianData.data().patientId;
+        const patientData = await getDoc(doc(db, "patients", scheduleCtx.PID));
+      } else {
+        scheduleCtx.PID = scheduleCtx.UID;
+      }
+    } catch (error) {
+      scheduleCtx.PID = scheduleCtx.UID;
+      console.log(error);
+    }
+
     showView("appointments");
-    await renderAppointments(user.uid);
+    await renderAppointments(scheduleCtx.PID);
   });
 });
