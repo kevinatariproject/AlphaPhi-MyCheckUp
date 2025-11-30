@@ -44,7 +44,12 @@
   font-size:24px;color:#6b7280;
 }
 .times-table{margin-top:10px;}
-#daySlotsList{display:flex;flex-direction:column;}
+#daySlotsList{
+  display:flex;
+  flex-direction:column;
+  max-height: 260px;
+  overflow-y: auto;
+}
 #daySlotsList button{
   width:160px;padding:10px 14px;
   border:1px solid #d1d5db;
