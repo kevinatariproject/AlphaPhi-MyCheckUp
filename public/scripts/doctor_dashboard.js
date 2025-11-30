@@ -1,8 +1,10 @@
-import { auth } from "./firebase_config.js";
-import { populateCalendar } from "./calendar_populate.js";
+import { db, auth } from "./firebase_config.js";
+import { initializeCalendar } from "./calendar_populate.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 let UID = null;
+let status = "active";
 
 const $ = (q, ctx = document) => ctx.querySelector(q);
 const $$ = (q, ctx = document) => Array.from(ctx.querySelectorAll(q));
@@ -70,7 +72,7 @@ function renderAppointments() {
 
 const scheduleTab = document.querySelector('.nav-item[data-view="schedule"]');
 scheduleTab.addEventListener("click", async () => {
-  await populateCalendar("doctor", UID);
+  await initializeCalendar("doctor", UID);
 });
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -85,6 +87,19 @@ window.addEventListener("DOMContentLoaded", () => {
     UID = user.uid;
     console.log("User authenticated:", UID);
 
+    try {
+      const doctorData = await getDoc(doc(db, "doctors", UID));
+      status = doctorData.data().status;
+      if (status == "inactive") { // show notice if inactive
+        const toolbarDiv = document.querySelector(".toolbar");
+        const notice = document.createElement("p");
+        notice.id = "notice";
+        notice.innerHTML = `<b>Notice:</b> Your account is still being processed. If your schedule does not appear within the next 2 business days, please contact the administrator.`
+        toolbarDiv.appendChild(notice);
+      }
+    } catch (error) {
+      console.log(error);
+    }
     renderAppointments();
     switchView("dashboard");
   });
