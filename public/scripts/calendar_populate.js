@@ -1,5 +1,5 @@
 // Populates the calendar with either:
-// [Patient] Available appointment time slots
+// [Patient/Guardian] Available appointment time slots
 // [Doctor] Scheduled appointments
 
 import { buildCalendar } from "./calendar_base.js";
@@ -16,21 +16,17 @@ const dayCodes = [
     "Sa"
 ];
 
+// global variables
 let today = new Date();
 let pointerYear = today.getFullYear();
 let pointerMonth = today.getMonth();
 
-let user = null;
+let role = null;
 let DID = null;
 let monthData = {};
 
-// placeholder function for each time slot
-function viewSlot(niceDate, time) {
-    console.log(niceDate, time);
-}
-
 // renders the selected day's schedule
-function openDaySchedule(day) {
+function openDaySchedule(userType, day) {
     const slotsDateLabel = document.getElementById("slotsDateLabel");
     const daySlotsList = document.getElementById("daySlotsList");
     
@@ -62,7 +58,13 @@ function openDaySchedule(day) {
 
         const btn = document.createElement("button");
         btn.textContent = stdTime;
-        btn.addEventListener("click", () => viewSlot(nice, slot));
+        if (userType == "patient" || userType == "guardian") {
+            btn.addEventListener("click", async () => {
+                // dynamic import of confirm slot function
+                const { confirmSlot } = await import("./user_dashboard.js");
+                confirmSlot(slot.startTime, slot.endTime, nice, stdTime);
+            });
+        }
         daySlotsList.appendChild(btn);
     });
 
@@ -77,7 +79,7 @@ function parseTime(date, timeString) {
     return time;
 }
 
-// [Patient] generate all the available time slots for the month
+// [Patient/Guardian] generate all the available time slots for the month
 function buildSlots(year, month, docSchedule, blockList) {
     const availableSlots = {};
     const initialList = [];
@@ -152,14 +154,10 @@ function buildAppointments(appointmentList) {
 }
 
 async function populateCalendar(userType, doctorId) {
-    // set global variables
-    user = userType;
-    DID = doctorId;
-
     // render base calendar
     buildCalendar(today, pointerYear, pointerMonth);
 
-    if (userType == "patient") {
+    if (userType == "patient" || userType == "guardian") {
         // get selected doctor's schedule and blocks for the month
         let [docSchedule, blockList] = await getDoctorSchedule(doctorId, pointerYear, pointerMonth);
         // build structure of available slots
@@ -181,22 +179,33 @@ async function populateCalendar(userType, doctorId) {
         viewAppts.id = `view-${day}`;
         viewAppts.classList.add("slot");
         
-        if (userType == "patient") {
+        if (userType == "patient" || userType == "guardian") {
             // check if there are slots available
             if (slotList.length > 0) {
                 viewAppts.textContent = "Appointments Available";
-                viewAppts.addEventListener("click", () => openDaySchedule(day));
+                viewAppts.addEventListener("click", () => openDaySchedule(userType, day));
             } else {
                 viewAppts.classList.add("unavailable");
                 viewAppts.textContent = "No Available Appointments";
             }
         } else if (userType == "doctor") {
             viewAppts.textContent = "View Appointments";
-            viewAppts.addEventListener("click", () => openDaySchedule(day));
+            viewAppts.addEventListener("click", () => openDaySchedule(userType, day));
         }
 
         dayCell.appendChild(viewAppts);
     }
+}
+
+// changes the month to current month
+async function todayMonth() {
+    // update today
+    today = new Date();
+    // assign today values to pointers
+    pointerYear = today.getFullYear();
+    pointerMonth = today.getMonth();
+    // render UI
+    populateCalendar(role, DID);
 }
 
 // changes the month by the indicated difference
@@ -209,7 +218,16 @@ async function changeMonth(monthDiff) {
     pointerYear = newMonth.getFullYear();
     pointerMonth = newMonth.getMonth();
     // render UI
-    populateCalendar(user, DID);
+    populateCalendar(role, DID);
+}
+
+async function initializeCalendar(userType, doctorId) {
+    // set global variables
+    role = userType;
+    DID = doctorId;
+
+    // set to today
+    todayMonth();
 }
 
 // month navigation
@@ -227,13 +245,7 @@ nextMonth.addEventListener("click", () => {
 
 // return to today
 todayBtn.addEventListener("click", () => {
-    // update today
-    today = new Date();
-    // assign today values to pointers
-    pointerYear = today.getFullYear();
-    pointerMonth = today.getMonth();
-    // render UI
-    populateCalendar(user, DID);
+    todayMonth();
 });
 
-export { populateCalendar };
+export { initializeCalendar };
