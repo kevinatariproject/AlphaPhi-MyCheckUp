@@ -261,3 +261,6 @@ button:focus-visible{outline:none;box-shadow:var(--focus);}
 .dropdown-item:hover {
   background: #f2f2f2;
 }
+.dropdown-item.active {
+  background: #f2f2f2;
+}
