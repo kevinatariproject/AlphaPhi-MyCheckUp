@@ -15,10 +15,51 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
+    // Check if auth user is the patient OR the guardian of that patient
+    function isPatientOrGuardian(patientId) {
+      let patientDoc = get(/databases/$(database)/documents/patients/$(patientId));
+      return isSignedIn()
+             && exists(/databases/$(database)/documents/patients/$(patientId))
+             && (patientId == request.auth.uid || patientDoc.data.guardianId == request.auth.uid);
+    }
+
+    function appointmentDoc(appointmentId) {
+      return get(/databases/$(database)/documents/appointments/$(appointmentId));
+    }
+
+    // Block creation must match appointment exactly
+    function canCreateBlock(doctorId, appointmentId) {
+      return exists(/databases/$(database)/documents/appointments/$(appointmentId))
+        && isPatientOrGuardian(appointmentDoc(appointmentId).data.patientId)
+        && appointmentDoc(appointmentId).data.doctorId == doctorId
+        && request.resource.data.keys().hasOnly(['startTime', 'endTime'])
+        && request.resource.data.startTime == appointmentDoc(appointmentId).data.startTime
+        && request.resource.data.endTime == appointmentDoc(appointmentId).data.endTime
+        && appointmentDoc(appointmentId).data.status == "scheduled";
+    }
+
+    // Block updating must match appointment exactly
+    function canUpdateBlock(doctorId, appointmentId) {
+      return exists(/databases/$(database)/documents/appointments/$(appointmentId))
+        && isPatientOrGuardian(appointmentDoc(appointmentId).data.patientId)
+        && appointmentDoc(appointmentId).data.doctorId == doctorId
+        && request.resource.data.keys().hasOnly(['startTime', 'endTime'])
+        && request.resource.data.startTime == appointmentDoc(appointmentId).data.startTime
+        && request.resource.data.endTime == appointmentDoc(appointmentId).data.endTime
+        && appointmentDoc(appointmentId).data.status == "rescheduled";
+    }
+
+    // Block deletion only allowed after cancellation
+    function canDeleteBlock(doctorId, appointmentId) {
+      return exists(/databases/$(database)/documents/appointments/$(appointmentId))
+        && isPatientOrGuardian(appointmentDoc(appointmentId).data.patientId)
+        && appointmentDoc(appointmentId).data.doctorId == doctorId
+        && appointmentDoc(appointmentId).data.status == "cancelled";
+    }
+
     // Admins
     match /admins/{uid} {
-      allow read: if isAdmin();
-      allow write: if isAdmin();
+      allow read, write: if isAdmin();
     }
 
     // Departments
@@ -30,73 +71,50 @@ service cloud.firestore {
     // Usernames
     match /usernames/{username} {
       allow read: if true;
-      allow create: if isAdmin();
-      allow create: if request.auth != null && !exists(/databases/$(database)/documents/usernames/$(username));
-      allow delete: if request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if isAdmin()
+                    || (isSignedIn() && !exists(/databases/$(database)/documents/usernames/$(username)));
+      allow delete: if isOwner(resource.data.userId) || isAdmin();
     }
 
     // Patients
     match /patients/{patientId} {
-      allow create: if isSignedIn() && (isOwner(request.resource.id) || request.resource.data.guardianId == request.auth.uid);
-      allow read, update: if isOwner(patientId) || isAdmin();
-      allow delete: if isAdmin();
-
-      match /guardians/{guardianId} {
-        allow read: if isOwner(patientId) || isAdmin() ||
-                    (isSignedIn() && request.auth.uid == guardianId);
-
-        allow create: if (isSignedIn() && request.auth.uid == guardianId) || isAdmin();
-
-        allow update, delete: if isAdmin();
-      }
+      allow create: if isOwner(patientId) || request.resource.data.guardianId == request.auth.uid;
+      allow read, update, delete: if isPatientOrGuardian(patientId) || isAdmin();
     }
 
     // Guardians
     match /guardians/{guardianId} {
-      allow create: if isSignedIn() && isOwner(request.resource.id);
-      allow read, update: if isOwner(guardianId) || isAdmin();
-      allow delete: if isAdmin();
+      allow create: if isOwner(guardianId);
+      allow read, update, delete: if isOwner(guardianId) || isAdmin();
     }
 
     // Doctors
     match /doctors/{doctorId} {
       allow read: if isSignedIn();
-      allow create: if isSignedIn() && isOwner(request.resource.id);
-      allow update: if isOwner(doctorId) || isAdmin();
+      allow create, update: if isOwner(doctorId) || isAdmin();
       allow delete: if isAdmin();
-
-      match /availability/{slotId} {
-        allow read: if isSignedIn();
-        allow create, update, delete: if isOwner(doctorId) || isAdmin();
-      }
     }
 
     // Schedules
     match /schedules/{doctorId} {
       allow read: if isSignedIn();
       allow create, update, delete: if isAdmin();
+
+      match /blocks/{appointmentId} {
+        allow read: if isSignedIn();
+        allow create: if canCreateBlock(doctorId, appointmentId);
+        allow update: if canUpdateBlock(doctorId, appointmentId);
+        allow delete: if canDeleteBlock(doctorId, appointmentId);
+      }
     }
 
     // Appointments
     match /appointments/{apptId} {
-      allow create: if isSignedIn()
-                    && request.resource.data.patientId == request.auth.uid
-                    || (isSignedIn()
-                        && exists(/databases/$(database)/documents/patients/$(request.resource.data.patientId)/guardians/$(request.auth.uid)))
-                    || isAdmin();
-
-      allow read: if isAdmin()
-                  || (isSignedIn() && resource.data.patientId == request.auth.uid)
-                  || (isSignedIn()
-                      && exists(/databases/$(database)/documents/patients/$(resource.data.patientId)/guardians/$(request.auth.uid)))
-                  || (isSignedIn() && resource.data.doctorId == request.auth.uid);
-
-      allow update: if isAdmin()
-                    || (isSignedIn() && resource.data.patientId == request.auth.uid)
-                    || (isSignedIn()
-                        && exists(/databases/$(database)/documents/patients/$(resource.data.patientId)/guardians/$(request.auth.uid)))
-                    || (isSignedIn() && resource.data.doctorId == request.auth.uid);
-
+      allow create: if isAdmin()
+                    || isPatientOrGuardian(request.resource.data.patientId);
+      allow read, update: if isAdmin()
+                          || isPatientOrGuardian(resource.data.patientId)
+                          || (isSignedIn() && resource.data.doctorId == request.auth.uid);
       allow delete: if isAdmin();
     }
 
@@ -114,6 +132,5 @@ service cloud.firestore {
       allow update: if (isSignedIn() && resource.data.doctorId == request.auth.uid) || isAdmin();
       allow delete: if isAdmin();
     }
-
   }
 }

@@ -1,0 +1,62 @@
+.modal-overlay{
+  position:fixed;inset:0;
+  background:rgba(15,23,42,0.4);
+  opacity:0;pointer-events:none;
+  transition:opacity .2s;z-index:70;
+}
+.modal{
+  position:fixed;inset:0;
+  display:grid;place-items:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .2s;z-index:80;
+}
+.modal-card{
+  position:relative;
+  width:min(460px,94vw);
+  background:var(--card);
+  border-radius:18px;
+  box-shadow:var(--shadow);
+  padding:22px 22px 16px;
+}
+.modal h3{margin:0 0 10px;font-size:1.15rem;}
+.modal-subtitle{margin:0 0 10px;color:var(--muted);font-size:.9rem;}
+.modal label{
+  display:flex;flex-direction:column;gap:6px;
+  margin-bottom:10px;font-size:.92rem;
+}
+.modal select{
+  padding:9px 10px;
+  border-radius:10px;border:1px solid #d1d5db;
+}
+.modal input{
+  padding:9px 10px;
+  border-radius:10px;
+  border:1px solid #d1d5db;
+}
+
+.modal-actions{
+  margin-top:10px;
+  display:flex;justify-content:flex-end;gap:8px;
+}
+.modal-close{
+  position:absolute;top:10px;right:14px;
+  border:0;background:transparent;
+  font-size:24px;color:#6b7280;
+}
+.times-table{margin-top:10px;}
+#daySlotsList{
+  display:flex;
+  flex-direction:column;
+  max-height: 260px;
+  overflow-y: auto;
+}
+#daySlotsList button{
+  width:160px;padding:10px 14px;
+  border:1px solid #d1d5db;
+  border-radius:0;background:#ffffff;
+  text-align:left;font-size:.92rem;
+}
+#daySlotsList button+button{border-top:none;}
+#daySlotsList button:hover{background:#eef2ff;}
+.modal.open{opacity:1;pointer-events:auto;}
+.modal-overlay.open{opacity:1;pointer-events:auto;}
