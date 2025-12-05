@@ -8,7 +8,8 @@ import {
     collection,
     query,
     where,
-    getDocs
+    getDocs,
+    orderBy
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 const practitionerSearch = document.getElementById("practitionerSearch");
@@ -18,45 +19,52 @@ const visitDoctor = document.getElementById("visitDoctor");
 const doctorDropdown = document.getElementById("doctorDropdown");
 const selectedDoctorId = document.getElementById("selectedDoctorId");
 
+// holds doctor list once page loads
 let doctorMap = {};
 
-// queries database for doctors matching search input
+// for keyboard navigation
+let activeIndex = -1;
+let currentResults = [];
+
+// get list of all active doctors
+async function getDoctors() {
+    const q = query(
+        collection(db, "doctors"),
+        where("status", "==", "active"),
+        orderBy("lastName")
+    );
+    
+    try {
+        // get snapshot of query
+        const snap = await getDocs(q);
+        // convert to array and update global doctorMap
+        doctorMap = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (error) {
+        console.error("Error retrieving doctors:", error);
+    }
+}
+
+// filters doctor list by matching search input
 async function searchDoctors(searchText, departmentId = null) {
     const normalized = searchText.toLowerCase().trimStart();
 
     // if both fields empty, return "noquery"
     if (!normalized && !departmentId) return "noquery";
 
-    // build query depending on if department selected
-    let q;
-    if (departmentId) {
-        q = query(
-            collection(db, "doctors"),
-            where("status", "==", "active"),
-            where("departmentId", "==", departmentId)
-        );
-    } else {
-        q = query(
-            collection(db, "doctors"),
-            where("status", "==", "active")
-        );
-    }
+    let filteredDoctors = doctorMap;
 
-    try {
-        // get snapshot of query
-        const snap = await getDocs(q);
-        // convert to map
-        doctorMap = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    } catch (error) {
-        console.error("Error retrieving doctors:", error);
-        return;
+    // if filtering by department, return only drs in dept
+    if (departmentId) {
+        filteredDoctors = doctorMap.filter(doc => {
+            return doc.departmentId == departmentId;
+        });
     }
     
-    // if no search text, return all drs in department
-    if (!normalized) return doctorMap;
+    // if no search text, return all drs in selected department
+    if (!normalized) return filteredDoctors;
 
     // filters doctors by matching start of each name or name combo
-    return doctorMap.filter(doc => {
+    return filteredDoctors.filter(doc => {
         // normalize each name
         const first = (doc.firstName || "").toLowerCase();
         const preferred = (doc.preferredName || "").toLowerCase();
@@ -82,6 +90,9 @@ function renderVisitSearch(doctorResults) {
     // clear list
     doctorDropdown.innerHTML = "";
 
+    // reset active index
+    activeIndex = -1;
+
     // if both fields empty, hide dropdown
     if (doctorResults == "noquery") {
         doctorDropdown.classList.add("hidden");
@@ -98,15 +109,18 @@ function renderVisitSearch(doctorResults) {
 
     // create list of results for dropdown
     let divList = "";
-    doctorResults.forEach(doc => {
+    doctorResults.forEach((doc, i) => {
         let nameText;
         if (doc.preferredName == "")
             nameText = `${doc.firstName} ${doc.lastName}, ${doc.credentials}`;
         else
             nameText = `${doc.firstName} "${doc.preferredName}" ${doc.lastName}, ${doc.credentials}`;
+        // add formatted name to object
+        doc["nameText"] = nameText;
 
-        divList += `<div class="dropdown-item" data-id="${doc.id}">${nameText}</div>`;
+        divList += `<div class="dropdown-item" data-id="${doc.id}" data-index="${i}">${nameText}</div>`;
     });
+    currentResults = doctorResults;
 
     // add list to html
     doctorDropdown.innerHTML = divList;
@@ -142,7 +156,7 @@ function renderSearchPage(doctorResults) {
         card.innerHTML = `
         <div class="meta">
           <div class="title">${nameText}</div>
-          <div class="sub">${departmentMap[doc.departmentId]}</div>
+          <div class="sub">${departmentMap[doc.departmentId].name}</div>
         </div>
         <div class="right">
           <div class="bioText">${doc.bio}</div>
@@ -173,6 +187,33 @@ async function updateSearch(target) {
     }
 }
 
+function selectDoctor(index) {
+    const doctor = currentResults[index];
+    if (!doctor) return;
+
+    // set hidden field value to doctor's firestore id
+    selectedDoctorId.value = doctor.id;
+    // fill search field with doctor's name
+    visitDoctor.value = doctor.nameText;
+
+    // clear and hide dropdown
+    doctorDropdown.innerHTML = "";
+    doctorDropdown.classList.add("hidden");
+}
+
+function updateActiveItem() {
+    const items = doctorDropdown.querySelectorAll(".dropdown-item");
+    items.forEach(item => item.classList.remove("active"));
+
+    if (activeIndex >= 0 && items[activeIndex]) {
+        items[activeIndex].classList.add("active");
+        items[activeIndex].scrollIntoView({ block: "nearest" });
+    }
+}
+
+// fetch list of doctors when page loaded
+document.addEventListener("DOMContentLoaded", getDoctors);
+
 // update search results whenever user types or selects department
 practitionerSearch.addEventListener("input", (e) => updateSearch(e.target));
 department.addEventListener("change", (e) => updateSearch(e.target));
@@ -186,21 +227,42 @@ document.addEventListener("click", (e) => {
     }
 });
 
-// when doctor selected from visit search, set hidden field and fill search field
+// select doctor via clicking from visit search
 doctorDropdown.addEventListener("click", (e) => {
     const item = e.target.closest(".dropdown-item");
     
     if (!item) return;
 
-    const doctorId = item.dataset.id;
-    const doctorName = item.textContent;
+    selectDoctor(item.dataset.index);
+});
 
-    // set hidden field value to doctor's firestore id
-    selectedDoctorId.value = doctorId;
-    // fill search field with doctor's name
-    visitDoctor.value = doctorName;
+// keyboard navigation for visit search
+visitDoctor.addEventListener("keydown", (e) => {
+    const total = currentResults.length;
 
-    // clear and hide dropdown
-    doctorDropdown.innerHTML = "";
-    doctorDropdown.classList.add("hidden");
+    // down arrow
+    if (e.key === "ArrowDown") {
+        e.preventDefault();
+        if (total === 0) return;
+
+        // loops to top after last item
+        activeIndex = (activeIndex + 1) % total;
+        updateActiveItem();
+    }
+
+    // up arrow
+    else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        if (total === 0) return;
+
+        // loops to bottom after first item
+        activeIndex = (activeIndex - 1 + total) % total;
+        updateActiveItem();
+    }
+
+    // enter
+    else if (e.key === "Enter") {
+        e.preventDefault();
+        if (activeIndex >= 0) selectDoctor(activeIndex);
+    }
 });
