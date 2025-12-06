@@ -1,12 +1,19 @@
-console.log("test");
-
 import { auth } from "./firebase_config.js";
-import { deleteUser } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { onAuthStateChanged, deleteUser } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 
-// user = auth.currentUser;
+let currentUser = null;
+
+// Wait for auth to load current user
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        currentUser = user;
+        console.log("User signed in:", user.uid);
+    } else {
+        console.log("No user signed in");
+    }
+});
 
 document.querySelectorAll(".delete-account").forEach(btn => {
-    
     const overlay = document.getElementById("delete-overlay");
     const confirmBtn = document.getElementById("delete-confirm");
     const cancelBtn = document.getElementById("delete-cancel");
@@ -18,14 +25,9 @@ document.querySelectorAll(".delete-account").forEach(btn => {
         popupWin.style.display = "grid";
         
         confirmBtn.addEventListener("click", () => {
-            window.location.href = "account_deletion_page.html"
-
-            // deleteUser(user).then(() => {
-            //     window.location.href = "account_deletion_page.html"
-            //     setTimeout(() => {
-            //         window.location.href = "landing_page.html";
-            //     }, 2000);
-            // })
+            deleteUser(currentUser).then(() => {
+                window.location.href = "account_deletion_page.html"
+            })
         })
         cancelBtn.addEventListener("click", () => {
             overlay.style.display = "none";
