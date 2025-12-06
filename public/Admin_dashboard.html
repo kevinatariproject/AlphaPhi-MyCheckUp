@@ -7,7 +7,7 @@
 
     <!-- Main admin + embedded sections styles -->
     <link rel="stylesheet" href="./css/Admin_dashboard.css" />
-    <!-- <link rel="stylesheet" href="./css/logout_popup.css" /> -->
+    <link rel="stylesheet" href="./css/logout_popup.css" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,7 +17,7 @@
     />
 
     <!-- Logout logic -->
-    <!-- <script type="module" src="./scripts/logout.js"></script> -->
+    <script type="module" src="./scripts/logout.js"></script>
 
     <!-- Login authentication -->
     <script type="module">
@@ -53,7 +53,7 @@
 
         <nav class="nav">
           <button class="nav-item active" data-target="appointments">
-            <span class="nav-dot"></span> Real-Time Appointments
+            <span class="nav-dot"></span> Manage Appointments
           </button>
           <button class="nav-item" data-target="manage">
             <span class="nav-dot"></span> Manage Accounts
@@ -107,67 +107,60 @@
         <section id="appointments" class="view show">
           <div class="app-container">
             <header class="app-header">
-              <h1>Real-Time Appointments</h1>
-              <p>View schedules by patient or by doctor.</p>
+              <h1>Manage Appointments</h1>
+              <p>Monitor appointments as they are created and look up the appointment history of patients and doctors.</p>
             </header>
 
             <!-- Toggle: view by patient / view by doctor -->
             <div class="toggle-row">
               <button
                 class="toggle-btn active"
-                data-view="patient"
-                id="va-toggle-patient"
+                data-view="create"
+                id="va-toggle-create"
               >
-                View by Patient
+                Created Today
               </button>
               <button
                 class="toggle-btn"
-                data-view="doctor"
-                id="va-toggle-doctor"
+                data-view="update"
+                id="va-toggle-update"
               >
-                View by Doctor
+                Updated Today
               </button>
             </div>
 
             <!-- Filters -->
             <section class="card card-section">
               <div class="filters-row">
-                <div class="filter">
-                  <label for="va-patient-filter">Patient</label>
-                  <select id="va-patient-filter">
-                    <option value="">All patients</option>
-                  </select>
-                </div>
-
-                <div class="filter">
-                  <label for="va-doctor-filter">Doctor</label>
-                  <select id="va-doctor-filter">
-                    <option value="">All doctors</option>
-                  </select>
-                </div>
-
-                <div class="filter">
-                  <label for="va-status-filter">Status</label>
-                  <select id="va-status-filter">
-                    <option value="">All</option>
-                    <option value="Scheduled">Scheduled</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Canceled">Canceled</option>
-                  </select>
-                </div>
-
                 <div class="filter search-filter">
-                  <label for="va-search-filter">Search</label>
+                  <label for="va-search-filter">ID Lookup</label>
                   <input
                     type="text"
                     id="va-search-filter"
-                    placeholder="Name, type, location..."
+                    placeholder="Enter ID of Patient or Doctor"
                   />
                 </div>
 
+                <div class="filter enter-btn">
+                  <button id="va-search-btn" class="primary-btn">
+                    Enter
+                  </button>
+                </div>
+
+                <div class="filter status-filter">
+                  <label for="va-status-filter">Filter by Status</label>
+                  <select id="va-status-filter">
+                    <option value="">All</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="rescheduled">Rescheduled</option>
+                    <option value="completed">Completed</option>
+                    <option value="no-show">No-show</option>
+                    <option value="cancelled">Canceled</option>
+                  </select>
+                </div>
+
                 <div class="filter refresh-filter">
-                  <label>&nbsp;</label>
+                  <label for="va-refresh-btn"></label>
                   <button id="va-refresh-btn" class="secondary-btn small">
                     Refresh
                   </button>
@@ -175,26 +168,15 @@
               </div>
 
               <div class="meta-row">
-                <span id="va-view-label">Current view: By Patient</span>
+                <span id="va-view-label">Current view: New Appointments</span>
                 <span id="va-last-updated">Last updated: just now</span>
-              </div>
-            </section>
-
-            <!-- Next up appointments panel -->
-            <section class="panel panel-tight">
-              <h2>Next Up Appointments</h2>
-              <ul class="pills" id="va-appt-list"></ul>
-              <div class="pager">
-                <span class="pager-dot"></span>
-                <span class="pager-dot"></span>
-                <span class="pager-dot"></span>
               </div>
             </section>
 
             <!-- Appointments table -->
             <section class="card card-section">
               <div class="card-header">
-                <h2 id="va-table-title">Appointments by Patient</h2>
+                <h2 id="va-table-title">Appointments Created Today</h2>
               </div>
 
               <div class="table-wrapper">
@@ -540,17 +522,22 @@
         <h3 id="smallTitle">Action</h3>
         <p id="smallBody">This is a demo action.</p>
         <div class="modal-actions">
-          <button class="btn primary" id="okSmall">OK</button>
+          <button class="primary-btn" id="confirmSmall">Confirm</button>
+          <button class="secondary-btn" id="backSmall">Back</button>
         </div>
       </div>
     </div>
 
     <!-- Logout overlay -->
     <div id="overlay">
-      <div id="logout-popup"></div>
+      <div id="logout-popup"><h3>Are you sure you want to logout?</h3>
+        <div id="button-container">
+          <button class="logout-btn" id="confirm"> Yes </button>
+          <button class="logout-btn" id="cancel"> Cancel </button>
+        </div>
     </div>
 
     <!-- Consolidated admin script -->
-    <script src="./scripts/Admin_dashboard.js"></script>
+    <script defer type="module" src="./scripts/Admin_dashboard.js"></script>
   </body>
 </html>
