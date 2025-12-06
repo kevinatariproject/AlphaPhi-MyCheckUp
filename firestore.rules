@@ -56,6 +56,10 @@ service cloud.firestore {
       allow create: if isSignedIn() && isOwner(request.resource.id);
       allow read, update: if isOwner(guardianId) || isAdmin();
       allow delete: if isAdmin();
+      
+      // Allow patients to read guardian data if guardian is linked to them
+      allow read: if isSignedIn() && 
+                  exists(/databases/$(database)/documents/patients/$(request.auth.uid)/guardians/$(guardianId));
     }
 
     // Doctors

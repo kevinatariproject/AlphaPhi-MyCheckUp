@@ -2,6 +2,7 @@ import { db, auth } from "./firebase_config.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { getUserAppointments } from './appt_scheduling.js';
+import { fetchPatientDetails, fetchGuardianDetails, getGuardianIdsFromPatientId } from "./account_details.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -530,5 +531,121 @@ window.addEventListener("DOMContentLoaded", () => {
     showView("appointments");
     await renderAppointments(user.uid);
     buildCalendar();
+
+    fetchPatientDetails(user.uid).then((patientData) => {
+      if (patientData) {
+        // Populate patient details
+        $("#accountEmail").textContent = patientData.email || "";
+        $("#accountPatientFirstName").textContent = patientData.firstName || "";
+        $("#accountPatientLastName").textContent = patientData.lastName || "";
+        
+        // Format date of birth
+        let dobText = "";
+        if (patientData.dateOfBirth) {
+          // Date of birth is stored as "YYYY-MM-DD"
+          const dob = new Date(patientData.dateOfBirth);
+          dobText = dob.toLocaleDateString("en-US", {
+            month: "2-digit",
+            day: "2-digit",
+            year: "numeric"
+          });
+        }
+        $("#accountPatientDOB").textContent = dobText;
+        $("#accountPatientAddress").textContent = patientData.address || "";
+      }
+      getGuardianIdsFromPatientId(user.uid).then(async (guardianList) => {
+        if (guardianList && guardianList.length > 0) {
+          const guardianInfoPromises = guardianList.map(async (g) => {
+            const guardianData = await fetchGuardianDetails(g.guardianId);
+            return {
+              ...guardianData,
+              guardianId: g.guardianId,
+              relationship: g.relationship,
+            };
+          });
+          
+          const guardianInfos = await Promise.all(guardianInfoPromises);
+          
+          // Find the account card container
+          const accountCard = $(".account-card");
+          
+          // Remove any existing guardian sections (if re-rendering)
+          if (accountCard) {
+            accountCard.querySelectorAll('.guardian-details-section').forEach(el => el.remove());
+          }
+          
+          // For the first guardian, update the existing fields
+          if (guardianInfos.length > 0) {
+            const firstGuardian = guardianInfos[0];
+            $("#accountGuardianFirstName").textContent = firstGuardian.firstName || '';
+            $("#accountGuardianLastName").textContent = firstGuardian.lastName || '';
+            $("#accountGuardianRelationship").textContent = firstGuardian.relationship || '';
+            
+            let guardianDobText = "";
+            if (firstGuardian.dateOfBirth) {
+              const guardianDob = new Date(firstGuardian.dateOfBirth);
+              guardianDobText = guardianDob.toLocaleDateString("en-US", {
+                month: "2-digit",
+                day: "2-digit",
+                year: "numeric"
+              });
+            }
+            $("#accountGuardianDOB").textContent = guardianDobText;
+            $("#accountGuardianAddress").textContent = firstGuardian.address || '';
+          }
+          
+          // For additional guardians, create new sections
+          if (guardianInfos.length > 1) {
+            for (let i = 1; i < guardianInfos.length; i++) {
+              const guardian = guardianInfos[i];
+              
+              // Format guardian DOB
+              let guardianDobText = "";
+              if (guardian.dateOfBirth) {
+                const guardianDob = new Date(guardian.dateOfBirth);
+                guardianDobText = guardianDob.toLocaleDateString("en-US", {
+                  month: "2-digit",
+                  day: "2-digit",
+                  year: "numeric"
+                });
+              }
+              
+              // Create new guardian section
+              const guardianSection = document.createElement('div');
+              guardianSection.className = 'guardian-details-section';
+              guardianSection.innerHTML = `
+                <h3>Guardian Details ${i + 1}</h3>
+                <p>
+                  <span class="label">First Name :</span>
+                  <span class="val">${guardian.firstName || ''}</span>
+                </p>
+                <p>
+                  <span class="label">Last Name :</span>
+                  <span class="val">${guardian.lastName || ''}</span>
+                </p>
+                <p>
+                  <span class="label">DOB :</span>
+                  <span class="val">${guardianDobText}</span>
+                </p>
+                <p>
+                  <span class="label">Address :</span>
+                  <span class="val">${guardian.address || ''}</span>
+                </p>
+                <p>
+                  <span class="label">Relation to Patient :</span>
+                  <span class="val">${guardian.relationship || ''}</span>
+                </p>
+              `;
+              
+              // Insert after the last guardian detail paragraph
+              const lastGuardianPara = $('#accountGuardianRelationship').closest('p');
+              if (lastGuardianPara && accountCard) {
+                lastGuardianPara.parentNode.insertBefore(guardianSection, lastGuardianPara.nextSibling);
+              }
+            }
+          }
+        }
+      });
+    });
   });
 });
