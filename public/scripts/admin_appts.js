@@ -1,6 +1,6 @@
 // Renders appointment information for the admin dashboard
 
-import { getUser, getTodayAppts, getUserAppts } from "./admin_appts_fetch.js";
+import { getUser, getUserAppts, get24hrAppts } from "./admin_appts_fetch.js";
 import { departmentMap } from "./department_loader.js";
 import { cancelAppointment } from "./appt_scheduling.js";
 
@@ -218,8 +218,8 @@ async function renderBody() {
     const search = searchFilter.value.trim();
     // if something in search field, do ID lookup
     if (search) appointments = await getUserAppts(currentView, search);
-    // otherwise get appts for today
-    else appointments = await getTodayAppts(currentView);
+    // otherwise get appts for past 24 hours
+    else appointments = await get24hrAppts(currentView);
 
     const sFilter = statusFilter.value;
     // filter by appt statsu
@@ -285,8 +285,8 @@ function updateMeta() {
     else
     tableTitle.textContent =
     currentView === "create"
-        ? "Appointments Created Today"
-        : "Appointments Updated Today";
+        ? "Appointments Created in Last 24 Hours"
+        : "Appointments Updated in Last 24 Hours";
 
     const now = new Date();
     lastUpdated.textContent =

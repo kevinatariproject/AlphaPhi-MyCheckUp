@@ -12,6 +12,45 @@ import {
     doc
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
+// gets all the appointments created/updated in the past 24 horsu
+async function get24hrAppts(mode) {
+    // get current date and time
+    const today = new Date();
+    // set minutes and lower to 0
+    today.setMinutes(0, 0, 0);
+    // create copy of today
+    const yesterday = new Date(today);
+    // subtract 24 hours
+    yesterday.setHours(today.getHours() - 24);
+
+    const queryStart = Timestamp.fromDate(yesterday);
+
+    let q;
+    if (mode == "create") { // sort by createdAt
+        q = query(
+            collection(db, "appointments"),
+            where("createdAt", ">=", queryStart),
+            orderBy("createdAt", "desc")
+        );
+    } else if (mode == "update") { // sort by lastUpdatedAt
+        q = query(
+            collection(db, "appointments"),
+            where("lastUpdatedAt", ">=", queryStart),
+            orderBy("lastUpdatedAt", "desc")
+        );
+    }
+
+    try {
+        const snap = await getDocs(q);
+        const todayAppts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        // console.log(todayAppts);
+        return todayAppts;
+    } catch (error) {
+        console.error("Error retrieving appointments:", error);
+        return [];
+    }
+}
+
 // gets all the appointments create/updated today depending on mode
 async function getTodayAppts(mode) {
     // get current date and time
@@ -112,4 +151,4 @@ async function getUser(id, role) {
     }
 }
 
-export { getTodayAppts, getUserAppts, getUser };
+export { get24hrAppts, getTodayAppts, getUserAppts, getUser };
