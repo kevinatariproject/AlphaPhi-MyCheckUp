@@ -1,7 +1,7 @@
 import { db, auth } from "./firebase_config.js";
 import { doc, getDoc, Timestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { getUserAppointments, createAppointment, updateAppointment } from './appt_scheduling.js';
+import { getUserAppointments, cancelAppointment, createAppointment, updateAppointment, getAvailableTimeSlots, parseAppointmentDate } from './appt_scheduling.js';
 import { openModal, closeModal } from "./modal_controls.js";
 import { initializeCalendar } from "./calendar_populate.js";
 
@@ -74,6 +74,8 @@ $$(".sidenav .nav-item").forEach((btn) => {
   });
 });
 
+let allScheduledAppts = [];
+
 /* Appointments list */
 async function renderAppointments(userId) {
 
@@ -86,19 +88,19 @@ async function renderAppointments(userId) {
     console.log("All User Appointments:", allUserAppts);
     
     // Filter for scheduled and rescheduled appointments
-    const allAppts = allUserAppts.filter(appt => 
+    allScheduledAppts = allUserAppts.filter(appt => 
       appt.status === "scheduled" || appt.status === "rescheduled"
     );
-    console.log("Filtered Appointments (scheduled/rescheduled):", allAppts);
+    console.log("Filtered Appointments (scheduled/rescheduled):", allScheduledAppts);
 
-    if (allAppts.length === 0) {
+    if (allScheduledAppts.length === 0) {
       appointmentsList.innerHTML = '<p class="sub">You have no upcoming appointments.</p>';
       return;
     }
 
     // Fetch doctor details for each appointment
     const appointmentsWithDoctors = await Promise.all(
-      allAppts.map(async (appointment) => {
+      allScheduledAppts.map(async (appointment) => {
         try {
           const doctorDoc = await getDoc(doc(db, "doctors", appointment.doctorId));
           if (doctorDoc.exists()) {
@@ -117,38 +119,14 @@ async function renderAppointments(userId) {
       })
     );
 
+    allScheduledAppts = appointmentsWithDoctors;
+
     appointmentsList.innerHTML = "";
 
     appointmentsWithDoctors.forEach((appointment) => {
-      // Parse the startTime and endTime from Firestore format: "November 6, 2025 at 2:00:00 PM UTC-5"
-      let startDate, endDate;
-      
-      // Check if it's a Firestore Timestamp object
-      if (appointment.startTime?.seconds) {
-        startDate = new Date(appointment.startTime.seconds * 1000);
-        endDate = new Date(appointment.endTime.seconds * 1000);
-      } else if (typeof appointment.startTime === 'string' && appointment.startTime.includes(' at ')) {
-        // Parse Firestore date string format: "November 6, 2025 at 2:00:00 PM UTC-5"
-        // Extract the date and time parts, ignoring the stored timezone
-        const timeMatch = appointment.startTime.match(/^(.+?) at (.+?) UTC/);
-        const endTimeMatch = appointment.endTime.match(/^(.+?) at (.+?) UTC/);
-        
-        if (timeMatch && endTimeMatch) {
-          // Parse as UTC then convert to local timezone
-          const startUTC = new Date(timeMatch[1] + ' ' + timeMatch[2] + ' UTC');
-          const endUTC = new Date(endTimeMatch[1] + ' ' + endTimeMatch[2] + ' UTC');
-          startDate = startUTC;
-          endDate = endUTC;
-        } else {
-          // Fallback: parse directly
-          startDate = new Date(appointment.startTime);
-          endDate = new Date(appointment.endTime);
-        }
-      } else {
-        // ISO string or other format
-        startDate = new Date(appointment.startTime);
-        endDate = new Date(appointment.endTime);
-      }
+      // Parse the startTime and endTime
+      const startDate = parseAppointmentDate(appointment.startTime);
+      const endDate = parseAppointmentDate(appointment.endTime);
 
       console.log("Appointment dates:", { 
         startTime: appointment.startTime, 
@@ -215,12 +193,12 @@ async function renderAppointments(userId) {
     return;
   }
 
-  appointmentsList.onclick = (e) => {
+  appointmentsList.onclick = async (e) => {
     const btn = e.target.closest("button[data-id]");
     if (!btn) return;
     const id = btn.dataset.id;
     if (btn.dataset.act === "cancel") {
-      openCancelModal(id);
+      openCancelApptModal(id);
     } else if (btn.dataset.act === "change") {
       startScheduleFlow("change", id);
     }
@@ -246,9 +224,9 @@ let scheduleCtx = {
   doctorName: ""
 };
 
-$("#tileSchedule").addEventListener("click", () => startScheduleFlow("new"));
+$("#tileCreateAppt").addEventListener("click", () => startScheduleFlow("new"));
 
-$("#tileChange").addEventListener("click", () => {
+$("#tileModifyAppt").addEventListener("click", () => {
   alert("Use the Change button on a specific appointment to reschedule.");
 });
 
@@ -308,45 +286,98 @@ export function confirmSlot(startTime, endTime, niceDate, niceTime) {
 }
 
 /* Cancel flow */
-const cancelSelect = $("#cancelSelect");
+const cancelSelect = $("#cancelSelectedAppt");
+const cancelAppt = $("#cancelApptModal");
 const confirmCancelBtn = $("#confirmCancelBtn");
 
-function openCancelModal(preselectId) {
+function openCancelSlctdApptModal(preselectId) {
+  // Clear the dropdown first to prevent duplicates
   cancelSelect.innerHTML = "";
-
-  if (!appointments.length) {
-    const opt = document.createElement("option");
-    opt.value = "";
-    opt.textContent = "No upcoming appointments";
-    cancelSelect.appendChild(opt);
-  } else {
-    appointments.forEach((a) => {
-      const opt = document.createElement("option");
-      opt.value = a.id;
-      opt.textContent = `${a.doctor} – ${a.date} at ${a.time}`;
-      cancelSelect.appendChild(opt);
+  
+  if (allScheduledAppts.length === 0) {
+    const apptOptions = document.createElement("option");
+    apptOptions.value = "";
+    apptOptions.textContent = "No upcoming appointments";
+    cancelSelect.appendChild(apptOptions);
+  }
+  else {
+    allScheduledAppts.forEach((appt) => {
+      const option = document.createElement("option");
+      const startDate = parseAppointmentDate(appt.startTime);
+      const formattedDate = startDate.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+      const formattedTime = startDate.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+      });
+      option.value = appt.id;
+      option.textContent = `${appt.doctorName} - ${formattedDate} at ${formattedTime}`;
+      cancelSelect.appendChild(option);
     });
   }
+    if (preselectId) {
+    cancelSelect.value = preselectId;
+  } 
 
-  if (preselectId) cancelSelect.value = preselectId;
-  openModal($("#cancelModal"));
+  openModal($("#cancelSlctdApptModal"));
 }
 
-$("#tileCancel").addEventListener("click", () => openCancelModal());
+$("#tileCancelAppt").addEventListener("click", () => openCancelSlctdApptModal());
 
-confirmCancelBtn.addEventListener("click", () => {
-  const id = cancelSelect.value;
-  if (!id) {
+function openCancelApptModal(preselectId) {
+  if (preselectId) {
+    cancelAppt.value = preselectId;
+  }
+  openModal($("#cancelApptModal"));
+} 
+
+cancelApptBtn.addEventListener("click", async () => {
+  const apptId = cancelAppt.value;
+  const user = auth.currentUser;
+  if (!user) {
+    alert("You must be logged in to cancel appointments.");
+    return;
+  }
+
+  try {
+    await cancelAppointment(apptId);
+    closeModal(cancelAppt);
+    await renderAppointments(user.uid);
+  } catch (error) {
+    console.error("Error cancelling appointment:", error);
+    alert("Failed to cancel appointment. Please try again.");
+  }
+});
+
+confirmCancelBtn.addEventListener("click", async () => {
+  const apptId = cancelSelect.value;
+  if (!apptId) {
     alert("Please select an appointment to cancel.");
     return;
   }
 
-  appointments = appointments.filter((a) => a.id !== id);
-  closeModal($("#cancelModal"));
-  renderAppointments();
+  const user = auth.currentUser;
+  if (!user) {
+    alert("You must be logged in to cancel appointments.");
+    return;
+  }
 
-  confirmText.textContent = "Your appointment has been cancelled.";
-  openModal(confirmModal);
+  try {
+    await cancelAppointment(apptId);
+    closeModal($("#cancelSlctdApptModal"));
+
+    confirmText.textContent = "Your appointment has been cancelled.";
+    openModal(confirmModal);
+
+    await renderAppointments(user.uid);
+  } catch (error) {
+    console.error("Error cancelling appointment:", error);
+    alert("Failed to cancel appointment. Please try again.");
+  }
 });
 
 /* Init */
