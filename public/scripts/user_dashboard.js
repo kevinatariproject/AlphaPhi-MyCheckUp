@@ -212,6 +212,11 @@ const availabilityBackBtn = $("#availabilityBackBtn");
 const daySlotsModal = $("#daySlotsModal");
 const confirmModal = $("#confirmModal");
 const confirmText = $("#confirmText");
+const bookAppointmentBtns = document.getElementById("modal-action-1");
+const defautlBtn = document.getElementById("modal-action-2");
+const confirmationMessage = document.getElementById("confirmation-popup");
+const textPreview = document.getElementById("text-preview");
+const bookButton = document.getElementById("book-button");
 
 let scheduleCtx = {
   mode: "new",
@@ -230,14 +235,30 @@ $("#tileModifyAppt").addEventListener("click", () => {
   alert("Use the Change button on a specific appointment to reschedule.");
 });
 
-function startScheduleFlow(mode, apptId = null) {
+async function startScheduleFlow(mode, apptId = null) {
   scheduleCtx.mode = mode;
   scheduleCtx.apptId = apptId;
-  $("#visitPurpose").value = "";
-  $("#visitDoctor").value = "";
-  $("#selectedDoctorId").value = "";
-  
-  openModal(scheduleStep1);
+
+  if (mode === "new") {
+    $("#visitPurpose").value = "";
+    $("#visitDoctor").value = "";
+    $("#selectedDoctorId").value = "";
+    
+    openModal(scheduleStep1);
+  } else if (mode === "change") { // skip step 1
+    // get the appt that matches given id
+    const appt = allScheduledAppts.find(a => a.id === apptId);
+    // fill in scheduleCtx fields
+    scheduleCtx.purpose = appt.visitType;
+    scheduleCtx.doctor = appt.doctorId;
+    scheduleCtx.doctorName = appt.doctorName;
+
+    // go straight to calendar for appt's doctor
+    $("#view-appointments").classList.add("hidden");
+    viewAvailability.classList.remove("hidden");
+
+    await initializeCalendar(scheduleCtx.role, scheduleCtx.doctor);
+  }
 }
 
 $("#s1NextBtn").addEventListener("click", async () => {
@@ -265,7 +286,7 @@ availabilityBackBtn.addEventListener("click", () => {
   $("#view-appointments").classList.remove("hidden");
 });
 
-export function confirmSlot(startTime, endTime, niceDate, niceTime) {
+async function confirmSlot(startTime, endTime, niceDate, niceTime) {
   closeModal(daySlotsModal);
   viewAvailability.classList.add("hidden");
   $("#view-appointments").classList.remove("hidden");
@@ -274,10 +295,10 @@ export function confirmSlot(startTime, endTime, niceDate, niceTime) {
   const end = Timestamp.fromDate(endTime);
 
   if (scheduleCtx.mode === "change" && scheduleCtx.apptId) {
-    updateAppointment(start, end, scheduleCtx.UID, scheduleCtx.PID, scheduleCtx.doctor, "rescheduled", scheduleCtx.purpose);
+    await updateAppointment(scheduleCtx.apptId, start, end, scheduleCtx.UID, scheduleCtx.PID, scheduleCtx.doctor, "rescheduled", scheduleCtx.purpose);
     confirmText.textContent = `Your appointment has been updated to ${niceDate} at ${niceTime}.`;
   } else if (scheduleCtx.mode === "new") {
-    createAppointment(start, end, scheduleCtx.UID, scheduleCtx.PID, scheduleCtx.doctor, "scheduled", scheduleCtx.purpose);
+    await createAppointment(start, end, scheduleCtx.UID, scheduleCtx.PID, scheduleCtx.doctor, "scheduled", scheduleCtx.purpose);
     confirmText.textContent = `Your appointment with ${scheduleCtx.doctorName} is scheduled for ${niceDate} at ${niceTime}.`;
   }
 
@@ -285,12 +306,52 @@ export function confirmSlot(startTime, endTime, niceDate, niceTime) {
   openModal(confirmModal);
 }
 
-export function confirmSlotLabel(startTime, endTime, niceDate, niceTime) {
-  const start = Timestamp.fromDate(startTime);
-  const end = Timestamp.fromDate(endTime);
-
-  return `${scheduleCtx.doctorName} on ${niceDate} at ${niceTime}.`;
+// wrapper to create handler for confirmation button
+function createHandler(startTime, endTime, niceDate, niceTime) {
+  return async function handler() {
+    await confirmSlot(startTime, endTime, niceDate, niceTime);
+  };
 }
+
+// shows confirmation step to appointment scheduling
+export function confirmSlotMessage(btn, startTime, endTime, niceDate, niceTime) {
+  // hide confirmation message
+  confirmationMessage.style.display = "none";
+  bookAppointmentBtns.style.display = "none";
+  defautlBtn.style.display = "flex";
+
+  // change selected slot indicator
+  document.querySelectorAll(".slot-btn.selected")
+  .forEach(b => b.classList.remove("selected"));
+
+  btn.classList.add("selected");
+
+  textPreview.textContent = `${scheduleCtx.doctorName} on ${niceDate} at ${niceTime}.`;
+
+  // display confirmation message
+  confirmationMessage.style.display = "flex";
+  bookAppointmentBtns.style.display = "flex";
+  defautlBtn.style.display = "none";
+
+  // if confirmation button already has a handler, remove
+  if (bookButton._handler) {
+    bookButton.removeEventListener("click", bookButton._handler);
+  }
+
+  // create new handler and add to button
+  const handler = createHandler(startTime, endTime, niceDate, niceTime);
+  bookButton._handler = handler;
+
+  bookButton.addEventListener("click", handler);
+}
+
+daySlotsModal.querySelectorAll("[data-close-modal]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    confirmationMessage.style.display = "none";
+    bookAppointmentBtns.style.display = "none";
+    defautlBtn.style.display = "flex";
+  });
+});
 
 /* Cancel flow */
 const cancelSelect = $("#cancelSelectedAppt");
