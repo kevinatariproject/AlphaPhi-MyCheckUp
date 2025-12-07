@@ -1,7 +1,9 @@
 import { db, auth } from "./firebase_config.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { doc, getDoc, Timestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { getUserAppointments } from './appt_scheduling.js';
+import { getUserAppointments, createAppointment, updateAppointment } from './appt_scheduling.js';
+import { openModal, closeModal } from "./modal_controls.js";
+import { initializeCalendar } from "./calendar_populate.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -12,37 +14,6 @@ let appointments = [
   { id: "a2", doctor: "Dr. Jane Doe, MD", date: "November 12th, 2025", time: "3:00 PM", location: "LOCATION" },
   { id: "a3", doctor: "Dr. Jon Doe, MD", date: "November 12th, 2025", time: "8:00 AM", location: "LOCATION" }
 ];
-
-const demoDaySlots = ["7:30 AM", "8:00 AM", "10:00 AM", "10:30 AM", "11:00 AM"];
-
-// Doctors list for scheduling and search
-const allDoctors = [
-  { name: "Dr. Jane Doe, MD", specialty: "Primary Care" },
-  { name: "Dr. Jon Doe, MD", specialty: "Dermatology" }
-];
-
-// Render doctor options into #visitDoctor with optional search term
-function renderDoctorOptions() {
-  const select = $("#visitDoctor");
-  const searchInput = $("#doctorSearch");
-  const term = searchInput ? searchInput.value.trim().toLowerCase() : "";
-
-  // Base option
-  select.innerHTML = '<option value="">Doctors</option>';
-
-  allDoctors
-    .filter((d) => {
-      if (!term) return true;
-      const text = (d.name + " " + d.specialty).toLowerCase();
-      return text.includes(term);
-    })
-    .forEach((d) => {
-      const opt = document.createElement("option");
-      opt.value = d.name;
-      opt.textContent = `${d.name} – ${d.specialty}`;
-      select.appendChild(opt);
-    });
-}
 
 /* Drawer */
 const drawer = $("#drawer");
@@ -256,60 +227,23 @@ async function renderAppointments(userId) {
   };
 }
 
-/* Modal helpers */
-const modalOverlay = $("#modalOverlay");
-
-function openModal(modal) {
-  modal.classList.remove("hidden");
-  modal.classList.add("open");
-  modalOverlay.classList.remove("hidden");
-  modalOverlay.classList.add("open");
-}
-
-function closeModal(modal) {
-  modal.classList.remove("open");
-  modal.classList.add("hidden");
-  const anyOpen = document.querySelector(".modal.open");
-  if (!anyOpen) {
-    modalOverlay.classList.remove("open");
-    modalOverlay.classList.add("hidden");
-  }
-}
-
-document.addEventListener("click", (e) => {
-  if (e.target.matches("[data-close-modal]")) {
-    const m = e.target.closest(".modal");
-    if (m) closeModal(m);
-  }
-});
-
-modalOverlay.addEventListener("click", () => {
-  document.querySelectorAll(".modal.open").forEach((m) => closeModal(m));
-});
-
-window.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    document.querySelectorAll(".modal.open").forEach((m) => closeModal(m));
-  }
-});
-
 /* Schedule flow */
 const scheduleStep1 = $("#scheduleStep1");
 const viewAvailability = $("#view-availability");
 const availabilityBackBtn = $("#availabilityBackBtn");
-const monthLabel = $("#monthLabel");
-const calendarBody = $("#calendarBody");
 const daySlotsModal = $("#daySlotsModal");
-const slotsDateLabel = $("#slotsDateLabel");
-const daySlotsList = $("#daySlotsList");
 const confirmModal = $("#confirmModal");
 const confirmText = $("#confirmText");
 
 let scheduleCtx = {
   mode: "new",
   apptId: null,
+  role: "patient",
+  UID: null,
+  PID: null,
   purpose: "",
   doctor: "",
+  doctorName: ""
 };
 
 $("#tileSchedule").addEventListener("click", () => startScheduleFlow("new"));
@@ -318,8 +252,9 @@ $("#tileChange").addEventListener("click", () => {
   alert("Use the Change button on a specific appointment to reschedule.");
 });
 
-function startScheduleFlow(mode, apptId) {
-  scheduleCtx = { mode, apptId: apptId || null, purpose: "", doctor: "" };
+function startScheduleFlow(mode, apptId = null) {
+  scheduleCtx.mode = mode;
+  scheduleCtx.apptId = apptId;
   $("#visitPurpose").value = "";
   $("#visitDoctor").value = "";
   $("#selectedDoctorId").value = "";
@@ -327,8 +262,9 @@ function startScheduleFlow(mode, apptId) {
   openModal(scheduleStep1);
 }
 
-$("#s1NextBtn").addEventListener("click", () => {
+$("#s1NextBtn").addEventListener("click", async () => {
   const purpose = $("#visitPurpose").value;
+  const doctorName = $("#visitDoctor").value;
   const doctor = $("#selectedDoctorId").value;
   if (!purpose || !doctor) {
     alert("Please select both purpose and doctor.");
@@ -336,11 +272,14 @@ $("#s1NextBtn").addEventListener("click", () => {
   }
   scheduleCtx.purpose = purpose;
   scheduleCtx.doctor = doctor;
+  scheduleCtx.doctorName = doctorName;
 
   closeModal(scheduleStep1);
   $("#view-appointments").classList.add("hidden");
   viewAvailability.classList.remove("hidden");
-  buildCalendar();
+
+  await initializeCalendar(scheduleCtx.role, doctor);
+  // console.log(scheduleCtx);
 });
 
 availabilityBackBtn.addEventListener("click", () => {
@@ -348,127 +287,23 @@ availabilityBackBtn.addEventListener("click", () => {
   $("#view-appointments").classList.remove("hidden");
 });
 
-/* Availability calendar */
-let currentYear = 2025;
-let currentMonth = 9; // October
-
-function buildCalendar() {
-  const first = new Date(currentYear, currentMonth, 1);
-  const startDay = first.getDay();
-  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-  monthLabel.textContent = first.toLocaleString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
-
-  calendarBody.innerHTML = "";
-  let day = 1;
-
-  for (let r = 0; r < 6; r++) {
-    const tr = document.createElement("tr");
-
-    for (let c = 0; c < 7; c++) {
-      const td = document.createElement("td");
-
-      if ((r === 0 && c < startDay) || day > daysInMonth) {
-        td.classList.add("disabled");
-      } else {
-        const num = document.createElement("span");
-        num.className = "day-number";
-        num.textContent = day;
-        td.appendChild(num);
-
-        const weekday = (startDay + day - 1) % 7;
-
-        if (weekday === 2) {
-          const range = document.createElement("div");
-          range.className = "avail-range";
-          range.textContent = "7AM – 3PM";
-          range.addEventListener("click", () => openDaySlots(day));
-          td.appendChild(range);
-        } else if (weekday === 4) {
-          const range = document.createElement("div");
-          range.className = "avail-range";
-          range.textContent = "8AM – 10PM";
-          range.addEventListener("click", () => openDaySlots(day));
-          td.appendChild(range);
-        }
-
-        day++;
-      }
-
-      tr.appendChild(td);
-    }
-
-    calendarBody.appendChild(tr);
-    if (day > daysInMonth) break;
-  }
-}
-
-$("#prevMonth").addEventListener("click", () => {
-  currentMonth--;
-  if (currentMonth < 0) {
-    currentMonth = 11;
-    currentYear--;
-  }
-  buildCalendar();
-});
-
-$("#nextMonth").addEventListener("click", () => {
-  currentMonth++;
-  if (currentMonth > 11) {
-    currentMonth = 0;
-    currentYear++;
-  }
-  buildCalendar();
-});
-
-function openDaySlots(day) {
-  const date = new Date(currentYear, currentMonth, day);
-  const nice = date.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-
-  slotsDateLabel.textContent = nice;
-  daySlotsList.innerHTML = "";
-
-  demoDaySlots.forEach((time) => {
-    const btn = document.createElement("button");
-    btn.textContent = time;
-    btn.addEventListener("click", () => confirmSlot(nice, time));
-    daySlotsList.appendChild(btn);
-  });
-
-  openModal(daySlotsModal);
-}
-
-function confirmSlot(date, time) {
+export function confirmSlot(startTime, endTime, niceDate, niceTime) {
   closeModal(daySlotsModal);
   viewAvailability.classList.add("hidden");
   $("#view-appointments").classList.remove("hidden");
 
+  const start = Timestamp.fromDate(startTime);
+  const end = Timestamp.fromDate(endTime);
+
   if (scheduleCtx.mode === "change" && scheduleCtx.apptId) {
-    appointments = appointments.map((a) =>
-      a.id === scheduleCtx.apptId ? { ...a, date, time } : a
-    );
-    confirmText.textContent = `Your appointment has been updated to ${date} at ${time}.`;
-  } else {
-    const id = "a" + Math.floor(Math.random() * 1e6);
-    appointments.push({
-      id,
-      doctor: scheduleCtx.doctor,
-      date,
-      time,
-      location: "LOCATION",
-    });
-    confirmText.textContent = `Your appointment with ${scheduleCtx.doctor} is scheduled for ${date} at ${time}.`;
+    updateAppointment(start, end, scheduleCtx.UID, scheduleCtx.PID, scheduleCtx.doctor, "rescheduled", scheduleCtx.purpose);
+    confirmText.textContent = `Your appointment has been updated to ${niceDate} at ${niceTime}.`;
+  } else if (scheduleCtx.mode === "new") {
+    createAppointment(start, end, scheduleCtx.UID, scheduleCtx.PID, scheduleCtx.doctor, "scheduled", scheduleCtx.purpose);
+    confirmText.textContent = `Your appointment with ${scheduleCtx.doctorName} is scheduled for ${niceDate} at ${niceTime}.`;
   }
 
-  renderAppointments();
+  renderAppointments(scheduleCtx.PID);
   openModal(confirmModal);
 }
 
@@ -524,11 +359,25 @@ window.addEventListener("DOMContentLoaded", () => {
       window.location.href = "./patient_login_page.html";
       return;
     }
-
+    scheduleCtx.UID = user.uid;
     console.log("User authenticated:", user.uid);
 
+    // check if guardian
+    try {
+      const guardianData = await getDoc(doc(db, "guardians", scheduleCtx.UID));
+      if (guardianData.exists()) {
+        scheduleCtx.role = "guardian";
+        scheduleCtx.PID = guardianData.data().patientId;
+        const patientData = await getDoc(doc(db, "patients", scheduleCtx.PID));
+      } else {
+        scheduleCtx.PID = scheduleCtx.UID;
+      }
+    } catch (error) {
+      scheduleCtx.PID = scheduleCtx.UID;
+      console.log(error);
+    }
+
     showView("appointments");
-    await renderAppointments(user.uid);
-    buildCalendar();
+    await renderAppointments(scheduleCtx.PID);
   });
 });
