@@ -12,6 +12,7 @@
     <script defer type="module" src="./scripts/search_doctors.js"></script>
     <script defer type="module" src="./scripts/department_loader.js"></script>
     <script type="module" src="./scripts/logout.js" ></script>
+    <script type="module" src="./scripts/delete_account.js" ></script>
   </head>
 
   <script type="module">
@@ -145,7 +146,13 @@
           class="content hidden"
           aria-label="Account details"
         >
-          <h2>Account Details</h2>
+          <div class="account-header">
+            <h2>Account Details</h2>
+
+            <button id="deleteAccountBtn" class="delete-account small">
+              Delete Account
+            </button>
+          </div>
           <div class="account-card">
             <h3>Account Information</h3>
             <p>
@@ -373,12 +380,23 @@
       </div>
     </div>
     
-    <div id="overlay">
+    <div id="logout-overlay">
       <div id="logout-popup">
         <h3>Are you sure you want to logout?</h3>
         <div id="button-container">
-          <button class="logout-btn" id="confirm"> Yes </button>
-          <button class="logout-btn" id="cancel"> Cancel </button>
+          <button class="buttons" id="logout-confirm"> Yes </button>
+          <button class="buttons" id="logout-cancel"> Cancel </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="delete-overlay">
+      <div id="delete-popup">
+        <h3 id="delete-header">Are you sure you want to delete your account?</h3>
+        <h4 id="delete-info">Your authentication information will be deleted and you will no longer be able to access your account.</h4>
+        <div id="button-container">
+          <button class="buttons" id="delete-confirm"> Yes </button>
+          <button class="buttons" id="delete-cancel"> Cancel </button>
         </div>
       </div>
     </div>

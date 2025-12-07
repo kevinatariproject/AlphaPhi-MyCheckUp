@@ -1,4 +1,5 @@
-#overlay{
+#delete-overlay,
+#logout-overlay{
   display: none;
   position: fixed;
   top: 0;
@@ -11,9 +12,11 @@
   z-index: 1000;
 }
 
+#delete-popup,
 #logout-popup {
   display: none;
   position: fixed;
+  max-width: 30%;
   width: fit-content;
   height: fit-content;
   background-color: white;
@@ -28,7 +31,8 @@
   justify-content: center;
 }
 
-.logout-btn {
+
+.buttons {
   width: 40%;
   border-style : solid;
   border-radius: 12px;
@@ -43,16 +47,29 @@
   background-color: rgb(63, 63, 63);
 }
 
-#confirm:hover {
+#delete-confirm:hover,
+#logout-confirm:hover {
   background: transparent;
   border-color: green;
   color: green;
   letter-spacing: 1px;
 }
 
-#cancel:hover {
+#delete-cancel:hover,
+#logout-cancel:hover {
   background: transparent;
   border-color: red;
   color: red;
   letter-spacing: 1px;
+}
+
+/* Delete Account Specifics */
+#delete-info,
+#delete-header {
+  text-align: center;
+}
+
+#delete-info {
+  margin-top: -10px;
+  font-weight: normal;
 }

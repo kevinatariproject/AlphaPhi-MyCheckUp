@@ -5,9 +5,9 @@ import { signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth
 
 document.querySelectorAll(".logout").forEach(btn => {
     
-    const overlay = document.getElementById("overlay");
-    const confirmBtn = document.getElementById("confirm");
-    const cancelBtn = document.getElementById("cancel");
+    const overlay = document.getElementById("logout-overlay");
+    const confirmBtn = document.getElementById("logout-confirm");
+    const cancelBtn = document.getElementById("logout-cancel");
     const popupWin = document.getElementById("logout-popup")
 
     btn.addEventListener("click", (e) => {
