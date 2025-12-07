@@ -4,16 +4,20 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/fi
 import { getUserAppointments, cancelAppointment, createAppointment, updateAppointment, getAvailableTimeSlots, parseAppointmentDate } from './appt_scheduling.js';
 import { openModal, closeModal } from "./modal_controls.js";
 import { initializeCalendar } from "./calendar_populate.js";
+import { departmentMap } from "./department_loader.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 
-/* Demo appointments */
-let appointments = [
-  { id: "a1", doctor: "Dr. Jane Doe, MD", date: "October 10th, 2025", time: "1:00 PM", location: "LOCATION" },
-  { id: "a2", doctor: "Dr. Jane Doe, MD", date: "November 12th, 2025", time: "3:00 PM", location: "LOCATION" },
-  { id: "a3", doctor: "Dr. Jon Doe, MD", date: "November 12th, 2025", time: "8:00 AM", location: "LOCATION" }
-];
+const visitCodes = {
+    "new_patient": "New Patient Visit",
+    "consultation": "Consultation",
+    "routine_exam": "Routine/Annual Exam",
+    "follow_up": "Follow-Up Visit",
+    "non_urgent": "Non-Urgent Concern",
+    "ongoing_care": "Ongoing Care Management",
+    "other": "Other"
+};
 
 /* Drawer */
 const drawer = $("#drawer");
@@ -164,8 +168,8 @@ async function renderAppointments(userId) {
           .join(' ');
       }
 
-      const formattedVisitType = formatPascalCase(appointment.visitType || 'General Visit');
-      const formattedLocation = formatPascalCase(appointment.location || 'Location to be determined');
+      const formattedVisitType = (visitCodes[appointment.visitType] || 'Other');
+      const formattedLocation = formatPascalCase(departmentMap[appointment.departmentId].location || 'Location to be determined');
 
       const card = document.createElement("article");
       card.className = "card";
