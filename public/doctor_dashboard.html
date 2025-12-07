@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>MyCheckUp – Doctor Dashboard</title>
     <link rel="stylesheet" href="./css/doctor_dashboard.css" />
+    <link rel="stylesheet" href="./css/calendar.css" />
+    <link rel="stylesheet" href="./css/modal.css" />
     <link rel="stylesheet" href="./css/logout_popup.css" />
-    <script src="./scripts/doctor_dashboard.js" defer></script>
+    <script defer type="module" src="./scripts/doctor_dashboard.js"></script>
     <script type="module" src="./scripts/logout.js" ></script>
   </head>
 
@@ -64,8 +66,7 @@
         <!-- Availability / View Schedule -->
         <section id="view-schedule" class="view" aria-label="Availability">
           <div class="toolbar">
-            <h2>Availability</h2>
-            <button class="btn back" data-view="dashboard">Back</button>
+            <h2>Schedule</h2>
           </div>
 
           <div class="cal-controls">
@@ -75,7 +76,8 @@
             <button id="nextMonth" class="btn icon" aria-label="Next month">
               ▶
             </button>
-            <div id="monthLabel" class="month-label">October 2025</div>
+            <div id="monthLabel" class="month-label"></div>
+            <button id="todayBtn" class="btn">Today</button>
           </div>
 
           <div
@@ -123,6 +125,34 @@
         </section>
       </section>
     </main>
+
+    <!-- Modal overlay -->
+    <div id="modalOverlay" class="modal-overlay hidden"></div>
+
+    <!-- Day time slots popup -->
+    <div
+      id="daySlotsModal"
+      class="modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="slotsTitle"
+    >
+      <div class="modal-card">
+        <button class="modal-close" data-close-modal>&times;</button>
+        <p class="modal-subtitle" id="slotsTitle">
+          Appointments for
+        </p>
+        <h3 id="slotsDateLabel">Day String</h3>
+
+        <div class="times-table">
+          <div id="daySlotsList"></div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="secondary" data-close-modal>Close</button>
+        </div>
+      </div>
+    </div>
 
     <div id="logout-overlay">
       <div id="logout-popup">

@@ -18,6 +18,7 @@ import {
     addDoc,
     doc,
     setDoc,
+    updateDoc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
@@ -154,7 +155,7 @@ document.getElementById('signupForm').addEventListener('submit', async function(
                 createdAt: serverTimestamp(),
             });
             
-            await addDoc(collection(db, "patients"), {
+            const patientId = await addDoc(collection(db, "patients"), {
                 firstName,
                 lastName,
                 preferredName,
@@ -162,6 +163,11 @@ document.getElementById('signupForm').addEventListener('submit', async function(
                 address,
                 guardianId: user.uid,
                 createdAt: serverTimestamp(),
+            });
+
+            // add patientId to guardian information
+            await updateDoc(doc(db, "guardians", user.uid), {
+                patientId: patientId.id
             });
 
         } else {

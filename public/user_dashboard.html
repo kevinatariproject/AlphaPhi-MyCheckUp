@@ -5,10 +5,12 @@
     <title>MyCheckUp – User Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="./css/user_dashboard.css" />
+    <link rel="stylesheet" href="./css/calendar.css" />
+    <link rel="stylesheet" href="./css/modal.css" />
     <link rel="stylesheet" href="./css/logout_popup.css" />
     <script type="module" src="./scripts/user_dashboard.js"></script>
-    <script type="module" src="./scripts/search_doctors.js"></script>
-    <script type="module" src="./scripts/department_loader.js"></script>
+    <script defer type="module" src="./scripts/search_doctors.js"></script>
+    <script defer type="module" src="./scripts/department_loader.js"></script>
     <script type="module" src="./scripts/logout.js" ></script>
     <script type="module" src="./scripts/delete_account.js" ></script>
   </head>
@@ -88,17 +90,17 @@
             role="group"
             aria-label="Appointment actions"
           >
-            <button id="tileSchedule" class="tile">
+            <button id="tileCreateAppt" class="tile">
               <span class="tile-icon" aria-hidden="true">📅➕</span>
               <span class="tile-title">Schedule New<br />Appointment</span>
             </button>
-            <button id="tileCancel" class="tile">
+            <button id="tileCancelAppt" class="tile">
               <span class="tile-icon" aria-hidden="true">❌</span>
               <span class="tile-title">Cancel<br />Appointment</span>
             </button>
-            <button id="tileChange" class="tile">
+            <button id="tileModifyAppt" class="tile">
               <span class="tile-icon" aria-hidden="true">🛠️</span>
-              <span class="tile-title">Change Current<br />Appointment</span>
+              <span class="tile-title">Reschedule Existing<br />Appointment</span>
             </button>
           </div>
 
@@ -111,42 +113,31 @@
           ></div>
         </section>
 
-        <!-- Availability / Schedule Calendar -->
-        <section
-          id="view-availability"
-          class="content hidden"
-          aria-label="Availability calendar"
-        >
-          <div class="schedule-header">
+        <!-- Availability / View Schedule -->
+        <section id="view-availability" class="content hidden" aria-label="Availability calendar">
+          <div class="toolbar">
             <h2>Availability</h2>
             <button class="primary schedule-back" id="availabilityBackBtn">
               Back
             </button>
           </div>
 
-          <div class="month-nav">
-            <button class="month-btn" id="prevMonth">&#9664;</button>
-            <div class="month-label" id="monthLabel">October 2025</div>
-            <button class="month-btn" id="nextMonth">&#9654;</button>
+          <div class="cal-controls">
+            <button id="prevMonth" class="btn icon" aria-label="Previous month">
+              ◀
+            </button>
+            <button id="nextMonth" class="btn icon" aria-label="Next month">
+              ▶
+            </button>
+            <div id="monthLabel" class="month-label"></div>
+            <button id="todayBtn" class="btn">Today</button>
           </div>
 
-          <table
+          <div
+            id="calendar"
             class="calendar"
-            aria-label="Availability calendar for selected month"
-          >
-            <thead>
-              <tr>
-                <th>Sunday</th>
-                <th>Monday</th>
-                <th>Tuesday</th>
-                <th>Wednesday</th>
-                <th>Thursday</th>
-                <th>Friday</th>
-                <th>Saturday</th>
-              </tr>
-            </thead>
-            <tbody id="calendarBody"></tbody>
-          </table>
+            aria-label="Availability calendar"
+          ></div>
         </section>
 
         <!-- Account Details -->
@@ -302,24 +293,34 @@
     >
       <div class="modal-card">
         <button class="modal-close" data-close-modal>&times;</button>
-        <h3 id="slotsTitle">Available appointments for</h3>
-        <p class="modal-subtitle" id="slotsDateLabel">
-          Thursday, October 23, 2025
+        <p class="modal-subtitle" id="slotsTitle">
+          Available appointments for
         </p>
+        <h3 id="slotsDateLabel">Date String</h3>
 
         <div class="times-table">
           <div id="daySlotsList"></div>
         </div>
 
-        <div class="modal-actions">
-          <button class="secondary" data-close-modal>Close</button>
+        <div class="confirmation-view" id="confirmation-popup">
+          <h3>Confirm Appointment Details</h3>
+          <p class="modal-subtitle" id="text-preview"></p>
+        </div>
+
+        <div class="modal-action" id="modal-action-1">
+          <button class="primary" id="book-button" data-close-modal>Book Appointment</button>
+          <button class="secondary" data-close-modal>Back</button>
+        </div>
+
+        <div class="modal-action" id="modal-action-2">
+          <button class="secondary" data-close-modal>Back</button>
         </div>
       </div>
     </div>
 
     <!-- Cancel appointment modal -->
     <div
-      id="cancelModal"
+      id="cancelSlctdApptModal"
       class="modal hidden"
       role="dialog"
       aria-modal="true"
@@ -330,13 +331,32 @@
         <h3 id="cancelTitle">Which appointment would you like to cancel?</h3>
 
         <label>
-          Appointment Details
-          <select id="cancelSelect"></select>
+          Upcoming Appointments
+          <select id="cancelSelectedAppt"></select>
         </label>
 
         <div class="modal-actions">
           <button class="secondary" data-close-modal>Close</button>
           <button class="primary" id="confirmCancelBtn">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cancel appointment confirmation modal -->
+    <div
+      id="cancelApptModal"
+      class="modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cancelTitle"
+    >
+      <div class="modal-card">
+        <button class="modal-close" data-close-modal>&times;</button>
+        <h3 id="cancelTitle">Are you sure you want to cancel this appointment?</h3>
+
+        <div class="modal-actions">
+          <button class="secondary" data-close-modal>No, go back</button>
+          <button class="primary" id="cancelApptBtn">Yes, cancel</button>
         </div>
       </div>
     </div>
