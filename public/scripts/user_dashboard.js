@@ -261,7 +261,7 @@ async function startScheduleFlow(mode, apptId = null) {
     $("#view-appointments").classList.add("hidden");
     viewAvailability.classList.remove("hidden");
 
-    await initializeCalendar(scheduleCtx.role, scheduleCtx.doctor);
+    await initializeCalendar(scheduleCtx.role, scheduleCtx.doctor,scheduleCtx.doctorName);
   }
 }
 
@@ -281,7 +281,7 @@ $("#s1NextBtn").addEventListener("click", async () => {
   $("#view-appointments").classList.add("hidden");
   viewAvailability.classList.remove("hidden");
 
-  await initializeCalendar(scheduleCtx.role, doctor);
+  await initializeCalendar(scheduleCtx.role, doctor, scheduleCtx.doctorName);
   // console.log(scheduleCtx);
 });
 
