@@ -2,6 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
 import { getAuth, connectAuthEmulator } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { getFirestore, connectFirestoreEmulator } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { getFunctions, connectFunctionsEmulator } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-functions.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -19,6 +20,7 @@ const app = initializeApp(firebaseConfig);
 // Export instances
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+export const functions = getFunctions(app);
 
 // Emulator detection
 const host = window.location.hostname;
@@ -26,6 +28,9 @@ const emulator = ["localhost", "127.0.0.1", "::1"].includes(host);
 
 if (emulator) {
     connectAuthEmulator(auth, `http://${host}:9099`);
-    connectFirestoreEmulator(db, "localhost", 8080);
-    console.log("Using emulators");
+    connectFirestoreEmulator(db, "localhost", 8081);
+
+    connectFunctionsEmulator(functions, "localhost", 5001);
+
+    console.log("Using emulators: Auth, Firestore, Functions");
 }

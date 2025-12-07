@@ -1,4 +1,10 @@
 import { refreshData as initAppointmentsSection } from "./admin_appts.js";
+import { db, functions } from "./firebase_config.js";
+import { doc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { httpsCallable } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-functions.js";
+import { getAuth, onAuthStateChanged  } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+
+const auth = getAuth(); // initialize auth instance
 
 // ===== Helpers =====
 const $ = (s, ctx = document) => ctx.querySelector(s);
@@ -43,11 +49,21 @@ initAppointmentsSection();
   const section = $("#manage");
   if (!section) return;
 
+  const deleteUserFunc = httpsCallable(functions, "deleteUser");
+  const checkUserLoginFunc = httpsCallable(functions, "checkUserLogin");
+
   // In-memory storage for demo
   const dataStore = {
     patient: [],
     doctor: [],
   };
+
+  let currentUser = null;
+
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    console.log("Current user:", currentUser?.uid); //logging for current user
+  });
 
   let currentType = "patient"; // "patient" or "doctor"
 
@@ -72,6 +88,18 @@ initAppointmentsSection();
   const searchInput = $("#am-search-input", section);
   const tableBody = $("#am-accounts-body", section);
 
+  //checks if the current user signed in is an admin or not
+  async function isCurrentUserAdmin() {
+  if (!currentUser) return false; // user not signed in
+
+  try {
+    const adminDoc = await getDoc(doc(db, "admins", currentUser.uid));
+    return adminDoc.exists();
+  } catch (err) {
+    console.error("Error checking admin status:", err);
+    return false;
+  }
+}
   // Toggle Patients / Doctors
   typeButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -141,9 +169,57 @@ initAppointmentsSection();
     renderTable();
   });
 
+  let isLoading = false;
   // Delete handler
-  function deleteRecord(type, id) {
-    dataStore[type] = dataStore[type].filter((item) => item.id !== id);
+  async function fetchData(type) {
+    isLoading = true;
+    renderTable(); // Re-render instantly to show loading row
+
+    try {
+      const colRef = collection(db, type + "s");
+      const snapshot = await getDocs(colRef);
+
+      const tempData = [];
+
+      for (const docSnap of snapshot.docs) {
+        const docData = docSnap.data();
+        const uid = docSnap.id;
+
+        let status = docData.status || "Inactive";
+
+        // Call Cloud Function to check if user exists in Firebase Auth
+        try {
+          const result = await checkUserLoginFunc({ uid });
+          if (result.data.canLogin) {
+            status = "Active";
+
+          } else {
+            status = "Inactive";
+          }
+        } catch (err) {
+          console.error(`Error checking login for UID ${uid}:`, err);
+          status = "Inactive";
+        }
+
+        tempData.push({
+          id: uid,
+          fullName: (docData.firstName || "") + " " + (docData.lastName || ""),
+          email: docData.email,
+          phone: docData.phone || "",
+          extra: docData.extra || "",
+          status
+        });
+      }
+
+      dataStore[type] = tempData;
+      renderTable();
+
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      alert("Failed to fetch data. Check console for details.");
+    }
+    
+    isLoading = false;
     renderTable();
   }
 
@@ -161,6 +237,17 @@ initAppointmentsSection();
       );
     });
 
+    if (isLoading) {
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+      cell.colSpan = 7;
+      cell.textContent = "Loading user data...";
+      cell.style.fontStyle = "italic";
+      row.appendChild(cell);
+      tableBody.appendChild(row);
+    return; 
+  }
+
     if (filtered.length === 0) {
       const row = document.createElement("tr");
       const cell = document.createElement("td");
@@ -173,6 +260,8 @@ initAppointmentsSection();
 
     filtered.forEach((item, index) => {
       const row = document.createElement("tr");
+      
+      const deleteDisabled = item.status === "Inactive" ? "disabled" : "";
 
       row.innerHTML = `
         <td>${index + 1}</td>
@@ -186,20 +275,76 @@ initAppointmentsSection();
           </span>
         </td>
         <td>
-          <button class="action-btn" data-id="${item.id}">
+          <button class="action-btn" data-id="${item.id}" ${deleteDisabled}>
             Delete
           </button>
         </td>
       `;
+      
+      if (deleteDisabled) {
+        const btn = row.querySelector(".action-btn");
+        btn.style.opacity = 0.5;
+        btn.style.cursor = "not-allowed";
+      }
 
       tableBody.appendChild(row);
     });
 
     // Attach delete listeners
     $$(".action-btn", section).forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const id = Number(btn.dataset.id);
-        deleteRecord(currentType, id);
+
+      btn.addEventListener("click", async () => {
+        if (btn.disabled) return; // Skip disabled buttons
+
+        const uidToDelete = btn.dataset.id;
+
+        // Check if current user is admin
+        const admin = await isCurrentUserAdmin();
+        if (!admin) {
+          alert("You are not authorized to delete users.");
+          return;
+        }
+
+        if (!btn.dataset.confirming) {
+          // First click: change appearance to confirm deletion
+          btn.dataset.confirming = "true";
+          btn.textContent = "Confirm Deletion";
+          btn.style.backgroundColor = "#28a745"; // Green
+          btn.style.color = "#fff";
+
+          let cancelBtn = document.createElement("button");
+          cancelBtn.textContent = "Cancel";
+          cancelBtn.className = "cancel-btn";
+          cancelBtn.style.marginLeft = "5px";
+          btn.parentNode.appendChild(cancelBtn);
+
+        // Cancel button listener
+          cancelBtn.addEventListener("click", () => {
+            // Reset delete button
+            btn.dataset.confirming = "";
+            btn.textContent = "Delete";
+            btn.style.backgroundColor = "";
+            btn.style.color = "";
+            // Remove cancel button
+            cancelBtn.remove();
+          });
+
+          return;
+        }
+
+        // Call the deleteUser function
+        try {
+          const result = await deleteUserFunc({ uid: uidToDelete });
+          btn.remove();
+          cancelBtn.remove();
+
+          console.log(result.data.message);
+
+          fetchData(currentType);
+        } catch (error) {
+          console.error("Error deleting user:", error);
+          alert(error.message || "Failed to delete user. Only admins can perform this action.");
+        }
       });
     });
   }
@@ -210,24 +355,24 @@ initAppointmentsSection();
   });
 
   // Seed demo data
-  dataStore.patient.push(
-    {
-      id: 1,
-      fullName: "John Doe",
-      email: "john.doe@example.com",
-      phone: "+1 (555) 123-4567",
-      extra: "P-1001",
-      status: "Active",
-    },
-    {
-      id: 2,
-      fullName: "Jane Smith",
-      email: "jane.smith@example.com",
-      phone: "+1 (555) 987-6543",
-      extra: "P-1002",
-      status: "Inactive",
-    }
-  );
+  // dataStore.patient.push(
+  //   {
+  //     id: 1,
+  //     fullName: "John Doe",
+  //     email: "john.doe@example.com",
+  //     phone: "+1 (555) 123-4567",
+  //     extra: "P-1001",
+  //     status: "Active",
+  //   },
+  //   {
+  //     id: 2,
+  //     fullName: "Jane Smith",
+  //     email: "jane.smith@example.com",
+  //     phone: "+1 (555) 987-6543",
+  //     extra: "P-1002",
+  //     status: "Inactive",
+  //   }
+  // );
 
   dataStore.doctor.push({
     id: 3,
@@ -238,7 +383,13 @@ initAppointmentsSection();
     status: "Active",
   });
 
-  renderTable();
+  async function handleFetch() {
+    setLoading(true);        // show "Loading..."
+    await fetchData(currentType);
+    setLoading(false);       // hide "Loading..."
+}
+
+  fetchData(currentType);
 })();
 
 //  SECTION 3: Reports (admin_report logic)
