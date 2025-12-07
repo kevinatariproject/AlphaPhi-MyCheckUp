@@ -1,7 +1,7 @@
 // This file handles all the appointment scheduling functionalities
 
 import { db } from './firebase_config.js';
-import { collection, addDoc, doc, updateDoc, serverTimestamp, query, where, getDocs, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { collection, addDoc, doc, updateDoc, serverTimestamp, query, where, getDocs, setDoc, getDoc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 async function createAppointment(startTime, endTime, userID, patientID, doctorID, status, visitType) {
     try {
@@ -83,7 +83,7 @@ async function cancelAppointment(apptID) {
 }
 async function getUserAppointments(userID) {
     try {
-        const apptQuery = query(collection(db, "appointments"), where("patientId", "==", userID));
+        const apptQuery = query(collection(db, "appointments"), where("patientId", "==", userID), orderBy("startTime"));
         const querySnapshot = await getDocs(apptQuery);
         const appointments = [];
         querySnapshot.forEach((doc) => {

@@ -222,10 +222,15 @@ async function changeMonth(monthDiff) {
     populateCalendar(role, DID);
 }
 
-async function initializeCalendar(userType, doctorId) {
+async function initializeCalendar(userType, doctorId, doctorName = null) {
     // set global variables
     role = userType;
     DID = doctorId;
+
+    if (doctorName) { // display doctor's name if given
+        const availabilityTitle = document.getElementById("availabilityTitle");
+        availabilityTitle.textContent = `Availability for ${doctorName}`;
+    }
 
     // set to today
     todayMonth();
