@@ -9,11 +9,30 @@ export function authenticateLogin(userType, userName) {
         if (user) {
           const uid = user.uid;
           const userRef = doc(db, userType, uid);
-          const snap = await getDoc(userRef);
-          if (snap.exists()) {           
-            const userData = snap.data();
-            usernameField.textContent = userData.firstName;
-          } else {
+          try {
+            const snap = await getDoc(userRef);
+            if (snap.exists()) {
+              // if admin, set username to admin
+              if (userType === "admins") usernameField.textContent = "Admin";
+              else { // otherwise get first name
+                const userData = snap.data();
+                usernameField.textContent = userData.firstName;
+              }
+            } else { // throw error if not retrieved
+              throw new Error("Incorrect user type");
+            }
+          } catch (error) {
+            try { // in the case of guardians
+              const snap = await getDoc(doc(db, "guardians", uid));
+              if (snap.exists()) {
+                const userData = snap.data();
+                usernameField.textContent = userData.firstName;
+              } else {
+                throw new Error("Incorrect user type");
+              }
+            } catch (error) {
+              console.log(error);
+            }
           }
         } else {
         }
