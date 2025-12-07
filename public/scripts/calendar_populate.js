@@ -25,10 +25,20 @@ let role = null;
 let DID = null;
 let monthData = {};
 
+const bookAppointmentBtns = document.getElementById("modal-action-1");
+const defautlBtn = document.getElementById("modal-action-2");
+const confirmationMessage = document.getElementById("confirmation-popup");
+const textPreview = document.getElementById("text-preview");
+const bookButton = document.getElementById("book-button");
+
 // renders the selected day's schedule
 function openDaySchedule(userType, day) {
     const slotsDateLabel = document.getElementById("slotsDateLabel");
     const daySlotsList = document.getElementById("daySlotsList");
+                
+    confirmationMessage.style.display = "none";
+    bookAppointmentBtns.style.display = "none";
+    defautlBtn.style.display = "flex";
     
     // create Date object for selected day
     const date = new Date(pointerYear, pointerMonth, day);
@@ -58,12 +68,31 @@ function openDaySchedule(userType, day) {
 
         const btn = document.createElement("button");
         btn.textContent = stdTime;
+        btn.classList.add("slot-btn"); // <-- add this class
+
         if (userType == "patient" || userType == "guardian") {
             btn.addEventListener("click", async () => {
-                // dynamic import of confirm slot function
+
+                document.querySelectorAll(".slot-btn.selected")
+                .forEach(b => b.classList.remove("selected"));
+
+                btn.classList.add("selected");
+
+                // dynamic import of confirm slot function and potetnial appointment information
+                const { confirmSlot, confirmSlotLabel } = await import("./user_dashboard.js");
+                textPreview.textContent = confirmSlotLabel(slot.startTime, slot.endTime, nice, stdTime);
+
+                confirmationMessage.style.display = "flex";
+                bookAppointmentBtns.style.display = "flex";
+                defautlBtn.style.display = "none";
+
+            });
+            
+            bookButton.addEventListener("click", async() => {
                 const { confirmSlot } = await import("./user_dashboard.js");
                 confirmSlot(slot.startTime, slot.endTime, nice, stdTime);
-            });
+            })
+
         }
         daySlotsList.appendChild(btn);
     });

@@ -285,6 +285,13 @@ export function confirmSlot(startTime, endTime, niceDate, niceTime) {
   openModal(confirmModal);
 }
 
+export function confirmSlotLabel(startTime, endTime, niceDate, niceTime) {
+  const start = Timestamp.fromDate(startTime);
+  const end = Timestamp.fromDate(endTime);
+
+  return `${scheduleCtx.doctorName} on ${niceDate} at ${niceTime}.`;
+}
+
 /* Cancel flow */
 const cancelSelect = $("#cancelSelectedAppt");
 const cancelAppt = $("#cancelApptModal");
