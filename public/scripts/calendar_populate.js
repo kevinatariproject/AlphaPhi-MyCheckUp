@@ -29,7 +29,7 @@ let monthData = {};
 function openDaySchedule(userType, day) {
     const slotsDateLabel = document.getElementById("slotsDateLabel");
     const daySlotsList = document.getElementById("daySlotsList");
-    
+
     // create Date object for selected day
     const date = new Date(pointerYear, pointerMonth, day);
     // spelled out date
@@ -58,11 +58,12 @@ function openDaySchedule(userType, day) {
 
         const btn = document.createElement("button");
         btn.textContent = stdTime;
+        btn.classList.add("slot-btn"); // <-- add this class
+
         if (userType == "patient" || userType == "guardian") {
             btn.addEventListener("click", async () => {
-                // dynamic import of confirm slot function
-                const { confirmSlot } = await import("./user_dashboard.js");
-                confirmSlot(slot.startTime, slot.endTime, nice, stdTime);
+                const { confirmSlotMessage } = await import("./user_dashboard.js");
+                confirmSlotMessage(btn, slot.startTime, slot.endTime, nice, stdTime);
             });
         }
         daySlotsList.appendChild(btn);
