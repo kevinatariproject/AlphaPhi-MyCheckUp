@@ -102,9 +102,9 @@ service cloud.firestore {
 
       match /blocks/{appointmentId} {
         allow read: if isSignedIn();
-        allow create: if canCreateBlock(doctorId, appointmentId);
-        allow update: if canUpdateBlock(doctorId, appointmentId);
-        allow delete: if canDeleteBlock(doctorId, appointmentId);
+        allow create: if isAdmin() || canCreateBlock(doctorId, appointmentId);
+        allow update: if isAdmin() || canUpdateBlock(doctorId, appointmentId);
+        allow delete: if isAdmin() || canDeleteBlock(doctorId, appointmentId);
       }
     }
 

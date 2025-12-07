@@ -513,7 +513,7 @@ tbody tr:hover {
 /* Appointments filters */
 .filters-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  grid-template-columns: repeat(7, auto);
   gap: 12px 16px;
   align-items: end;
 }
@@ -538,6 +538,36 @@ tbody tr:hover {
   outline: none;
   border-color: #2563eb;
   box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.3);
+}
+.filter.search-filter {
+  grid-column-start: 1;
+  grid-column-end: 4;
+}
+.filter.status-filter {
+  grid-column-start: 5;
+  grid-column-end: 7;
+}
+
+/* Manage Appointments table */
+tr.appt-list {
+  cursor: pointer;
+}
+th.va-active {
+  color: black;
+}
+tr.hidden {
+  display: none;
+}
+.appt-info {
+  padding: 8px 12px;
+}
+.appt-info-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+.cancel-btn-row {
+  display: flex;
+  justify-content: right;
 }
 
 /* Account management form */
@@ -662,13 +692,17 @@ tbody tr:hover {
   background-color: #e0f2fe;
   color: #0369a1;
 }
-.status-in-progress {
+.status-no-show {
   background-color: #fef3c7;
   color: #92400e;
 }
 .status-canceled {
   background-color: #fee2e2;
   color: #b91c1c;
+}
+.status-rescheduled {
+  background-color: #f1ddff;
+  color: #8320c5
 }
 
 /* Payment badges */

@@ -34,10 +34,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             };
 
             // create element for each department
-            const option = document.createElement("option");
-            option.value = doc.id;
-            option.textContent = deptName;
-            departmentElement.appendChild(option);
+            if (departmentElement) {
+                const option = document.createElement("option");
+                option.value = doc.id;
+                option.textContent = deptName;
+                departmentElement.appendChild(option);
+            }
         });
         
     } catch (error) {
