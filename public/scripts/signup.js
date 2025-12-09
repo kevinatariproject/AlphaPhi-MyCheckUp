@@ -153,14 +153,9 @@ document.getElementById('signupForm').addEventListener('submit', async function(
                 address: guardianAddress,
                 createdAt: serverTimestamp(),
             });
-
-            const patientsCollectionRef = doc(db, "guardians", user.uid, "patients", patientId.id);
-            await setDoc(patientsCollectionRef, {
-                relationship: relationship,
-                addedAt: serverTimestamp(),
-            });
             
-            const patientId = await addDoc(collection(db, "patients"), {
+            // Create patient document first
+            const patientDocRef = await addDoc(collection(db, "patients"), {
                 firstName,
                 lastName,
                 preferredName,
@@ -168,9 +163,18 @@ document.getElementById('signupForm').addEventListener('submit', async function(
                 address,
                 createdAt: serverTimestamp(),
             });
+            
+            // Create a patients subcollection under guardian linking to the patient
+            await setDoc(doc(db, "guardians", user.uid, "patients", patientDocRef.id), {
+                relationship: relationship,
+                createdAt: serverTimestamp(),
+            });
 
-            // Link patient to guardian
-            doc(db, "patients", patientId.id, "guardians", user.uid);
+            // Link guardian to patient in patient's guardians subcollection
+            await setDoc(doc(db, "patients", patientDocRef.id, "guardians", user.uid), {
+                relationship: relationship,
+                createdAt: serverTimestamp(),
+            });
 
         } else {
             // Patient does not have guardian, set patient as user
@@ -216,6 +220,11 @@ document.getElementById('signupForm').addEventListener('submit', async function(
         // Other error
         alert("An unexpected error occurred.");
         console.error(error);
+
+        // Attempt to clean up partially created user
+        if (auth.currentUser) {
+            await deleteUser(auth.currentUser);
+        }
     }
 });
 
