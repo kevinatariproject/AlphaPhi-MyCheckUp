@@ -6,6 +6,7 @@ import { openModal, closeModal } from "./modal_controls.js";
 import { initializeCalendar } from "./calendar_populate.js";
 import { fetchPatientDetails, fetchGuardianDetails, getGuardianIdsFromPatientId } from "./account_details.js";
 import { departmentMap } from "./department_loader.js";
+import { fetchPatientDetails, fetchGuardianDetails, getGuardianIdsFromPatientId } from "./account_details.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
