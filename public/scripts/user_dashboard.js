@@ -4,7 +4,6 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/fi
 import { getUserAppointments, cancelAppointment, createAppointment, updateAppointment, getAvailableTimeSlots, parseAppointmentDate } from './appt_scheduling.js';
 import { openModal, closeModal } from "./modal_controls.js";
 import { initializeCalendar } from "./calendar_populate.js";
-import { fetchPatientDetails, fetchGuardianDetails, getGuardianIdsFromPatientId } from "./account_details.js";
 import { departmentMap } from "./department_loader.js";
 import { fetchPatientDetails, fetchGuardianDetails, getGuardianIdsFromPatientId } from "./account_details.js";
 
@@ -454,6 +453,55 @@ confirmCancelBtn.addEventListener("click", async () => {
   }
 });
 
+async function loadAccountDetails(patientID, userID) {
+  // Check if the user is the guardian or patient
+  const patientSection = $("#PatientSection");
+  const patientDetails = await fetchPatientDetails(patientID);
+  if (patientID === userID) {
+    // The user is the patient
+      // Show Patient Information section for guardians
+      if (patientSection) {
+        patientSection.classList.add("hidden");
+      }
+    // Update account details with patient info
+    if (patientDetails) {
+      document.getElementById("accountEmail").textContent = patientDetails.email || "N/A";
+      document.getElementById("accountName").textContent = `${patientDetails.firstName || ''} ${patientDetails.lastName || ''}`.trim() || "N/A";
+      document.getElementById("accountDOB").textContent = patientDetails.dateOfBirth || "N/A";
+      document.getElementById("accountAddress").textContent = patientDetails.address || "N/A";      
+    }
+  }
+  else {
+    // The user is a guardian
+    // Fetch and display guardian details as account info  
+    const guardianDetails = await fetchGuardianDetails(userID);
+    if (guardianDetails) {
+      document.getElementById("accountEmail").textContent = guardianDetails.email || "N/A";
+      document.getElementById("accountName").textContent = `${guardianDetails.firstName || ''} ${guardianDetails.lastName || ''}`.trim() || "N/A";
+      document.getElementById("accountDOB").textContent = guardianDetails.dateOfBirth || "N/A";
+      document.getElementById("accountAddress").textContent = guardianDetails.address || "N/A";      
+    }
+
+
+    if (patientDetails) {
+      // Show Patient Information section for guardians
+      if (patientSection) {
+        patientSection.classList.remove("hidden");
+      }
+      // Populate patient details
+      document.getElementById("patientName").textContent = `${patientDetails.firstName || ''} ${patientDetails.lastName || ''}`.trim() || "N/A";
+      document.getElementById("patientDOB").textContent = patientDetails.dateOfBirth || "N/A";
+      document.getElementById("patientAddress").textContent = patientDetails.address || "N/A";
+    }
+    else {
+      // Hide Patient Information section if no patient details found
+      if (patientSection) {
+        patientSection.classList.add("hidden");
+      }
+    }
+  }
+}
+
 /* Init */
 window.addEventListener("DOMContentLoaded", () => {
   // Wait for Firebase Auth to initialize
@@ -466,7 +514,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     scheduleCtx.UID = user.uid;
     console.log("User authenticated:", user.uid);
-
+    
     // check if guardian
     try {
       const guardianData = await getDoc(doc(db, "guardians", scheduleCtx.UID));

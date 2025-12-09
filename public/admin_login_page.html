@@ -24,11 +24,11 @@
 
             <form id="login-form"> <!-- defines and labels the input element-->
                 <div class="field-holder">
-                    <input type="email" name="email" id="email-field" class="login-form-field" placeholder=" " required>
-                    <label for="email">email </label>
+                    <input type="email" name="email" id="email-field" class="login-form-field" placeholder=" " autocomplete="email" required>
+                    <label for="email">email</label>
                 </div>
                 <div class="field-holder">
-                    <input type="password" name="password" id="password-field" class="login-form-field" required>
+                    <input type="password" name="password" id="password-field" class="login-form-field" autocomplete="current-password" required>
                     <label for="name">password </label>
                 </div>
                 <input type="hidden" id="user-type" value="admins">
