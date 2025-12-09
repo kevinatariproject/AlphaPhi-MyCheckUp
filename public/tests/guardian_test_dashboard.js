@@ -1,7 +1,7 @@
 import { db, auth } from '../scripts/firebase_config.js';
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js';
-import { createAppointment, getUserAppointments, cancelAppointment, updateAppointment, getDoctorsFromDatabase, getAppointmentsByStatus } from "../scripts/appt_scheduling.js";
+import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js';
+import { createAppointment, getUserAppointments, cancelAppointment, updateAppointment, getAppointmentsByStatus } from "../scripts/appt_scheduling.js";
 
 // This file is intended for testing dashboard functionalities
 // We'll assume the user has already been authenticated
@@ -18,15 +18,15 @@ let userCredential;
 let user;
 let patient;
 let appointmentID;
-let selectedDoctor;
+let selectedDoctor = "52Cg8S24LRovXhff30iG6kz6xqqX";
 
 async function signInTestUser() {
     try {
-        userCredential = await signInWithEmailAndPassword(auth, "ksummers@test.com", "Password1!");
+        userCredential = await signInWithEmailAndPassword(auth, "someone@test.com", "Password1!");
         user = userCredential.user;
         console.log("User signed in:", user.uid);
-        const userData = await getDoc(doc(db, "guardians", user.uid));
-        patient = userData.data().patientId;
+        const patientList = await getDocs(collection(db, "guardians", user.uid, "patients"));
+        patient = patientList.docs[0].id; // return id of 1st patient
     } catch (error) {
         console.error("Error signing in test user:", error);
     }
@@ -129,8 +129,8 @@ async function runTests() {
 
     console.log("\n--- Fetch Doctors ---");
 
-    const doctors = await getDoctorsFromDatabase();
-    selectedDoctor = doctors[1].id;
+    // const doctors = await getDoctorsFromDatabase();
+    // selectedDoctor = doctors[1].id;
     console.log("Selected Doctor ID:", selectedDoctor);
 
     console.log("\n--- Test 1: Create Appointment ---");
