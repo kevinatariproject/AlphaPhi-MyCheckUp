@@ -151,8 +151,13 @@ document.getElementById('signupForm').addEventListener('submit', async function(
                 preferredName: guardianPreferredName,
                 dateOfBirth: guardianDateOfBirth,
                 address: guardianAddress,
-                relationship: relationship,
                 createdAt: serverTimestamp(),
+            });
+
+            const patientsCollectionRef = doc(db, "guardians", user.uid, "patients", patientId.id);
+            await setDoc(patientsCollectionRef, {
+                relationship: relationship,
+                addedAt: serverTimestamp(),
             });
             
             const patientId = await addDoc(collection(db, "patients"), {
@@ -161,14 +166,11 @@ document.getElementById('signupForm').addEventListener('submit', async function(
                 preferredName,
                 dateOfBirth,
                 address,
-                guardianId: user.uid,
                 createdAt: serverTimestamp(),
             });
 
-            // add patientId to guardian information
-            await updateDoc(doc(db, "guardians", user.uid), {
-                patientId: patientId.id
-            });
+            // Link patient to guardian
+            doc(db, "patients", patientId.id, "guardians", user.uid);
 
         } else {
             // Patient does not have guardian, set patient as user
