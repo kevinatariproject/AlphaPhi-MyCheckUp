@@ -1,5 +1,5 @@
 import { db, auth } from "./firebase_config.js";
-import { doc, getDoc, Timestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { doc, getDoc, getDocs, collection, Timestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { getUserAppointments, cancelAppointment, createAppointment, updateAppointment, getAvailableTimeSlots, parseAppointmentDate } from './appt_scheduling.js';
 import { openModal, closeModal } from "./modal_controls.js";
@@ -519,7 +519,9 @@ window.addEventListener("DOMContentLoaded", () => {
       const guardianData = await getDoc(doc(db, "guardians", scheduleCtx.UID));
       if (guardianData.exists()) {
         scheduleCtx.role = "guardian";
-        scheduleCtx.PID = guardianData.data().patientId;
+        const patientList = await getDocs(collection(db, "guardians", scheduleCtx.UID, "patients"));
+        scheduleCtx.PID = patientList.docs[0].id; // return id of 1st patient
+        console.log("hey", scheduleCtx.PID);
         const patientData = await getDoc(doc(db, "patients", scheduleCtx.PID));
       } else {
         scheduleCtx.PID = scheduleCtx.UID;
