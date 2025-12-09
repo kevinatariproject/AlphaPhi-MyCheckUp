@@ -4,6 +4,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/fi
 import { getUserAppointments, cancelAppointment, createAppointment, updateAppointment, getAvailableTimeSlots, parseAppointmentDate } from './appt_scheduling.js';
 import { openModal, closeModal } from "./modal_controls.js";
 import { initializeCalendar } from "./calendar_populate.js";
+import { fetchPatientDetails, fetchGuardianDetails, getGuardianIdsFromPatientId } from "./account_details.js";
 import { departmentMap } from "./department_loader.js";
 
 const $ = (s) => document.querySelector(s);
