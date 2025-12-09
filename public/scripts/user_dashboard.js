@@ -4,16 +4,10 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/fi
 import { getUserAppointments, cancelAppointment, createAppointment, updateAppointment, getAvailableTimeSlots, parseAppointmentDate } from './appt_scheduling.js';
 import { openModal, closeModal } from "./modal_controls.js";
 import { initializeCalendar } from "./calendar_populate.js";
+import { fetchPatientDetails, fetchGuardianDetails, getGuardianIdsFromPatientId } from "./account_details.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
-
-/* Demo appointments */
-let appointments = [
-  { id: "a1", doctor: "Dr. Jane Doe, MD", date: "October 10th, 2025", time: "1:00 PM", location: "LOCATION" },
-  { id: "a2", doctor: "Dr. Jane Doe, MD", date: "November 12th, 2025", time: "3:00 PM", location: "LOCATION" },
-  { id: "a3", doctor: "Dr. Jon Doe, MD", date: "November 12th, 2025", time: "8:00 AM", location: "LOCATION" }
-];
 
 /* Drawer */
 const drawer = $("#drawer");
@@ -410,5 +404,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
     showView("appointments");
     await renderAppointments(scheduleCtx.PID);
+    await loadAccountDetails(scheduleCtx.PID, scheduleCtx.UID);
   });
 });
