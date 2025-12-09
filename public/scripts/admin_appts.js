@@ -1,6 +1,6 @@
 // Renders appointment information for the admin dashboard
 
-import { getUser, getUserAppts, get24hrAppts } from "./admin_appts_fetch.js";
+import { getUser, getGuardianId, getUserAppts, get24hrAppts } from "./admin_appts_fetch.js";
 import { departmentMap } from "./department_loader.js";
 import { cancelAppointment } from "./appt_scheduling.js";
 
@@ -91,15 +91,16 @@ async function viewDetails(index, element) {
         // get data from firestore of doctor, patient, and guardian if applicable
         const doctorData = await getUser(appt.doctorId, "doctors");
         const patientData = await getUser(appt.patientId, "patients");
+        const guardianId = await getGuardianId(appt.patientId);
         let guardianData;
-        if (patientData.guardianId)
-            guardianData = await getUser(patientData.guardianId, "guardians");
+        if (guardianId)
+            guardianData = await getUser(guardianId, "guardians");
 
         // construct names
         const doctorName = `${doctorData.firstName} ${doctorData.lastName}`;
         const patientName = `${patientData.firstName} ${patientData.lastName}`;
         let guardianName;
-        if (guardianData)
+        if (guardianId)
             guardianName = `${guardianData.firstName} ${guardianData.lastName}`;
 
         // make table row for appointment details
@@ -122,7 +123,7 @@ async function viewDetails(index, element) {
         const div1 = document.createElement("div");
         div1.classList.add("appt-info-row");
         let row1info = `<p><b>Doctor:</b> ${doctorName}</p><p><b>Patient:</b> ${patientName}</p>`;
-        if (guardianData) row1info += `<p><b>Guardian:</b> ${guardianName}</p>`;
+        if (guardianId) row1info += `<p><b>Guardian:</b> ${guardianName}</p>`;
         div1.innerHTML = row1info;
         td.appendChild(div1);
 
