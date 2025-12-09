@@ -10,6 +10,11 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == uid;
     }
 
+    function isGuardian() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/guardians/$(request.auth.uid));
+    }
+
     function isAdmin() {
       return isSignedIn() &&
         exists(/databases/$(database)/documents/admins/$(request.auth.uid));
@@ -84,8 +89,9 @@ service cloud.firestore {
 
     // Guardians
     match /guardians/{guardianId} {
-      allow create: if isOwner(guardianId);
-      allow read, update, delete: if isOwner(guardianId) || isAdmin();
+      allow create: if isSignedIn() && isOwner(request.resource.id);
+      allow read, update: if isOwner(guardianId) || isAdmin();
+      allow delete: if isAdmin();
     }
 
     // Doctors
