@@ -320,13 +320,13 @@ initAppointmentsSection();
 
         // Cancel button listener
           cancelBtn.addEventListener("click", () => {
-            // Reset delete button
-            btn.dataset.confirming = "";
-            btn.textContent = "Delete";
-            btn.style.backgroundColor = "";
-            btn.style.color = "";
-            // Remove cancel button
-            cancelBtn.remove();
+          // Reset delete button
+          btn.dataset.confirming = "";
+          btn.textContent = "Delete";
+          btn.style.backgroundColor = "";
+          btn.style.color = "";
+          // Remove cancel button
+          cancelBtn.remove();
           });
 
           return;
@@ -335,9 +335,6 @@ initAppointmentsSection();
         // Call the deleteUser function
         try {
           const result = await deleteUserFunc({ uid: uidToDelete });
-          btn.remove();
-          cancelBtn.remove();
-
           console.log(result.data.message);
 
           fetchData(currentType);

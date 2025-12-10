@@ -28,7 +28,7 @@ const emulator = ["localhost", "127.0.0.1", "::1"].includes(host);
 
 if (emulator) {
     connectAuthEmulator(auth, `http://${host}:9099`);
-    connectFirestoreEmulator(db, "localhost", 8081);
+    connectFirestoreEmulator(db, "localhost", 8080);
 
     connectFunctionsEmulator(functions, "localhost", 5001);
 
