@@ -2,12 +2,22 @@ import { db, auth } from "./firebase_config.js";
 import { initializeCalendar } from "./calendar_populate.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { departmentMap } from "./department_loader.js";
 
 let UID = null;
 let status = "active";
 
 const $ = (q, ctx = document) => ctx.querySelector(q);
 const $$ = (q, ctx = document) => Array.from(ctx.querySelectorAll(q));
+
+const email = document.getElementById("email");
+const lastLogin = document.getElementById("last-login");
+const name = document.getElementById("name");
+const creds = document.getElementById("credentials");
+const specialty = document.getElementById("specialty");
+const bio = document.getElementById("bio");
+const location = document.getElementById("location");
+const floor = document.getElementById("floor")
 
 /* View switching */
 
@@ -89,6 +99,23 @@ window.addEventListener("DOMContentLoaded", () => {
 
     try {
       const doctorData = await getDoc(doc(db, "doctors", UID));
+      const doctorInfo = doctorData.data();
+      
+      email.textContent = doctorInfo?.email || "No Email Provided";
+      lastLogin.textContent = user?.metadata?.lastSignInTime || "Last Login Unknown";
+      name.textContent = doctorInfo?.firstName + ' ' + doctorInfo?.lastName;
+      creds.textContent = doctorInfo.credentials || "No Credentials Listed";
+      bio.textContent = doctorInfo.bio || "No Biography Available";
+
+      const deptId = doctorInfo.departmentId;
+      if (deptId && departmentMap[deptId]) {
+        specialty.textContent = departmentMap[deptId].name;
+        location.textContent = departmentMap[deptId].location;
+      } else {
+        specialty.textContent = "Unknown Department";
+      }
+
+
       status = doctorData.data().status;
       if (status == "inactive") { // show notice if inactive
         const toolbarDiv = document.querySelector(".toolbar");
@@ -104,3 +131,4 @@ window.addEventListener("DOMContentLoaded", () => {
     switchView("dashboard");
   });
 });
+
