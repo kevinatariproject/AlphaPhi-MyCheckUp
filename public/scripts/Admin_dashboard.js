@@ -5,10 +5,15 @@ import { httpsCallable } from "https://www.gstatic.com/firebasejs/12.6.0/firebas
 import { getAuth, onAuthStateChanged  } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 
 const auth = getAuth(); // initialize auth instance
+let UID = null;
 
 // ===== Helpers =====
 const $ = (s, ctx = document) => ctx.querySelector(s);
 const $$ = (s, ctx = document) => Array.from(ctx.querySelectorAll(s));
+
+const email = document.getElementById("email");
+const name = document.getElementById("name");
+const lastLogin = document.getElementById("last-login");
 
 // ===== Nav: switch main views =====
 $$(".nav-item").forEach((btn) => {
@@ -40,6 +45,28 @@ if (menuToggle && sidebar) {
     })
   );
 }
+
+window.addEventListener("DOMContentLoaded", () => {
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      console.log("No user logged in");
+      return;
+    }
+    console.log("user Signed In");
+    UID = user.uid;
+
+    try {
+      const adminData = await getDoc(doc(db, "admins", UID));
+      const adminInfo = adminData.data();
+      
+      email.textContent = adminInfo?.email || "No Email Provided";
+      lastLogin.textContent = user?.metadata?.lastSignInTime || "Last Login Unknown";
+      name.textContent = adminInfo?.firstName + ' ' + adminInfo?.lastName;
+    }catch (error) {
+      console.log(error);
+    }
+  });
+});
 
 initAppointmentsSection();
 
