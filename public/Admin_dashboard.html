@@ -355,30 +355,15 @@
                 </div>
 
                 <div class="filter-item">
-                  <label for="ar-payment-status-filter">Payment Status</label>
-                  <select id="ar-payment-status-filter">
-                    <option value="">All</option>
-                    <option value="Paid">Paid</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Failed">Failed</option>
+                  <label for="ar-patient-filter">Patient</label>
+                  <select id="ar-patient-filter">
+                    <option value="">All patients</option>
                   </select>
-                </div>
-
-                <div class="filter-item">
-                  <label for="ar-search-filter">Search</label>
-                  <input
-                    type="text"
-                    id="ar-search-filter"
-                    placeholder="Patient, doctor, type..."
-                  />
                 </div>
 
                 <div class="filter-actions">
                   <button id="ar-generate-btn" class="primary-btn">
-                    Generate Report
-                  </button>
-                  <button id="ar-download-btn" class="secondary-btn">
-                    Download CSV
+                    Generate Report (CSV)
                   </button>
                 </div>
               </div>
@@ -404,10 +389,6 @@
                   <div class="summary-label">Total Appointments</div>
                   <div class="summary-value" id="ar-total-appointments">0</div>
                 </div>
-                <div class="summary-card">
-                  <div class="summary-label">Total Revenue</div>
-                  <div class="summary-value" id="ar-total-revenue">$0.00</div>
-                </div>
               </div>
             </section>
 
@@ -427,20 +408,17 @@
                     <tr>
                       <th>Appointment ID</th>
                       <th>Date</th>
-                      <th>Time</th>
+                      <th>Start Time</th>
                       <th>Patient ID</th>
                       <th>Patient Name</th>
                       <th>Patient Email</th>
-                      <th>Patient Phone</th>
+                      <th>Guardian Name</th>
+                      <th>Guardian Email</th>
                       <th>Doctor ID</th>
                       <th>Doctor Name</th>
-                      <th>Specialty</th>
+                      <th>Credentials</th>
                       <th>Type</th>
                       <th>Status</th>
-                      <th>Amount</th>
-                      <th>Payment Status</th>
-                      <th>Payment Method</th>
-                      <th>Location</th>
                     </tr>
                   </thead>
                   <tbody id="ar-report-body">
