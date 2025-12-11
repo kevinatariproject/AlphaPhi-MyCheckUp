@@ -82,7 +82,13 @@ service cloud.firestore {
     // Patients
     match /patients/{patientId} {
       allow create: if isOwner(patientId) || exists(/databases/$(database)/documents/guardians/$(request.auth.uid));
-      allow read, update, delete: if isPatientOrGuardian(patientId) || isAdmin();
+      allow read: if isPatientOrGuardian(patientId)
+            || isAdmin()
+            || (isSignedIn() &&
+                exists(/databases/$(database)/documents/doctors/$(request.auth.uid)));
+      
+      allow update, delete: if isPatientOrGuardian(patientId) || isAdmin();
+      
 
       match /guardians/{guardianId} {
         allow read, write: if isAdmin();
