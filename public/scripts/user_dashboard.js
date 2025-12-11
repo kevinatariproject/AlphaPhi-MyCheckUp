@@ -236,7 +236,7 @@ let scheduleCtx = {
 $("#tileCreateAppt").addEventListener("click", () => startScheduleFlow("new"));
 
 $("#tileModifyAppt").addEventListener("click", () => {
-  alert("Use the Change button on a specific appointment to reschedule.");
+  openRescheduleSlctdApptModal();
 });
 
 async function startScheduleFlow(mode, apptId = null) {
@@ -399,6 +399,57 @@ function openCancelSlctdApptModal(preselectId) {
 }
 
 $("#tileCancelAppt").addEventListener("click", () => openCancelSlctdApptModal());
+
+/* Reschedule flow */
+const rescheduleSelect = $("#rescheduleSelectedAppt");
+const confirmRescheduleBtn = $("#confirmRescheduleBtn");
+
+function openRescheduleSlctdApptModal(preselectId) {
+  // Clear the dropdown first to prevent duplicates
+  rescheduleSelect.innerHTML = "";
+  
+  if (allScheduledAppts.length === 0) {
+    const apptOptions = document.createElement("option");
+    apptOptions.value = "";
+    apptOptions.textContent = "No upcoming appointments";
+    rescheduleSelect.appendChild(apptOptions);
+  }
+  else {
+    allScheduledAppts.forEach((appt) => {
+      const option = document.createElement("option");
+      const startDate = parseAppointmentDate(appt.startTime);
+      const formattedDate = startDate.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+      const formattedTime = startDate.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+      });
+      option.value = appt.id;
+      option.textContent = `${appt.doctorName} - ${formattedDate} at ${formattedTime}`;
+      rescheduleSelect.appendChild(option);
+    });
+  }
+  if (preselectId) {
+    rescheduleSelect.value = preselectId;
+  } 
+
+  openModal($("#rescheduleSlctdApptModal"));
+}
+
+confirmRescheduleBtn.addEventListener("click", async () => {
+  const apptId = rescheduleSelect.value;
+  if (!apptId) {
+    alert("Please select an appointment to reschedule.");
+    return;
+  }
+
+  closeModal($("#rescheduleSlctdApptModal"));
+  await startScheduleFlow("change", apptId);
+});
 
 function openCancelApptModal(preselectId) {
   if (preselectId) {

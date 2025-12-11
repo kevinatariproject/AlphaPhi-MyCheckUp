@@ -297,6 +297,30 @@
       </div>
     </div>
 
+    <!-- Reschedule appointment modal -->
+    <div
+      id="rescheduleSlctdApptModal"
+      class="modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="rescheduleTitle"
+    >
+      <div class="modal-card">
+        <button class="modal-close" data-close-modal>&times;</button>
+        <h3 id="rescheduleTitle">Which appointment would you like to reschedule?</h3>
+
+        <label>
+          Upcoming Appointments
+          <select id="rescheduleSelectedAppt"></select>
+        </label>
+
+        <div class="modal-actions">
+          <button class="secondary" data-close-modal>Close</button>
+          <button class="primary" id="confirmRescheduleBtn">Confirm</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Cancel appointment modal -->
     <div
       id="cancelSlctdApptModal"
