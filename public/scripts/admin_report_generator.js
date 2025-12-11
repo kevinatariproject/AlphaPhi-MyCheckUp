@@ -33,12 +33,8 @@ export async function getAllAppointments() {
   }
 }
 
-/**
- * Enrich appointment data with patient and doctor information
- * @param {Array} appointments - Array of appointment objects
- * @returns {Promise<Array>} Array of enriched appointment data
- */
-export async function enrichAppointmentData(appointments) {
+// Modify appointment data with patient and doctor information
+export async function modifyAppointmentData(appointments) {
   const enrichedData = [];
   
   for (const appointment of appointments) {
@@ -175,12 +171,7 @@ export async function enrichAppointmentData(appointments) {
   return enrichedData;
 }
 
-/**
- * Initialize filter dropdowns with data from appointments
- * @param {HTMLSelectElement} doctorFilter - The doctor filter dropdown element
- * @param {HTMLSelectElement} patientFilter - The patient filter dropdown element
- * @param {Array} reportRows - Array of enriched appointment data
- */
+// Initialize filter dropdowns with data from appointments
 export function initFilters(doctorFilter, patientFilter, reportRows) {
   // Populate doctor filter
   const doctors = Array.from(
@@ -209,12 +200,7 @@ export function initFilters(doctorFilter, patientFilter, reportRows) {
   });
 }
 
-/**
- * Apply filters and return filtered rows
- * @param {Array} reportRows - All appointment data
- * @param {Object} filters - Filter values
- * @returns {Array} Filtered report rows
- */
+// Apply filters and return filtered rows
 export function getFilteredRows(reportRows, filters) {
   const { doctorValue, patientValue, fromValue, toValue } = filters;
 
@@ -236,11 +222,7 @@ export function getFilteredRows(reportRows, filters) {
   });
 }
 
-/**
- * Render summary cards
- * @param {Array} rows - Filtered report rows
- * @param {Object} elements - DOM elements for summary display
- */
+// Render summary cards
 export function renderSummary(rows, elements) {
   const { totalPatientsEl, totalDoctorsEl, totalAppointmentsEl } = elements;
   
@@ -252,11 +234,7 @@ export function renderSummary(rows, elements) {
   totalAppointmentsEl.textContent = rows.length;
 }
 
-/**
- * Render report table
- * @param {Array} rows - Filtered report rows
- * @param {HTMLElement} reportBody - Table body element
- */
+// Render report table
 export function renderTable(rows, reportBody) {
   reportBody.innerHTML = "";
 
@@ -273,12 +251,17 @@ export function renderTable(rows, reportBody) {
   rows.forEach((row) => {
     const tr = document.createElement("tr");
 
+    // Normalize status to lowercase for comparison
+    const status = (row.appointment_status || "").toLowerCase();
+    
     const statusClass =
-      row.appointment_status === "Completed"
+      status === "completed"
         ? "status-completed"
-        : row.appointment_status === "Scheduled"
+        : status === "scheduled"
         ? "status-scheduled"
-        : row.appointment_status === "Canceled"
+        : status === "rescheduled"
+        ? "status-rescheduled"
+        : status === "canceled" || status === "cancelled"
         ? "status-canceled"
         : "";
 
@@ -302,12 +285,7 @@ export function renderTable(rows, reportBody) {
   });
 }
 
-/**
- * Update meta information
- * @param {Object} elements - DOM elements for meta display
- * @param {string} fromValue - Start date value
- * @param {string} toValue - End date value
- */
+// Update meta information
 export function updateMeta(elements, fromValue, toValue) {
   const { metaPeriod, metaUpdated } = elements;
   
@@ -325,10 +303,7 @@ export function updateMeta(elements, fromValue, toValue) {
     now.toLocaleString([], { dateStyle: "medium", timeStyle: "short" });
 }
 
-/**
- * Generate and download filtered report as CSV
- * @param {Array} rows - Filtered report rows
- */
+// Generate and download filtered report as CSV
 export function generateAndDownloadCsv(rows) {
   if (rows.length === 0) {
     alert("No appointments to export. Please adjust your filters.");

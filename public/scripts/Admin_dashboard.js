@@ -1,7 +1,7 @@
 import { refreshData as initAppointmentsSection } from "./admin_appts.js";
 import { 
   getAllAppointments, 
-  enrichAppointmentData, 
+  modifyAppointmentData, 
   initFilters, 
   getFilteredRows, 
   renderSummary, 
@@ -510,7 +510,7 @@ initAppointmentsSection();
       reportBody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 20px;">Loading appointments...</td></tr>';
       
       const appointments = await getAllAppointments();
-      allAppointments = await enrichAppointmentData(appointments);
+      allAppointments = await modifyAppointmentData(appointments);
       
       // Initialize filters with the data
       initFilters(doctorFilter, patientFilter, allAppointments);
