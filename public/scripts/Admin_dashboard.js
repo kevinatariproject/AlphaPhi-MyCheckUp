@@ -743,6 +743,8 @@ initAppointmentsSection();
 
   // INIT
   initFilters();
-  generateReport();
+  renderSummary();
+  renderTable();
+  updateMeta();
 })();
 // JS content from previous response (trimmed for brevity in this tool run)
