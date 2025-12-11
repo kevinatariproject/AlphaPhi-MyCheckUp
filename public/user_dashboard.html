@@ -35,7 +35,7 @@
       >
         ☰
       </button>
-      <div class="brand">Patient</div>
+      <div class="brand" id="dashboardBrand"></div>
       <div class="user">
         <span class="avatar" aria-hidden="true">👤</span>
         <span>Hello <strong id="username">username</strong></span>
@@ -156,56 +156,35 @@
           <div class="account-card">
             <h3>Account Information</h3>
             <p>
-              <span class="label">User :</span>
-              <span class="val">username</span>
+              <span class="label" id="accountEmailLabel">Email :</span>
+              <span class="val" id="accountEmail"></span>
             </p>
             <p>
-              <span class="label">Password :</span>
-              <span class="val">password</span>
+              <span class="label" id="accountNameLabel">Name :</span>
+              <span class="val" id="accountName"></span>
             </p>
             <p>
-              <span class="label">Last Login :</span>
-              <span class="val">MM / DD / YEAR</span>
-            </p>
-
-            <h3>Patient Details</h3>
-            <p>
-              <span class="label">First Name :</span>
-              <span class="val">firstname</span>
+              <span class="label" id="accountDOBLabel">Date of Birth :</span>
+              <span class="val" id="accountDOB"></span>
             </p>
             <p>
-              <span class="label">Last Name :</span>
-              <span class="val">lastname</span>
+              <span class="label" id="accountAddressLabel">Address :</span>
+              <span class="val" id="accountAddress"></span>
+            </p>
+          </div>
+          <div class="account-card hidden" id="PatientSection">
+            <h3>Patient Information</h3>
+            <p>
+              <span class="label" id="patientNameLabel">Name :</span>
+              <span class="val" id="patientName"></span>
             </p>
             <p>
-              <span class="label">DOB :</span>
-              <span class="val">MM / DD / YEAR</span>
+              <span class="label" id="patientDOBLabel">Date of Birth :</span>
+              <span class="val" id="patientDOB"></span>
             </p>
             <p>
-              <span class="label">Address :</span>
-              <span class="val">address</span>
-            </p>
-
-            <h3>Guardian Details</h3>
-            <p>
-              <span class="label">First Name :</span>
-              <span class="val">firstname</span>
-            </p>
-            <p>
-              <span class="label">Last Name :</span>
-              <span class="val">lastname</span>
-            </p>
-            <p>
-              <span class="label">DOB :</span>
-              <span class="val">MM / DD / YEAR</span>
-            </p>
-            <p>
-              <span class="label">Address :</span>
-              <span class="val">address</span>
-            </p>
-            <p>
-              <span class="label">Relation to Patient :</span>
-              <span class="val">relationship</span>
+              <span class="label" id="patientAddressLabel">Address :</span>
+              <span class="val" id="patientAddress"></span>
             </p>
           </div>
         </section>
@@ -314,6 +293,30 @@
 
         <div class="modal-action" id="modal-action-2">
           <button class="secondary" data-close-modal>Back</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reschedule appointment modal -->
+    <div
+      id="rescheduleSlctdApptModal"
+      class="modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="rescheduleTitle"
+    >
+      <div class="modal-card">
+        <button class="modal-close" data-close-modal>&times;</button>
+        <h3 id="rescheduleTitle">Which appointment would you like to reschedule?</h3>
+
+        <label>
+          Upcoming Appointments
+          <select id="rescheduleSelectedAppt"></select>
+        </label>
+
+        <div class="modal-actions">
+          <button class="secondary" data-close-modal>Close</button>
+          <button class="primary" id="confirmRescheduleBtn">Confirm</button>
         </div>
       </div>
     </div>

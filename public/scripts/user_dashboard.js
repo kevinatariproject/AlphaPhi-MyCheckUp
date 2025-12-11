@@ -1,10 +1,11 @@
 import { db, auth } from "./firebase_config.js";
-import { doc, getDoc, Timestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { doc, getDoc, getDocs, collection, Timestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { getUserAppointments, cancelAppointment, createAppointment, updateAppointment, getAvailableTimeSlots, parseAppointmentDate } from './appt_scheduling.js';
 import { openModal, closeModal } from "./modal_controls.js";
 import { initializeCalendar } from "./calendar_populate.js";
 import { departmentMap } from "./department_loader.js";
+import { fetchPatientDetails, fetchGuardianDetails, getGuardianIdsFromPatientId } from "./account_details.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -236,7 +237,7 @@ let scheduleCtx = {
 $("#tileCreateAppt").addEventListener("click", () => startScheduleFlow("new"));
 
 $("#tileModifyAppt").addEventListener("click", () => {
-  alert("Use the Change button on a specific appointment to reschedule.");
+  openRescheduleSlctdApptModal();
 });
 
 async function startScheduleFlow(mode, apptId = null) {
@@ -400,6 +401,57 @@ function openCancelSlctdApptModal(preselectId) {
 
 $("#tileCancelAppt").addEventListener("click", () => openCancelSlctdApptModal());
 
+/* Reschedule flow */
+const rescheduleSelect = $("#rescheduleSelectedAppt");
+const confirmRescheduleBtn = $("#confirmRescheduleBtn");
+
+function openRescheduleSlctdApptModal(preselectId) {
+  // Clear the dropdown first to prevent duplicates
+  rescheduleSelect.innerHTML = "";
+  
+  if (allScheduledAppts.length === 0) {
+    const apptOptions = document.createElement("option");
+    apptOptions.value = "";
+    apptOptions.textContent = "No upcoming appointments";
+    rescheduleSelect.appendChild(apptOptions);
+  }
+  else {
+    allScheduledAppts.forEach((appt) => {
+      const option = document.createElement("option");
+      const startDate = parseAppointmentDate(appt.startTime);
+      const formattedDate = startDate.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+      const formattedTime = startDate.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+      });
+      option.value = appt.id;
+      option.textContent = `${appt.doctorName} - ${formattedDate} at ${formattedTime}`;
+      rescheduleSelect.appendChild(option);
+    });
+  }
+  if (preselectId) {
+    rescheduleSelect.value = preselectId;
+  } 
+
+  openModal($("#rescheduleSlctdApptModal"));
+}
+
+confirmRescheduleBtn.addEventListener("click", async () => {
+  const apptId = rescheduleSelect.value;
+  if (!apptId) {
+    alert("Please select an appointment to reschedule.");
+    return;
+  }
+
+  closeModal($("#rescheduleSlctdApptModal"));
+  await startScheduleFlow("change", apptId);
+});
+
 function openCancelApptModal(preselectId) {
   if (preselectId) {
     cancelAppt.value = preselectId;
@@ -452,6 +504,55 @@ confirmCancelBtn.addEventListener("click", async () => {
   }
 });
 
+async function loadAccountDetails(patientID, userID, cachedPatientDetails = null) {
+  // Check if the user is the guardian or patient
+  const patientSection = $("#PatientSection");
+  const patientDetails = cachedPatientDetails || await fetchPatientDetails(patientID);
+  if (patientID === userID) {
+    // The user is the patient
+      // Show Patient Information section for guardians
+      if (patientSection) {
+        patientSection.classList.add("hidden");
+      }
+    // Update account details with patient info
+    if (patientDetails) {
+      document.getElementById("accountEmail").textContent = patientDetails.email || "N/A";
+      document.getElementById("accountName").textContent = `${patientDetails.firstName || ''} ${patientDetails.lastName || ''}`.trim() || "N/A";
+      document.getElementById("accountDOB").textContent = patientDetails.dateOfBirth || "N/A";
+      document.getElementById("accountAddress").textContent = patientDetails.address || "N/A";      
+    }
+  }
+  else {
+    // The user is a guardian
+    // Fetch and display guardian details as account info  
+    const guardianDetails = await fetchGuardianDetails(userID);
+    if (guardianDetails) {
+      document.getElementById("accountEmail").textContent = guardianDetails.email || "N/A";
+      document.getElementById("accountName").textContent = `${guardianDetails.firstName || ''} ${guardianDetails.lastName || ''}`.trim() || "N/A";
+      document.getElementById("accountDOB").textContent = guardianDetails.dateOfBirth || "N/A";
+      document.getElementById("accountAddress").textContent = guardianDetails.address || "N/A";      
+    }
+
+
+    if (patientDetails) {
+      // Show Patient Information section for guardians
+      if (patientSection) {
+        patientSection.classList.remove("hidden");
+      }
+      // Populate patient details
+      document.getElementById("patientName").textContent = `${patientDetails.firstName || ''} ${patientDetails.lastName || ''}`.trim() || "N/A";
+      document.getElementById("patientDOB").textContent = patientDetails.dateOfBirth || "N/A";
+      document.getElementById("patientAddress").textContent = patientDetails.address || "N/A";
+    }
+    else {
+      // Hide Patient Information section if no patient details found
+      if (patientSection) {
+        patientSection.classList.add("hidden");
+      }
+    }
+  }
+}
+
 /* Init */
 window.addEventListener("DOMContentLoaded", () => {
   // Wait for Firebase Auth to initialize
@@ -464,23 +565,62 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     scheduleCtx.UID = user.uid;
     console.log("User authenticated:", user.uid);
-
+    
     // check if guardian
     try {
       const guardianData = await getDoc(doc(db, "guardians", scheduleCtx.UID));
       if (guardianData.exists()) {
         scheduleCtx.role = "guardian";
-        scheduleCtx.PID = guardianData.data().patientId;
+        const patientList = await getDocs(collection(db, "guardians", scheduleCtx.UID, "patients"));
+        scheduleCtx.PID = patientList.docs[0].id; // return id of 1st patient
+        console.log("hey", scheduleCtx.PID);
         const patientData = await getDoc(doc(db, "patients", scheduleCtx.PID));
+        
+        // Update dashboard brand for guardian
+        const dashboardBrand = $("#dashboardBrand");
+        if (dashboardBrand) {
+          dashboardBrand.textContent = "Parent/Legal Guardian Dashboard";
+        }
       } else {
         scheduleCtx.PID = scheduleCtx.UID;
+        
+        // Update dashboard brand for patient
+        const dashboardBrand = $("#dashboardBrand");
+        if (dashboardBrand) {
+          dashboardBrand.textContent = "Patient Dashboard";
+        }
       }
     } catch (error) {
       scheduleCtx.PID = scheduleCtx.UID;
       console.log(error);
+      
+      // Default to patient dashboard on error
+      const dashboardBrand = $("#dashboardBrand");
+      if (dashboardBrand) {
+        dashboardBrand.textContent = "Patient Dashboard";
+      }
     }
 
+    // Fetch patient details early if guardian
+    let patientDetails = null;
+    if (scheduleCtx.role === "guardian") {
+      patientDetails = await fetchPatientDetails(scheduleCtx.PID);
+      
+      // Update appointments header immediately
+      if (patientDetails) {
+        const appointmentsHeader = document.querySelector("#view-appointments h2");
+        if (appointmentsHeader) {
+          appointmentsHeader.textContent = `Upcoming Appointments for ${patientDetails.firstName} ${patientDetails.lastName}`;
+        }
+      }
+    }
+    
     showView("appointments");
-    await renderAppointments(scheduleCtx.PID);
+    
+    // Run these in parallel
+    await Promise.all([
+      renderAppointments(scheduleCtx.PID),
+      loadAccountDetails(scheduleCtx.PID, scheduleCtx.UID, patientDetails)
+    ]);
   });
 });

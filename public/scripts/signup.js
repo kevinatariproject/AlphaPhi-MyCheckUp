@@ -151,23 +151,29 @@ document.getElementById('signupForm').addEventListener('submit', async function(
                 preferredName: guardianPreferredName,
                 dateOfBirth: guardianDateOfBirth,
                 address: guardianAddress,
-                relationship: relationship,
                 createdAt: serverTimestamp(),
             });
             
-            const patientId = await addDoc(collection(db, "patients"), {
+            // Create patient document first
+            const patientDocRef = await addDoc(collection(db, "patients"), {
                 firstName,
                 lastName,
                 preferredName,
                 dateOfBirth,
                 address,
-                guardianId: user.uid,
+                createdAt: serverTimestamp(),
+            });
+            
+            // Create a patients subcollection under guardian linking to the patient
+            await setDoc(doc(db, "guardians", user.uid, "patients", patientDocRef.id), {
+                relationship: relationship,
                 createdAt: serverTimestamp(),
             });
 
-            // add patientId to guardian information
-            await updateDoc(doc(db, "guardians", user.uid), {
-                patientId: patientId.id
+            // Link guardian to patient in patient's guardians subcollection
+            await setDoc(doc(db, "patients", patientDocRef.id, "guardians", user.uid), {
+                relationship: relationship,
+                createdAt: serverTimestamp(),
             });
 
         } else {
@@ -214,6 +220,11 @@ document.getElementById('signupForm').addEventListener('submit', async function(
         // Other error
         alert("An unexpected error occurred.");
         console.error(error);
+
+        // Attempt to clean up partially created user
+        if (auth.currentUser) {
+            await deleteUser(auth.currentUser);
+        }
     }
 });
 

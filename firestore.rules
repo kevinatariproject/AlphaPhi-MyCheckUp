@@ -10,6 +10,12 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == uid;
     }
 
+    function isGuardian(patientId) {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/guardians/$(request.auth.uid)/patients/$(patientId)) &&
+        exists(/databases/$(database)/documents/patients/$(patientId)/guardians/$(request.auth.uid));
+    }
+
     function isAdmin() {
       return isSignedIn() &&
         exists(/databases/$(database)/documents/admins/$(request.auth.uid));
@@ -17,10 +23,7 @@ service cloud.firestore {
 
     // Check if auth user is the patient OR the guardian of that patient
     function isPatientOrGuardian(patientId) {
-      let patientDoc = get(/databases/$(database)/documents/patients/$(patientId));
-      return isSignedIn()
-             && exists(/databases/$(database)/documents/patients/$(patientId))
-             && (patientId == request.auth.uid || patientDoc.data.guardianId == request.auth.uid);
+      return isOwner(patientId) || isGuardian(patientId);
     }
 
     function appointmentDoc(appointmentId) {
@@ -78,14 +81,28 @@ service cloud.firestore {
 
     // Patients
     match /patients/{patientId} {
-      allow create: if isOwner(patientId) || request.resource.data.guardianId == request.auth.uid;
+      allow create: if isOwner(patientId) || exists(/databases/$(database)/documents/guardians/$(request.auth.uid));
       allow read, update, delete: if isPatientOrGuardian(patientId) || isAdmin();
+
+      match /guardians/{guardianId} {
+        allow read, write: if isAdmin();
+        allow read: if isOwner(patientId)
+                    || isOwner(guardianId)
+                    || (isSignedIn() && exists(/databases/$(database)/documents/doctors/$(request.auth.uid)));
+        allow update, delete: if isOwner(guardianId);
+        allow create: if exists(/databases/$(database)/documents/guardians/$(guardianId)/patients/$(patientId));
+      }
     }
 
     // Guardians
     match /guardians/{guardianId} {
-      allow create: if isOwner(guardianId);
-      allow read, update, delete: if isOwner(guardianId) || isAdmin();
+      allow create: if isSignedIn() && isOwner(request.resource.id);
+      allow read, update: if isOwner(guardianId) || isAdmin();
+      allow delete: if isAdmin();
+
+      match /patients/{patientId} {
+        allow read, write: if isOwner(guardianId) || isAdmin();
+      }
     }
 
     // Doctors

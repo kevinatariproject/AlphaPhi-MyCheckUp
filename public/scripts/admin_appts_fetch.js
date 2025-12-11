@@ -151,4 +151,14 @@ async function getUser(id, role) {
     }
 }
 
-export { get24hrAppts, getTodayAppts, getUserAppts, getUser };
+async function getGuardianId(patientId) {
+    try {
+        const snap = await getDocs(collection(db, "patients", patientId, "guardians"));
+        if (snap) return snap.docs[0].id; // return id of 1st guardian
+    } catch (error) {
+        console.error("Error retrieving guardians:", error);
+        return;
+    }
+}
+
+export { get24hrAppts, getTodayAppts, getUserAppts, getUser, getGuardianId };

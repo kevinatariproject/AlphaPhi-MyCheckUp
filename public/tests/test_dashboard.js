@@ -1,6 +1,6 @@
 import { auth } from '../scripts/firebase_config.js';
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { createAppointment, getUserAppointments, cancelAppointment, updateAppointment, getDoctorsFromDatabase, getAppointmentsByStatus } from "../scripts/appt_scheduling.js";
+import { createAppointment, getUserAppointments, cancelAppointment, updateAppointment, getAppointmentsByStatus } from "../scripts/appt_scheduling.js";
 
 // This file is intended for testing dashboard functionalities
 // We'll assume the user has already been authenticated
@@ -16,7 +16,7 @@ import { createAppointment, getUserAppointments, cancelAppointment, updateAppoin
 let userCredential;
 let user;
 let appointmentID;
-let selectedDoctor;
+let selectedDoctor = "498z5NjAwZmKkFfafONytN8xcczb";
 
 async function signInTestUser() {
     try {
@@ -125,8 +125,8 @@ async function runTests() {
 
     console.log("\n--- Fetch Doctors ---");
 
-    const doctors = await getDoctorsFromDatabase();
-    selectedDoctor = doctors[0].id;
+    // const doctors = await getDoctorsFromDatabase();
+    // selectedDoctor = doctors[0].id;
     console.log("Selected Doctor ID:", selectedDoctor);
 
     console.log("\n--- Test 1: Create Appointment ---");
