@@ -1,7 +1,7 @@
 import { db, auth } from "./firebase_config.js";
 import { initializeCalendar } from "./calendar_populate.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { doc, getDoc, getDocs, collection, query, where, orderBy } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 import { departmentMap } from "./department_loader.js";
 
 let UID = null;
@@ -38,44 +38,99 @@ $$(".btn.back").forEach((btn) => {
   btn.addEventListener("click", () => switchView("dashboard"));
 });
 
-/* Upcoming appointments (matches mock layout) */
+async function loadAppointments() {
+  renderAppointments(null, true);
 
-const appts = [
-  {
-    patient: "Patient Name",
-    date: "October 10th, 2025",
-    time: "1:00PM",
-    location: "LOCATION",
-  },
-  {
-    patient: "Patient Name",
-    date: "November 12th, 2025",
-    time: "3:00PM",
-    location: "LOCATION",
-  },
-  {
-    patient: "Patient Name",
-    date: "November 12th, 2025",
-    time: "8:00AM",
-    location: "LOCATION",
-  },
-];
+  const user = auth.currentUser;
+  if (!user) {
+    console.error("No logged-in user.");
+    return;
+  }
 
-function renderAppointments() {
-  const wrap = $("#appt-list");
+  const doctorId = user.uid;
+  const now = new Date(); // current date/time
+
+  // Get all appointments for this doctor
+  //Selects appointment collection objects where it is this doctor, in the future, and order by the date
+  const apptQuery = query(
+    collection(db, "appointments"),
+    where("doctorId", "==", doctorId),
+    where("startTime",">=", now),
+    orderBy("startTime", "asc")
+  );
+
+  const snapshot = await getDocs(apptQuery);
+
+  // Fetch patient info for each appointment
+  const appts = await Promise.all(
+    snapshot.docs.map(async (docSnap) => {
+      const data = docSnap.data();
+
+      // --- Fetch patient data ---
+      let patientName = "Unknown Patient";
+      
+      try {
+        const patientRef = doc(db, "patients", data.patientId);
+        const patientSnap = await getDoc(patientRef);
+
+        if (patientSnap.exists()) {
+          const p = patientSnap.data();
+          patientName = `${p.firstName} ${p.lastName}`;
+        }
+      } catch (err) {
+        console.error("Error fetching patient:", err);
+      }
+
+      return {
+        id: docSnap.id,
+        patientName,
+        date: data.startTime.toDate().toLocaleDateString(),
+        time: data.startTime.toDate().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        location: data.visitType,
+      };
+    })
+  );
+
+  renderAppointments(appts);
+}
+
+function renderAppointments(appts, isLoading = false) {
+  const wrap = document.querySelector("#appt-list");
   wrap.innerHTML = "";
 
-  appts.forEach((a) => {
+  if (isLoading) {
+    wrap.innerHTML = `
+      <div class="loading-appts">
+        Loading appointment data…
+      </div>
+    `;
+    return;
+  }
+
+  //No appointments 
+  if (!appts || appts.length === 0) {
+    wrap.innerHTML = `
+      <div class="no-appts">
+        No upcoming appointments
+      </div>
+    `;
+    return;
+  }
+
+  //appointments 
+  appts.forEach(a => {
     const card = document.createElement("div");
     card.className = "appt-card";
+
     card.innerHTML = `
-      <div class="appt-left">Patient Name</div>
+      <div class="appt-left">${a.patientName}</div>
       <div class="appt-right">
         <span class="date">${a.date}</span>
         <span class="time">${a.time}</span>
         <span class="loc">${a.location}</span>
       </div>
     `;
+
     wrap.appendChild(card);
   });
 }
@@ -127,7 +182,7 @@ window.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       console.log(error);
     }
-    renderAppointments();
+    loadAppointments();
     switchView("dashboard");
   });
 });
