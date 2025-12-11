@@ -504,10 +504,10 @@ confirmCancelBtn.addEventListener("click", async () => {
   }
 });
 
-async function loadAccountDetails(patientID, userID) {
+async function loadAccountDetails(patientID, userID, cachedPatientDetails = null) {
   // Check if the user is the guardian or patient
   const patientSection = $("#PatientSection");
-  const patientDetails = await fetchPatientDetails(patientID);
+  const patientDetails = cachedPatientDetails || await fetchPatientDetails(patientID);
   if (patientID === userID) {
     // The user is the patient
       // Show Patient Information section for guardians
@@ -575,16 +575,52 @@ window.addEventListener("DOMContentLoaded", () => {
         scheduleCtx.PID = patientList.docs[0].id; // return id of 1st patient
         console.log("hey", scheduleCtx.PID);
         const patientData = await getDoc(doc(db, "patients", scheduleCtx.PID));
+        
+        // Update dashboard brand for guardian
+        const dashboardBrand = $("#dashboardBrand");
+        if (dashboardBrand) {
+          dashboardBrand.textContent = "Parent/Legal Guardian Dashboard";
+        }
       } else {
         scheduleCtx.PID = scheduleCtx.UID;
+        
+        // Update dashboard brand for patient
+        const dashboardBrand = $("#dashboardBrand");
+        if (dashboardBrand) {
+          dashboardBrand.textContent = "Patient Dashboard";
+        }
       }
     } catch (error) {
       scheduleCtx.PID = scheduleCtx.UID;
       console.log(error);
+      
+      // Default to patient dashboard on error
+      const dashboardBrand = $("#dashboardBrand");
+      if (dashboardBrand) {
+        dashboardBrand.textContent = "Patient Dashboard";
+      }
     }
 
+    // Fetch patient details early if guardian
+    let patientDetails = null;
+    if (scheduleCtx.role === "guardian") {
+      patientDetails = await fetchPatientDetails(scheduleCtx.PID);
+      
+      // Update appointments header immediately
+      if (patientDetails) {
+        const appointmentsHeader = document.querySelector("#view-appointments h2");
+        if (appointmentsHeader) {
+          appointmentsHeader.textContent = `Upcoming Appointments for ${patientDetails.firstName} ${patientDetails.lastName}`;
+        }
+      }
+    }
+    
     showView("appointments");
-    await renderAppointments(scheduleCtx.PID);
-    await loadAccountDetails(scheduleCtx.PID, scheduleCtx.UID);
+    
+    // Run these in parallel
+    await Promise.all([
+      renderAppointments(scheduleCtx.PID),
+      loadAccountDetails(scheduleCtx.PID, scheduleCtx.UID, patientDetails)
+    ]);
   });
 });
