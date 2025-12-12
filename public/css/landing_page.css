@@ -9,7 +9,11 @@ body {
   display: grid;
   justify-items: center;
   align-items: center;
-  background: #a5a5a7;
+  background: #FF9B9B;
+  background-image: url('../media/background_stethoscope.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 #main-holder {
