@@ -6,5 +6,29 @@
     "preferredName": "Joe",
     "dateOfBirth": "1990-10-10",
     "address": "1234 Somewhere Rd, Honolulu, HI"
+  },
+  "jimmy101": {
+    "email": "jjrocks@test.com",
+    "firstName": "James",
+    "lastName": "Jennings",
+    "preferredName": "Jimmy",
+    "dateOfBirth": "1991-11-11",
+    "address": "123 Test Ave, San Diego, CA"
+  },
+  "sillygoose": {
+    "email": "mackattack@test.com",
+    "firstName": "Mack",
+    "lastName": "McDonald",
+    "preferredName": "",
+    "dateOfBirth": "2005-05-20",
+    "address": "2468 Even St, Las Vegas, NV"
+  },
+  "analam": {
+    "email": "analam01@test.com",
+    "firstName": "Ana",
+    "lastName": "Lam",
+    "preferredName": "",
+    "dateOfBirth": "1975-05-15",
+    "address": "1515 Mulberry St, Dearborn, MI"
   }
 }

@@ -1,0 +1,66 @@
+{
+  "ksummers": {
+    "email": "ksummers@test.com",
+    "firstName": "Kylie",
+    "lastName": "Summers",
+    "preferredName": "",
+    "dateOfBirth": "1990-01-10",
+    "address": "1010 Binary Lane, Chicago, IL",
+    "patient": {
+      "relationship": "Mother",
+      "firstName": "Lucy",
+      "lastName": "Summers",
+      "preferredName": "",
+      "dateOfBirth": "2011-11-11",
+      "address": "1010 Binary Lane, Chicago, IL"
+    }
+  },
+  "maybenot": {
+    "email": "mayoconner@test.com",
+    "firstName": "May",
+    "lastName": "O'Conner",
+    "preferredName": "",
+    "dateOfBirth": "1996-06-06",
+    "address": "987 Somewhere Rd, Madison, WI",
+    "patient": {
+      "relationship": "Granddaughter",
+      "firstName": "Timothy",
+      "lastName": "O'Conner",
+      "preferredName": "",
+      "dateOfBirth": "1929-09-09",
+      "address": "789 Overthere St, Madison, WI"
+    }
+  },
+  "tonytiger": {
+    "email": "itsgrrreat@test.com",
+    "firstName": "Tiger",
+    "lastName": "Forest",
+    "preferredName": "",
+    "dateOfBirth": "1989-08-12",
+    "address": "2222 Golfside Ln, Detroit, MI",
+    "patient": {
+      "relationship": "Father",
+      "firstName": "Anthony",
+      "lastName": "Forest",
+      "preferredName": "Tony",
+      "dateOfBirth": "2012-10-01",
+      "address": "2222 Golfside Ln, Detroit, MI"
+    }
+  },
+  "krobins": {
+    "email": "krobins@test.com",
+    "firstName": "Kadesha",
+    "lastName": "Robinson",
+    "preferredName": "",
+    "dateOfBirth": "2007-07-07",
+    "address": "777 Lucky Lane, Boston, MA",
+    "patient": {
+      "relationship": "Sister",
+      "firstName": "Deonte",
+      "lastName": "Robinson",
+      "preferredName": "",
+      "dateOfBirth": "2017-07-07",
+      "address": "777 Lucky Lane, Boston, MA"
+    }
+  }
+}
