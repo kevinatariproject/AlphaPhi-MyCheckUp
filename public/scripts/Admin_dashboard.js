@@ -92,6 +92,7 @@ initAppointmentsSection();
   // In-memory storage for demo
   const dataStore = {
     patient: [],
+    guardian: [],
     doctor: [],
   };
 
@@ -107,6 +108,7 @@ initAppointmentsSection();
   // DOM elements (scoped)
   const typeButtons = [
     $("#am-toggle-patient", section),
+    $("#am-toggle-guardian", section),
     $("#am-toggle-doctor", section),
   ];
   const userTypeInput = $("#am-user-type", section);
@@ -156,6 +158,13 @@ initAppointmentsSection();
         extraHeader.textContent = "Patient ID";
         extraFieldInput.placeholder = "Enter Patient ID";
         extraFieldRow.style.display = "flex";
+      } else if (type === "guardian") {
+        formTitle.textContent = "Create Guardian Account";
+        tableTitle.textContent = "Guardian Accounts";
+        extraLabel.textContent = "Guardian ID";
+        extraHeader.textContent = "Guardian ID";
+        extraFieldInput.placeholder = "Enter Guardian ID";
+        extraFieldRow.style.display = "flex";
       } else {
         formTitle.textContent = "Create Doctor Account";
         tableTitle.textContent = "Doctor Accounts";
@@ -169,6 +178,7 @@ initAppointmentsSection();
       form.reset();
       statusSelect.value = "Active";
 
+      fetchData(currentType);
       renderTable();
     });
   });
@@ -386,35 +396,6 @@ initAppointmentsSection();
   // Search listener
   searchInput.addEventListener("input", () => {
     renderTable();
-  });
-
-  // Seed demo data
-  // dataStore.patient.push(
-  //   {
-  //     id: 1,
-  //     fullName: "John Doe",
-  //     email: "john.doe@example.com",
-  //     phone: "+1 (555) 123-4567",
-  //     extra: "P-1001",
-  //     status: "Active",
-  //   },
-  //   {
-  //     id: 2,
-  //     fullName: "Jane Smith",
-  //     email: "jane.smith@example.com",
-  //     phone: "+1 (555) 987-6543",
-  //     extra: "P-1002",
-  //     status: "Inactive",
-  //   }
-  // );
-
-  dataStore.doctor.push({
-    id: 3,
-    fullName: "Dr. Emily Carter",
-    email: "emily.carter@hospital.com",
-    phone: "+1 (555) 222-3333",
-    extra: "Cardiologist",
-    status: "Active",
   });
 
   async function handleFetch() {
