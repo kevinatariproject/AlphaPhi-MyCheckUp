@@ -4,6 +4,16 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/fi
 import { doc, getDoc, getDocs, collection, query, where, orderBy } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 import { departmentMap } from "./department_loader.js";
 
+const visitCodes = {
+  "new_patient": "New Patient Visit",
+  "consultation": "Consultation",
+  "routine_exam": "Routine/Annual Exam",
+  "follow_up": "Follow-Up Visit",
+  "non_urgent": "Non-Urgent Concern",
+  "ongoing_care": "Ongoing Care Management",
+  "other": "Other"
+};
+
 let UID = null;
 let status = "active";
 
@@ -55,6 +65,7 @@ async function loadAppointments() {
   const apptQuery = query(
     collection(db, "appointments"),
     where("doctorId", "==", doctorId),
+    where("status", "not-in", ["cancelled"]),
     where("startTime",">=", now),
     orderBy("startTime", "asc")
   );
@@ -86,7 +97,7 @@ async function loadAppointments() {
         patientName,
         date: data.startTime.toDate().toLocaleDateString(),
         time: data.startTime.toDate().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        location: data.visitType,
+        location: visitCodes[data.visitType],
       };
     })
   );
